@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:work_tracker/features/attendance/domain/attendance_repository.dart';
+import 'package:work_tracker/features/home/presentation/widgets/attendance_card/attendance_card_model.dart';
+import 'package:work_tracker/features/home/presentation/widgets/hero_card/hero_card_model.dart';
 import 'package:work_tracker/features/schedule/domain/models/work_schedule.dart';
 import 'package:work_tracker/features/schedule/domain/work_schedule_repository.dart';
 
@@ -35,12 +37,7 @@ class HomePageCubit extends Cubit<HomePageState> {
 
   Future<void> checkIn(DateTime time) async {
     final attendance = await _attendanceRepository.checkIn(time);
-    emit(
-      state.copyWith(
-        checkInTime: attendance.checkIn,
-        checkOutTime: attendance.checkOut,
-      ),
-    );
+    emit(state.copyWith(checkInTime: attendance.checkIn));
   }
 
   Future<void> checkOut(DateTime time) async {
@@ -51,5 +48,9 @@ class HomePageCubit extends Cubit<HomePageState> {
         checkOutTime: attendance.checkOut,
       ),
     );
+  }
+
+  void clearAll() {
+    _attendanceRepository.clearTodayAttendance();
   }
 }

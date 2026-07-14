@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Work Tracker',
         theme: AppTheme.light,
-        // darkTheme: AppTheme.dark,
+        darkTheme: AppTheme.dark,
         routerConfig: appRouter,
         builder: (context, child) => Overlay(
           initialEntries: [

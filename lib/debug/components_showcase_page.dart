@@ -52,27 +52,28 @@ class _SectionTitle extends StatelessWidget {
 class _ColorSwatches extends StatelessWidget {
   const _ColorSwatches();
 
-  static const _colors = <String, Color>{
-    'primary': AppColors.primary,
-    'primaryLight': AppColors.primaryLight,
-    'success': AppColors.success,
-    'warning': AppColors.warning,
-    'error': AppColors.error,
-    'background': AppColors.background,
-    'surface': AppColors.surface,
-    'surfaceSecondary': AppColors.surfaceSecondary,
-    'textPrimary': AppColors.textPrimary,
-    'textSecondary': AppColors.textSecondary,
-    'divider': AppColors.divider,
-    'outline': AppColors.outline,
-  };
-
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final swatches = <String, Color>{
+      'primary': colors.primary,
+      'primaryLight': colors.primaryLight,
+      'success': colors.success,
+      'warning': colors.warning,
+      'error': colors.error,
+      'background': colors.background,
+      'surface': colors.surface,
+      'surfaceSecondary': colors.surfaceSecondary,
+      'textPrimary': colors.textPrimary,
+      'textSecondary': colors.textSecondary,
+      'divider': colors.divider,
+      'outline': colors.outline,
+    };
+
     return Wrap(
       spacing: AppSpacing.space12,
       runSpacing: AppSpacing.space12,
-      children: _colors.entries.map((entry) {
+      children: swatches.entries.map((entry) {
         return SizedBox(
           width: 96,
           child: Column(
@@ -83,7 +84,7 @@ class _ColorSwatches extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: entry.value,
                   borderRadius: BorderRadius.circular(AppRadius.radius8),
-                  border: Border.all(color: AppColors.divider),
+                  border: Border.all(color: colors.divider),
                 ),
               ),
               const SizedBox(height: AppSpacing.space4),
@@ -126,9 +127,9 @@ class _RadiusSamples extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: context.colors.primaryLight,
                   borderRadius: BorderRadius.circular(entry.value),
-                  border: Border.all(color: AppColors.primary),
+                  border: Border.all(color: context.colors.primary),
                 ),
               ),
               const SizedBox(height: AppSpacing.space4),
@@ -175,7 +176,7 @@ class _SpacingSamples extends StatelessWidget {
               Container(
                 width: entry.value,
                 height: 16,
-                color: AppColors.primary,
+                color: context.colors.primary,
               ),
             ],
           ),
@@ -262,7 +263,7 @@ class _ShadowSamples extends StatelessWidget {
               width: 88,
               height: 64,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(AppRadius.radius8),
                 boxShadow: AppShadow.medium,
               ),

@@ -31,8 +31,16 @@ import 'package:work_tracker/features/attendance/domain/attendance_repository_im
     as _i284;
 import 'package:work_tracker/features/home/presentation/cubit/home_page_cubit.dart'
     as _i594;
+import 'package:work_tracker/features/home/presentation/widgets/attendance_card/cubit/attendace_card_cubit.dart'
+    as _i726;
+import 'package:work_tracker/features/home/presentation/widgets/hero_card/cubit/hero_card_cubit.dart'
+    as _i629;
 import 'package:work_tracker/features/schedule/data/work_schedule_dao.dart'
     as _i196;
+import 'package:work_tracker/features/schedule/data/work_schedule_datasource.dart'
+    as _i762;
+import 'package:work_tracker/features/schedule/data/work_schedule_datasource_impl.dart'
+    as _i339;
 import 'package:work_tracker/features/schedule/domain/work_schedule_repository.dart'
     as _i513;
 import 'package:work_tracker/features/schedule/domain/work_schedule_repository_impl.dart'
@@ -74,8 +82,32 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i196.WorkScheduleDaoImpl(gh<_i1034.Box<_i911.WorkScheduleEntity>>()),
     );
+    gh.lazySingleton<_i762.WorkScheduleDatasource>(
+      () => _i339.WorkScheduleDatasourceImpl(gh<_i196.WorkScheduleDao>()),
+    );
+    gh.lazySingleton<_i331.AttendanceRepository>(
+      () => _i284.AttendanceRepositoryImpl(
+        gh<_i616.AttendanceDao>(),
+        gh<_i196.WorkScheduleDao>(),
+      ),
+    );
     gh.lazySingleton<_i513.WorkScheduleRepository>(
-      () => _i625.WorkScheduleRepositoryImpl(gh<_i196.WorkScheduleDao>()),
+      () =>
+          _i625.WorkScheduleRepositoryImpl(gh<_i762.WorkScheduleDatasource>()),
+    );
+    gh.factory<_i542.SettingScheduleCubit>(
+      () => _i542.SettingScheduleCubit(gh<_i513.WorkScheduleRepository>()),
+    );
+    gh.factory<_i594.HomePageCubit>(
+      () => _i594.HomePageCubit(
+        workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
+        attendanceRepository: gh<_i331.AttendanceRepository>(),
+      ),
+    );
+    gh.factory<_i629.HeroCardCubit>(
+      () => _i629.HeroCardCubit(
+        attendanceRepository: gh<_i331.AttendanceRepository>(),
+      ),
     );
     gh.singleton<_i108.AppCubit>(
       () => _i108.AppCubit(
@@ -83,19 +115,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i513.WorkScheduleRepository>(),
       ),
     );
-    gh.factory<_i542.SettingScheduleCubit>(
-      () => _i542.SettingScheduleCubit(gh<_i513.WorkScheduleRepository>()),
-    );
-    gh.lazySingleton<_i331.AttendanceRepository>(
-      () => _i284.AttendanceRepositoryImpl(
-        gh<_i616.AttendanceDao>(),
-        gh<_i513.WorkScheduleRepository>(),
-      ),
-    );
-    gh.factory<_i594.HomePageCubit>(
-      () => _i594.HomePageCubit(
-        workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
+    gh.factory<_i726.AttendaceCardCubit>(
+      () => _i726.AttendaceCardCubit(
         attendanceRepository: gh<_i331.AttendanceRepository>(),
+        workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
       ),
     );
     return this;

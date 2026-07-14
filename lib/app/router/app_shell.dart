@@ -13,8 +13,8 @@ class AppShell extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
+        selectedItemColor: context.colors.primary,
+        unselectedItemColor: context.colors.textSecondary,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
           navigationShell.goBranch(

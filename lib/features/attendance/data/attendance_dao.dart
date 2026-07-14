@@ -6,6 +6,7 @@ import '../../../database/objectbox.g.dart';
 abstract class AttendanceDao {
   AttendanceEntity? getByDayKey(int dayKey);
   void save(AttendanceEntity entity);
+  void deleteByDayKey(int dayKey);
 }
 
 @LazySingleton(as: AttendanceDao)
@@ -30,5 +31,13 @@ class AttendanceDaoImpl implements AttendanceDao {
     // genuinely new row (insert) — same ObjectBox id-sequence rule as WorkScheduleDao.
     entity.id = getByDayKey(entity.dayKey)?.id ?? 0;
     _box.put(entity);
+  }
+
+  @override
+  void deleteByDayKey(int dayKey) {
+    final entity = getByDayKey(dayKey);
+    if (entity != null) {
+      _box.remove(entity.id);
+    }
   }
 }

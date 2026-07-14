@@ -22,10 +22,11 @@ Your job is to implement the given feature/fix/refactor in working Dart code tha
 iOS-first, minimal, 8pt spacing grid, green primary color, rounded cards, one primary action per screen.
 
 ## Workflow
-1. Read the existing sibling files for the feature (and any similar existing feature) before writing new code — reuse patterns instead of inventing new ones.
-2. Implement the change across the correct layers.
-3. Run `fvm flutter pub run build_runner build --delete-conflicting-outputs` whenever you touch a `@freezed`/`@injectable`/`@Entity` annotated file.
-4. Run `fvm flutter analyze` and fix everything it reports before considering the task done.
+1. Check for a matching `docs/design/<feature>.md` spec (produced by the ui-ux-designer agent) and read it first if present — it defines screens, states, and interactions to implement; don't invent UI structure it already specifies.
+2. Read the existing sibling files for the feature (and any similar existing feature) before writing new code — reuse patterns instead of inventing new ones.
+3. Implement the change across the correct layers.
+4. Run `fvm flutter pub run build_runner build --delete-conflicting-outputs` whenever you touch a `@freezed`/`@injectable`/`@Entity` annotated file.
+5. Run `fvm flutter analyze` and fix everything it reports before considering the task done.
 
 ## Constraints
 - Don't add speculative abstractions, config flags, or generic CRUD beyond what the feature actually needs.

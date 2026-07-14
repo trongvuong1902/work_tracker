@@ -87,11 +87,9 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                                         Row(
                                           children: [
                                             IconButton(
-                                              icon: const Icon(
-                                                Icons.remove,
-                                              ),
-                                              onPressed: () => cubit
-                                                  .updateLunchMinutes(
+                                              icon: const Icon(Icons.remove),
+                                              onPressed: () =>
+                                                  cubit.updateLunchMinutes(
                                                     state.lunchMinutes - 15,
                                                   ),
                                             ),
@@ -103,8 +101,8 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                                             ),
                                             IconButton(
                                               icon: const Icon(Icons.add),
-                                              onPressed: () => cubit
-                                                  .updateLunchMinutes(
+                                              onPressed: () =>
+                                                  cubit.updateLunchMinutes(
                                                     state.lunchMinutes + 15,
                                                   ),
                                             ),
@@ -142,18 +140,17 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                                                     (1 << index)) !=
                                                 0;
                                             return GestureDetector(
-                                              onTap: () =>
-                                                  cubit.toggleWorkingDay(
-                                                    weekday,
-                                                  ),
+                                              onTap: () => cubit
+                                                  .toggleWorkingDay(weekday),
                                               child: Container(
                                                 width: 36,
                                                 height: 36,
                                                 alignment: Alignment.center,
                                                 decoration: BoxDecoration(
                                                   color: isSelected
-                                                      ? AppColors.primary
-                                                      : AppColors
+                                                      ? context.colors.primary
+                                                      : context
+                                                            .colors
                                                             .surfaceSecondary,
                                                   borderRadius:
                                                       BorderRadius.circular(
@@ -162,22 +159,25 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                                                   border: isSelected
                                                       ? null
                                                       : Border.all(
-                                                          color:
-                                                              AppColors.outline,
+                                                          color: context
+                                                              .colors
+                                                              .outline,
                                                         ),
                                                 ),
                                                 child: Text(
                                                   _weekdayLabels[index],
-                                                  style: AppTypography.label(
-                                                    context,
-                                                  )?.copyWith(
-                                                    color: isSelected
-                                                        ? Colors.white
-                                                        : AppColors
-                                                              .textSecondary,
-                                                    fontWeight:
-                                                        FontWeight.w600,
-                                                  ),
+                                                  style:
+                                                      AppTypography.label(
+                                                        context,
+                                                      )?.copyWith(
+                                                        color: isSelected
+                                                            ? Colors.white
+                                                            : context
+                                                                  .colors
+                                                                  .textSecondary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
                                                 ),
                                               ),
                                             );
@@ -193,7 +193,7 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                                     state.errorMessage!,
                                     style: AppTypography.body(
                                       context,
-                                    )?.copyWith(color: AppColors.error),
+                                    )?.copyWith(color: context.colors.error),
                                   ),
                                 ],
                               ],
@@ -242,7 +242,7 @@ class _PurposeBanner extends StatelessWidget {
           );
 
     return ShadowCard(
-      color: AppColors.primaryLight,
+      color: context.colors.primaryLight,
       margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.space16),
@@ -260,7 +260,7 @@ class _PurposeBanner extends StatelessWidget {
               body,
               style: AppTypography.body(
                 context,
-              )?.copyWith(color: AppColors.textSecondary),
+              )?.copyWith(color: context.colors.textSecondary),
             ),
           ],
         ),
@@ -282,10 +282,7 @@ class _TimeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final time = TimeOfDay(
-      hour: minuteOfDay ~/ 60,
-      minute: minuteOfDay % 60,
-    );
+    final time = TimeOfDay(hour: minuteOfDay ~/ 60, minute: minuteOfDay % 60);
 
     return ShadowCard(
       margin: EdgeInsets.zero,

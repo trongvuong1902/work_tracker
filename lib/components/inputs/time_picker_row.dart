@@ -47,7 +47,7 @@ class TimePickerRow extends StatelessWidget {
                     ? AppTypography.label(context)
                     : AppTypography.label(
                         context,
-                      )?.copyWith(color: AppColors.textSecondary),
+                      )?.copyWith(color: context.colors.textSecondary),
               ),
               Text(
                 value != null
@@ -55,7 +55,7 @@ class TimePickerRow extends StatelessWidget {
                     : placeholder,
                 style: value != null
                     ? valueStyle
-                    : valueStyle?.copyWith(color: AppColors.textSecondary),
+                    : valueStyle?.copyWith(color: context.colors.textSecondary),
               ),
             ],
           ),

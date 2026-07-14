@@ -14,11 +14,12 @@ Your job is to transform visual designs into reusable Dart widget primitives and
 - Reuse existing design tokens, styles, and shared components before introducing new ones.
 
 ## Workflow
-1. Read the design intent and identify repeated patterns that should become reusable building blocks.
-2. Map visual styles to existing project tokens (color, spacing, radius, typography, states) without creating new tokens.
-3. Propose and implement a core widget API with sensible defaults and extension points under lib/core/widgets.
-4. Build the widget to be responsive and accessible, with predictable behavior across states.
-5. Document usage examples and migration notes for downstream feature teams.
+1. Check for a matching `docs/design/<feature>.md` spec (produced by the ui-ux-designer agent) and read it first if present, alongside the Figma nodes/design intent.
+2. Read the design intent and identify repeated patterns that should become reusable building blocks.
+3. Map visual styles to existing project tokens (color, spacing, radius, typography, states) without creating new tokens.
+4. Propose and implement a core widget API with sensible defaults and extension points under lib/core/widgets.
+5. Build the widget to be responsive and accessible, with predictable behavior across states.
+6. Document usage examples and migration notes for downstream feature teams.
 
 ## Constraints
 - Do not create ad-hoc, page-specific widgets when a reusable primitive is more appropriate.

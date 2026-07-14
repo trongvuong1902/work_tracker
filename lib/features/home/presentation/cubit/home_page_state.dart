@@ -6,5 +6,12 @@ abstract class HomePageState with _$HomePageState {
     DateTime? checkInTime,
     DateTime? checkOutTime,
     WorkSchedule? workSchedule,
+    HeroCardModel? heroCardModel,
+    AttendanceCardModel? attendanceCardModel,
   }) = _HomePageState;
+}
+
+extension HomePageStateX on HomePageState {
+  bool get isCheckInTimeSet => checkInTime != null;
+  bool get isCheckOutTimeSet => checkOutTime != null;
 }

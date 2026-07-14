@@ -25,9 +25,9 @@ class PrimaryButton extends StatelessWidget {
     final button = FilledButton(
       onPressed: isLoading ? null : onPressed,
       style: FilledButton.styleFrom(
-        backgroundColor: AppColors.primary,
+        backgroundColor: context.colors.primary,
         foregroundColor: Colors.white,
-        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
+        disabledBackgroundColor: context.colors.primary.withValues(alpha: 0.5),
         disabledForegroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.radius12),

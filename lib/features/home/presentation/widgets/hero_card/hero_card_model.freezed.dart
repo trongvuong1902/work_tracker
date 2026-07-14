@@ -1,0 +1,318 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'hero_card_model.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$HeroCardModel {
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HeroCardModel);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'HeroCardModel()';
+}
+
+
+}
+
+/// @nodoc
+class $HeroCardModelCopyWith<$Res>  {
+$HeroCardModelCopyWith(HeroCardModel _, $Res Function(HeroCardModel) __);
+}
+
+
+/// Adds pattern-matching-related methods to [HeroCardModel].
+extension HeroCardModelPatterns on HeroCardModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _BeforeCheckIn value)?  beforeCheckIn,TResult Function( _Working value)?  working,TResult Function( _AfterCheckOut value)?  afterCheckOut,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _BeforeCheckIn() when beforeCheckIn != null:
+return beforeCheckIn(_that);case _Working() when working != null:
+return working(_that);case _AfterCheckOut() when afterCheckOut != null:
+return afterCheckOut(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _BeforeCheckIn value)  beforeCheckIn,required TResult Function( _Working value)  working,required TResult Function( _AfterCheckOut value)  afterCheckOut,}){
+final _that = this;
+switch (_that) {
+case _BeforeCheckIn():
+return beforeCheckIn(_that);case _Working():
+return working(_that);case _AfterCheckOut():
+return afterCheckOut(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _BeforeCheckIn value)?  beforeCheckIn,TResult? Function( _Working value)?  working,TResult? Function( _AfterCheckOut value)?  afterCheckOut,}){
+final _that = this;
+switch (_that) {
+case _BeforeCheckIn() when beforeCheckIn != null:
+return beforeCheckIn(_that);case _Working() when working != null:
+return working(_that);case _AfterCheckOut() when afterCheckOut != null:
+return afterCheckOut(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  beforeCheckIn,TResult Function( DateTime checkIn,  DateTime leaveAt)?  working,TResult Function()?  afterCheckOut,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _BeforeCheckIn() when beforeCheckIn != null:
+return beforeCheckIn();case _Working() when working != null:
+return working(_that.checkIn,_that.leaveAt);case _AfterCheckOut() when afterCheckOut != null:
+return afterCheckOut();case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  beforeCheckIn,required TResult Function( DateTime checkIn,  DateTime leaveAt)  working,required TResult Function()  afterCheckOut,}) {final _that = this;
+switch (_that) {
+case _BeforeCheckIn():
+return beforeCheckIn();case _Working():
+return working(_that.checkIn,_that.leaveAt);case _AfterCheckOut():
+return afterCheckOut();case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  beforeCheckIn,TResult? Function( DateTime checkIn,  DateTime leaveAt)?  working,TResult? Function()?  afterCheckOut,}) {final _that = this;
+switch (_that) {
+case _BeforeCheckIn() when beforeCheckIn != null:
+return beforeCheckIn();case _Working() when working != null:
+return working(_that.checkIn,_that.leaveAt);case _AfterCheckOut() when afterCheckOut != null:
+return afterCheckOut();case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _BeforeCheckIn implements HeroCardModel {
+  const _BeforeCheckIn();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BeforeCheckIn);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'HeroCardModel.beforeCheckIn()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _Working implements HeroCardModel {
+  const _Working({required this.checkIn, required this.leaveAt});
+  
+
+ final  DateTime checkIn;
+ final  DateTime leaveAt;
+
+/// Create a copy of HeroCardModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WorkingCopyWith<_Working> get copyWith => __$WorkingCopyWithImpl<_Working>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Working&&(identical(other.checkIn, checkIn) || other.checkIn == checkIn)&&(identical(other.leaveAt, leaveAt) || other.leaveAt == leaveAt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,checkIn,leaveAt);
+
+@override
+String toString() {
+  return 'HeroCardModel.working(checkIn: $checkIn, leaveAt: $leaveAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WorkingCopyWith<$Res> implements $HeroCardModelCopyWith<$Res> {
+  factory _$WorkingCopyWith(_Working value, $Res Function(_Working) _then) = __$WorkingCopyWithImpl;
+@useResult
+$Res call({
+ DateTime checkIn, DateTime leaveAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$WorkingCopyWithImpl<$Res>
+    implements _$WorkingCopyWith<$Res> {
+  __$WorkingCopyWithImpl(this._self, this._then);
+
+  final _Working _self;
+  final $Res Function(_Working) _then;
+
+/// Create a copy of HeroCardModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? checkIn = null,Object? leaveAt = null,}) {
+  return _then(_Working(
+checkIn: null == checkIn ? _self.checkIn : checkIn // ignore: cast_nullable_to_non_nullable
+as DateTime,leaveAt: null == leaveAt ? _self.leaveAt : leaveAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _AfterCheckOut implements HeroCardModel {
+  const _AfterCheckOut();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AfterCheckOut);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'HeroCardModel.afterCheckOut()';
+}
+
+
+}
+
+
+
+
+// dart format on
