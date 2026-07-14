@@ -130,9 +130,58 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "3:6679202978330319836",
+      "lastPropertyId": "8:2800194175799672012",
+      "name": "LeaveReminderSettingsEntity",
+      "properties": [
+        {
+          "id": "1:8643290920413546602",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6380066240319687841",
+          "name": "enabled",
+          "type": 1
+        },
+        {
+          "id": "3:8441424190231141368",
+          "name": "homeLat",
+          "type": 8
+        },
+        {
+          "id": "4:2029207749746645957",
+          "name": "homeLng",
+          "type": 8
+        },
+        {
+          "id": "5:7192263263464208526",
+          "name": "workLat",
+          "type": 8
+        },
+        {
+          "id": "6:445201863530615467",
+          "name": "workLng",
+          "type": 8
+        },
+        {
+          "id": "7:8333041636312710540",
+          "name": "lastCommuteMinutes",
+          "type": 6
+        },
+        {
+          "id": "8:2800194175799672012",
+          "name": "lastCommuteUpdatedAt",
+          "type": 10
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "2:2238911637897544245",
+  "lastEntityId": "3:6679202978330319836",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

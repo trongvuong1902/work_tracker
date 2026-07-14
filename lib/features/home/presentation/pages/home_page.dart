@@ -7,6 +7,7 @@ import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/home/presentation/cubit/home_page_cubit.dart';
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/attendance_card.dart';
 import 'package:work_tracker/features/home/presentation/widgets/hero_card/hero_card_view.dart';
+import 'package:work_tracker/features/leave_reminder/presentation/widgets/leave_reminder_setup_sheet.dart';
 
 const _weekdayNames = [
   'Monday',
@@ -69,42 +70,53 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => getIt<HomePageCubit>(),
-      child: BlocBuilder<HomePageCubit, HomePageState>(
-        builder: (context, state) {
+      child: BlocListener<HomePageCubit, HomePageState>(
+        listenWhen: (previous, current) =>
+            current.pendingLeaveReminderTrigger != null,
+        listener: (context, state) {
           final cubit = context.read<HomePageCubit>();
+          showLeaveReminderSetupSheet(
+            context,
+            trigger: state.pendingLeaveReminderTrigger,
+          ).whenComplete(cubit.clearPendingLeaveReminderTrigger);
+        },
+        child: BlocBuilder<HomePageCubit, HomePageState>(
+          builder: (context, state) {
+            final cubit = context.read<HomePageCubit>();
 
-          return Scaffold(
-            appBar: AppBar(
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    cubit.clearAll();
-                  },
-                ),
-              ],
-            ),
-            body: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.space16),
-                child: Column(
-                  children: [
-                    const SizedBox(height: AppSpacing.space16),
-                    const Text(
-                      'Work Tracker',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+            return Scaffold(
+              appBar: AppBar(
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      cubit.clearAll();
+                    },
+                  ),
+                ],
+              ),
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSpacing.space16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: AppSpacing.space16),
+                      const Text(
+                        'Work Tracker',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    HeroCardView(),
-                    AttendanceCardView(),
-                  ],
+                      HeroCardView(),
+                      AttendanceCardView(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

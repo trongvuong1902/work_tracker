@@ -49,6 +49,10 @@ class SettingScheduleCubit extends Cubit<SettingScheduleState> {
     emit(state.copyWith(lunchMinutes: minutes.clamp(0, 180)));
   }
 
+  void updateReminderMinutes(int minutes) {
+    emit(state.copyWith(reminderMinutes: minutes.clamp(0, 60)));
+  }
+
   void toggleWorkingDay(int weekday) {
     final bit = 1 << (weekday - 1);
     emit(state.copyWith(workingDaysMask: state.workingDaysMask ^ bit));

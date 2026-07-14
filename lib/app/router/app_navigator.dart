@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:work_tracker/app/router/app_router.dart';
 import 'package:work_tracker/app/router/app_routes.dart';
 
 abstract final class AppNavigator {
@@ -23,4 +25,16 @@ abstract final class AppNavigator {
       context.push(AppRoutes.onboarding);
 
   static void pushDebug(BuildContext context) => context.push(AppRoutes.debug);
+
+  static Future<LatLng?> pushLocationPicker(
+    BuildContext context, {
+    LatLng? initial,
+    required String title,
+  }) async {
+    final result = await context.push<LatLng?>(
+      AppRoutes.leaveReminderLocationPicker,
+      extra: LocationPickerArgs(title: title, initial: initial),
+    );
+    return result;
+  }
 }

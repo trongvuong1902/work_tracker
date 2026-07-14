@@ -1,4 +1,4 @@
-import 'package:injectable/injectable.dart';
+import 'package:injectable/injectable.dart' hide Order;
 
 import '../../../database/attendance/attendance_entity.dart';
 import '../../../database/objectbox.g.dart';
@@ -7,6 +7,10 @@ abstract class AttendanceDao {
   AttendanceEntity? getByDayKey(int dayKey);
   void save(AttendanceEntity entity);
   void deleteByDayKey(int dayKey);
+
+  /// Most-recent-first rows (ordered by [AttendanceEntity.workDate]
+  /// descending), capped at [limit].
+  List<AttendanceEntity> getRecent({required int limit});
 }
 
 @LazySingleton(as: AttendanceDao)
@@ -38,6 +42,20 @@ class AttendanceDaoImpl implements AttendanceDao {
     final entity = getByDayKey(dayKey);
     if (entity != null) {
       _box.remove(entity.id);
+    }
+  }
+
+  @override
+  List<AttendanceEntity> getRecent({required int limit}) {
+    final query = _box
+        .query()
+        .order(AttendanceEntity_.workDate, flags: Order.descending)
+        .build();
+    query.limit = limit;
+    try {
+      return query.find();
+    } finally {
+      query.close();
     }
   }
 }

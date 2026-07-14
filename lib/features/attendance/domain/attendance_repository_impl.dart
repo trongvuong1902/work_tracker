@@ -137,6 +137,11 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   );
 
   @override
+  Future<List<Attendance>> getRecentAttendances({int limit = 10}) async {
+    return _dao.getRecent(limit: limit).map(_toModel).toList();
+  }
+
+  @override
   void clearTodayAttendance() {
     final dayKey = _todayDayKey();
     _dao.deleteByDayKey(dayKey);

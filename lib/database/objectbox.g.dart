@@ -15,6 +15,7 @@ import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import '../database/attendance/attendance_entity.dart';
+import '../database/leave_reminder/leave_reminder_settings_entity.dart';
 import '../database/work_schedule/work_schedule_entity.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -172,6 +173,64 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(3, 6679202978330319836),
+    name: 'LeaveReminderSettingsEntity',
+    lastPropertyId: const obx_int.IdUid(8, 2800194175799672012),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 8643290920413546602),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 6380066240319687841),
+        name: 'enabled',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 8441424190231141368),
+        name: 'homeLat',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 2029207749746645957),
+        name: 'homeLng',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 7192263263464208526),
+        name: 'workLat',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 445201863530615467),
+        name: 'workLng',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 8333041636312710540),
+        name: 'lastCommuteMinutes',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 2800194175799672012),
+        name: 'lastCommuteUpdatedAt',
+        type: 10,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -217,7 +276,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(2, 2238911637897544245),
+    lastEntityId: const obx_int.IdUid(3, 6679202978330319836),
     lastIndexId: const obx_int.IdUid(0, 0),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
@@ -440,6 +499,82 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    LeaveReminderSettingsEntity:
+        obx_int.EntityDefinition<LeaveReminderSettingsEntity>(
+          model: _entities[2],
+          toOneRelations: (LeaveReminderSettingsEntity object) => [],
+          toManyRelations: (LeaveReminderSettingsEntity object) => {},
+          getId: (LeaveReminderSettingsEntity object) => object.id,
+          setId: (LeaveReminderSettingsEntity object, int id) {
+            object.id = id;
+          },
+          objectToFB: (LeaveReminderSettingsEntity object, fb.Builder fbb) {
+            fbb.startTable(9);
+            fbb.addInt64(0, object.id);
+            fbb.addBool(1, object.enabled);
+            fbb.addFloat64(2, object.homeLat);
+            fbb.addFloat64(3, object.homeLng);
+            fbb.addFloat64(4, object.workLat);
+            fbb.addFloat64(5, object.workLng);
+            fbb.addInt64(6, object.lastCommuteMinutes);
+            fbb.addInt64(
+              7,
+              object.lastCommuteUpdatedAt?.millisecondsSinceEpoch,
+            );
+            fbb.finish(fbb.endTable());
+            return object.id;
+          },
+          objectFromFB: (obx.Store store, ByteData fbData) {
+            final buffer = fb.BufferContext(fbData);
+            final rootOffset = buffer.derefObject(0);
+            final lastCommuteUpdatedAtValue = const fb.Int64Reader()
+                .vTableGetNullable(buffer, rootOffset, 18);
+            final enabledParam = const fb.BoolReader().vTableGet(
+              buffer,
+              rootOffset,
+              6,
+              false,
+            );
+            final homeLatParam = const fb.Float64Reader().vTableGetNullable(
+              buffer,
+              rootOffset,
+              8,
+            );
+            final homeLngParam = const fb.Float64Reader().vTableGetNullable(
+              buffer,
+              rootOffset,
+              10,
+            );
+            final workLatParam = const fb.Float64Reader().vTableGetNullable(
+              buffer,
+              rootOffset,
+              12,
+            );
+            final workLngParam = const fb.Float64Reader().vTableGetNullable(
+              buffer,
+              rootOffset,
+              14,
+            );
+            final lastCommuteMinutesParam = const fb.Int64Reader()
+                .vTableGetNullable(buffer, rootOffset, 16);
+            final lastCommuteUpdatedAtParam = lastCommuteUpdatedAtValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(
+                    lastCommuteUpdatedAtValue,
+                  );
+            final object = LeaveReminderSettingsEntity(
+              enabled: enabledParam,
+              homeLat: homeLatParam,
+              homeLng: homeLngParam,
+              workLat: workLatParam,
+              workLng: workLngParam,
+              lastCommuteMinutes: lastCommuteMinutesParam,
+              lastCommuteUpdatedAt: lastCommuteUpdatedAtParam,
+            )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+
+            return object;
+          },
+        ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -559,4 +694,49 @@ class WorkScheduleEntity_ {
   static final workingDaysMask = obx.QueryIntegerProperty<WorkScheduleEntity>(
     _entities[1].properties[5],
   );
+}
+
+/// [LeaveReminderSettingsEntity] entity fields to define ObjectBox queries.
+class LeaveReminderSettingsEntity_ {
+  /// See [LeaveReminderSettingsEntity.id].
+  static final id = obx.QueryIntegerProperty<LeaveReminderSettingsEntity>(
+    _entities[2].properties[0],
+  );
+
+  /// See [LeaveReminderSettingsEntity.enabled].
+  static final enabled = obx.QueryBooleanProperty<LeaveReminderSettingsEntity>(
+    _entities[2].properties[1],
+  );
+
+  /// See [LeaveReminderSettingsEntity.homeLat].
+  static final homeLat = obx.QueryDoubleProperty<LeaveReminderSettingsEntity>(
+    _entities[2].properties[2],
+  );
+
+  /// See [LeaveReminderSettingsEntity.homeLng].
+  static final homeLng = obx.QueryDoubleProperty<LeaveReminderSettingsEntity>(
+    _entities[2].properties[3],
+  );
+
+  /// See [LeaveReminderSettingsEntity.workLat].
+  static final workLat = obx.QueryDoubleProperty<LeaveReminderSettingsEntity>(
+    _entities[2].properties[4],
+  );
+
+  /// See [LeaveReminderSettingsEntity.workLng].
+  static final workLng = obx.QueryDoubleProperty<LeaveReminderSettingsEntity>(
+    _entities[2].properties[5],
+  );
+
+  /// See [LeaveReminderSettingsEntity.lastCommuteMinutes].
+  static final lastCommuteMinutes =
+      obx.QueryIntegerProperty<LeaveReminderSettingsEntity>(
+        _entities[2].properties[6],
+      );
+
+  /// See [LeaveReminderSettingsEntity.lastCommuteUpdatedAt].
+  static final lastCommuteUpdatedAt =
+      obx.QueryDateProperty<LeaveReminderSettingsEntity>(
+        _entities[2].properties[7],
+      );
 }

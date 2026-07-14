@@ -6,15 +6,23 @@
 // * Setup BlocObserver
 // * Handle global errors
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:workmanager/workmanager.dart';
 import 'package:work_tracker/app/app.dart';
+import 'package:work_tracker/core/notifications/notification_service.dart';
 import 'package:work_tracker/di/injection.dart';
+import 'package:work_tracker/features/leave_reminder/data/leave_reminder_background_dispatcher.dart';
+import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
 
 Future<void> bootstrap() async {
   await configureDependencies();
 
-  // await NotificationService.initialize();
+  await getIt<NotificationService>().initialize();
+  Workmanager().initialize(leaveReminderCallbackDispatcher);
+  unawaited(getIt<LeaveReminderRepository>().scheduleTodayReminders().catchError((_) {}));
 
   Bloc.observer = AppBlocObserver();
 

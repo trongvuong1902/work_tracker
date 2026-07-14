@@ -4,6 +4,7 @@ import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/attendance_working_view.dart';
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/cubit/attendace_card_cubit.dart';
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/today_schedule_view.dart';
+import 'package:work_tracker/features/home/presentation/widgets/attendance_card/today_summary_view.dart';
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/attendance_card_model.dart';
 
 class AttendanceCardView extends StatelessWidget {
@@ -45,7 +46,34 @@ class AttendanceCardView extends StatelessWidget {
                         plannedCheckInTime: plannedCheckInTime,
                       );
                     },
-                afterCheckOut: (_, _, _, _) => const SizedBox.shrink(),
+                afterCheckOut:
+                    (
+                      workedTime,
+                      plannedWorkedTime,
+                      overtime,
+                      actualCheckInTime,
+                      plannedCheckInTime,
+                      checkInStatus,
+                      checkInExtra,
+                      actualCheckOutTime,
+                      plannedCheckOutTime,
+                      checkOutStatus,
+                      checkOutExtra,
+                    ) {
+                      return TodaySummaryView(
+                        workedTime: workedTime,
+                        plannedWorkedTime: plannedWorkedTime,
+                        overtime: overtime,
+                        actualCheckInTime: actualCheckInTime,
+                        plannedCheckInTime: plannedCheckInTime,
+                        checkInStatus: checkInStatus,
+                        checkInExtra: checkInExtra,
+                        actualCheckOutTime: actualCheckOutTime,
+                        plannedCheckOutTime: plannedCheckOutTime,
+                        checkOutStatus: checkOutStatus,
+                        checkOutExtra: checkOutExtra,
+                      );
+                    },
               ) ??
               const SizedBox.shrink();
         },

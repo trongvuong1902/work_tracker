@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:work_tracker/app/theme/app_colors.dart';
+import 'package:work_tracker/components/buttons/primary_button.dart';
 import 'package:work_tracker/components/card/shadow_card.dart';
+import 'package:work_tracker/components/inputs/app_time_picker.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/time/time_format.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
+import 'package:work_tracker/features/home/presentation/cubit/home_page_cubit.dart';
 
 class WorkingProgressView extends StatelessWidget {
   const WorkingProgressView({
@@ -19,10 +23,14 @@ class WorkingProgressView extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final totalMinutes = leaveAt.difference(checkIn).inMinutes;
-    final remainMinutes = leaveAt.difference(now).inMinutes;
+    final remaining = leaveAt.difference(now);
+    final remainMinutes = remaining.inMinutes;
     final progress = totalMinutes > 0
         ? (1 - remainMinutes / totalMinutes).clamp(0.0, 1.0)
         : 1.0;
+    final remainingLabel = remaining.inHours >= 1
+        ? TimeFormat.hMm(remainMinutes > 0 ? remainMinutes : 0)
+        : TimeFormat.mSs(remaining.inSeconds > 0 ? remaining.inSeconds : 0);
 
     return ShadowCard(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
@@ -40,7 +48,7 @@ class WorkingProgressView extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.space4),
             Text(
-              TimeFormat.hMm(remainMinutes > 0 ? remainMinutes : 0),
+              remainingLabel,
               style: AppTypography.title(context)?.copyWith(
                 color: context.colors.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -67,9 +75,29 @@ class WorkingProgressView extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: AppSpacing.space16),
+            PrimaryButton(
+              label: 'Check Out',
+              onPressed: () => _handleCheckOut(context),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _handleCheckOut(BuildContext context) async {
+    final cubit = context.read<HomePageCubit>();
+
+    final result = await showAppTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (result == null || !context.mounted) return;
+
+    final now = DateTime.now();
+    cubit.checkOut(
+      DateTime(now.year, now.month, now.day, result.hour, result.minute),
     );
   }
 }

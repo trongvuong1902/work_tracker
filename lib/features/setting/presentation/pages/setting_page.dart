@@ -6,6 +6,7 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
+import 'package:work_tracker/features/leave_reminder/presentation/widgets/leave_reminder_setup_sheet.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -42,6 +43,26 @@ class _SettingPageState extends State<SettingPage> {
               style: AppTypography.title(
                 context,
               )?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            ShadowCard(
+              margin: EdgeInsets.zero,
+              child: InkWell(
+                onTap: () => showLeaveReminderSetupSheet(context),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.space16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Leave reminders',
+                        style: AppTypography.label(context),
+                      ),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: AppSpacing.space16),
             ShadowCard(

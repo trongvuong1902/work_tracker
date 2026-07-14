@@ -125,12 +125,12 @@ return afterCheckOut(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String startWorkTime,  String endWorkTime,  String workingTime,  String breakTime)?  beforeCheckIn,TResult Function( String actualCheckInTime,  String plannedCheckInTime,  String estimateCheckOutTime,  String plannedLeave,  String? extraTimeCheckIn,  CheckInStatus? checkInStatus,  String? extraTimeCheckOut,  CheckOutStatus? checkOutStatus)?  working,TResult Function( String workHours,  String overtime,  String? leaveEarly,  String? leaveLate)?  afterCheckOut,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String startWorkTime,  String endWorkTime,  String workingTime,  String breakTime)?  beforeCheckIn,TResult Function( String actualCheckInTime,  String plannedCheckInTime,  String estimateCheckOutTime,  String plannedLeave,  String? extraTimeCheckIn,  CheckInStatus? checkInStatus,  String? extraTimeCheckOut,  CheckOutStatus? checkOutStatus)?  working,TResult Function( String workedTime,  String plannedWorkedTime,  String overtime,  String actualCheckInTime,  String plannedCheckInTime,  CheckInStatus checkInStatus,  String checkInExtra,  String actualCheckOutTime,  String plannedCheckOutTime,  CheckOutStatus checkOutStatus,  String checkOutExtra)?  afterCheckOut,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn() when beforeCheckIn != null:
 return beforeCheckIn(_that.startWorkTime,_that.endWorkTime,_that.workingTime,_that.breakTime);case _Working() when working != null:
 return working(_that.actualCheckInTime,_that.plannedCheckInTime,_that.estimateCheckOutTime,_that.plannedLeave,_that.extraTimeCheckIn,_that.checkInStatus,_that.extraTimeCheckOut,_that.checkOutStatus);case _AfterCheckOut() when afterCheckOut != null:
-return afterCheckOut(_that.workHours,_that.overtime,_that.leaveEarly,_that.leaveLate);case _:
+return afterCheckOut(_that.workedTime,_that.plannedWorkedTime,_that.overtime,_that.actualCheckInTime,_that.plannedCheckInTime,_that.checkInStatus,_that.checkInExtra,_that.actualCheckOutTime,_that.plannedCheckOutTime,_that.checkOutStatus,_that.checkOutExtra);case _:
   return orElse();
 
 }
@@ -148,12 +148,12 @@ return afterCheckOut(_that.workHours,_that.overtime,_that.leaveEarly,_that.leave
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String startWorkTime,  String endWorkTime,  String workingTime,  String breakTime)  beforeCheckIn,required TResult Function( String actualCheckInTime,  String plannedCheckInTime,  String estimateCheckOutTime,  String plannedLeave,  String? extraTimeCheckIn,  CheckInStatus? checkInStatus,  String? extraTimeCheckOut,  CheckOutStatus? checkOutStatus)  working,required TResult Function( String workHours,  String overtime,  String? leaveEarly,  String? leaveLate)  afterCheckOut,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String startWorkTime,  String endWorkTime,  String workingTime,  String breakTime)  beforeCheckIn,required TResult Function( String actualCheckInTime,  String plannedCheckInTime,  String estimateCheckOutTime,  String plannedLeave,  String? extraTimeCheckIn,  CheckInStatus? checkInStatus,  String? extraTimeCheckOut,  CheckOutStatus? checkOutStatus)  working,required TResult Function( String workedTime,  String plannedWorkedTime,  String overtime,  String actualCheckInTime,  String plannedCheckInTime,  CheckInStatus checkInStatus,  String checkInExtra,  String actualCheckOutTime,  String plannedCheckOutTime,  CheckOutStatus checkOutStatus,  String checkOutExtra)  afterCheckOut,}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn():
 return beforeCheckIn(_that.startWorkTime,_that.endWorkTime,_that.workingTime,_that.breakTime);case _Working():
 return working(_that.actualCheckInTime,_that.plannedCheckInTime,_that.estimateCheckOutTime,_that.plannedLeave,_that.extraTimeCheckIn,_that.checkInStatus,_that.extraTimeCheckOut,_that.checkOutStatus);case _AfterCheckOut():
-return afterCheckOut(_that.workHours,_that.overtime,_that.leaveEarly,_that.leaveLate);case _:
+return afterCheckOut(_that.workedTime,_that.plannedWorkedTime,_that.overtime,_that.actualCheckInTime,_that.plannedCheckInTime,_that.checkInStatus,_that.checkInExtra,_that.actualCheckOutTime,_that.plannedCheckOutTime,_that.checkOutStatus,_that.checkOutExtra);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -170,12 +170,12 @@ return afterCheckOut(_that.workHours,_that.overtime,_that.leaveEarly,_that.leave
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String startWorkTime,  String endWorkTime,  String workingTime,  String breakTime)?  beforeCheckIn,TResult? Function( String actualCheckInTime,  String plannedCheckInTime,  String estimateCheckOutTime,  String plannedLeave,  String? extraTimeCheckIn,  CheckInStatus? checkInStatus,  String? extraTimeCheckOut,  CheckOutStatus? checkOutStatus)?  working,TResult? Function( String workHours,  String overtime,  String? leaveEarly,  String? leaveLate)?  afterCheckOut,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String startWorkTime,  String endWorkTime,  String workingTime,  String breakTime)?  beforeCheckIn,TResult? Function( String actualCheckInTime,  String plannedCheckInTime,  String estimateCheckOutTime,  String plannedLeave,  String? extraTimeCheckIn,  CheckInStatus? checkInStatus,  String? extraTimeCheckOut,  CheckOutStatus? checkOutStatus)?  working,TResult? Function( String workedTime,  String plannedWorkedTime,  String overtime,  String actualCheckInTime,  String plannedCheckInTime,  CheckInStatus checkInStatus,  String checkInExtra,  String actualCheckOutTime,  String plannedCheckOutTime,  CheckOutStatus checkOutStatus,  String checkOutExtra)?  afterCheckOut,}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn() when beforeCheckIn != null:
 return beforeCheckIn(_that.startWorkTime,_that.endWorkTime,_that.workingTime,_that.breakTime);case _Working() when working != null:
 return working(_that.actualCheckInTime,_that.plannedCheckInTime,_that.estimateCheckOutTime,_that.plannedLeave,_that.extraTimeCheckIn,_that.checkInStatus,_that.extraTimeCheckOut,_that.checkOutStatus);case _AfterCheckOut() when afterCheckOut != null:
-return afterCheckOut(_that.workHours,_that.overtime,_that.leaveEarly,_that.leaveLate);case _:
+return afterCheckOut(_that.workedTime,_that.plannedWorkedTime,_that.overtime,_that.actualCheckInTime,_that.plannedCheckInTime,_that.checkInStatus,_that.checkInExtra,_that.actualCheckOutTime,_that.plannedCheckOutTime,_that.checkOutStatus,_that.checkOutExtra);case _:
   return null;
 
 }
@@ -339,13 +339,20 @@ as CheckOutStatus?,
 
 
 class _AfterCheckOut implements AttendanceCardModel {
-  const _AfterCheckOut({required this.workHours, required this.overtime, required this.leaveEarly, required this.leaveLate});
+  const _AfterCheckOut({required this.workedTime, required this.plannedWorkedTime, required this.overtime, required this.actualCheckInTime, required this.plannedCheckInTime, required this.checkInStatus, required this.checkInExtra, required this.actualCheckOutTime, required this.plannedCheckOutTime, required this.checkOutStatus, required this.checkOutExtra});
   
 
- final  String workHours;
+ final  String workedTime;
+ final  String plannedWorkedTime;
  final  String overtime;
- final  String? leaveEarly;
- final  String? leaveLate;
+ final  String actualCheckInTime;
+ final  String plannedCheckInTime;
+ final  CheckInStatus checkInStatus;
+ final  String checkInExtra;
+ final  String actualCheckOutTime;
+ final  String plannedCheckOutTime;
+ final  CheckOutStatus checkOutStatus;
+ final  String checkOutExtra;
 
 /// Create a copy of AttendanceCardModel
 /// with the given fields replaced by the non-null parameter values.
@@ -357,16 +364,16 @@ _$AfterCheckOutCopyWith<_AfterCheckOut> get copyWith => __$AfterCheckOutCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AfterCheckOut&&(identical(other.workHours, workHours) || other.workHours == workHours)&&(identical(other.overtime, overtime) || other.overtime == overtime)&&(identical(other.leaveEarly, leaveEarly) || other.leaveEarly == leaveEarly)&&(identical(other.leaveLate, leaveLate) || other.leaveLate == leaveLate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AfterCheckOut&&(identical(other.workedTime, workedTime) || other.workedTime == workedTime)&&(identical(other.plannedWorkedTime, plannedWorkedTime) || other.plannedWorkedTime == plannedWorkedTime)&&(identical(other.overtime, overtime) || other.overtime == overtime)&&(identical(other.actualCheckInTime, actualCheckInTime) || other.actualCheckInTime == actualCheckInTime)&&(identical(other.plannedCheckInTime, plannedCheckInTime) || other.plannedCheckInTime == plannedCheckInTime)&&(identical(other.checkInStatus, checkInStatus) || other.checkInStatus == checkInStatus)&&(identical(other.checkInExtra, checkInExtra) || other.checkInExtra == checkInExtra)&&(identical(other.actualCheckOutTime, actualCheckOutTime) || other.actualCheckOutTime == actualCheckOutTime)&&(identical(other.plannedCheckOutTime, plannedCheckOutTime) || other.plannedCheckOutTime == plannedCheckOutTime)&&(identical(other.checkOutStatus, checkOutStatus) || other.checkOutStatus == checkOutStatus)&&(identical(other.checkOutExtra, checkOutExtra) || other.checkOutExtra == checkOutExtra));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,workHours,overtime,leaveEarly,leaveLate);
+int get hashCode => Object.hash(runtimeType,workedTime,plannedWorkedTime,overtime,actualCheckInTime,plannedCheckInTime,checkInStatus,checkInExtra,actualCheckOutTime,plannedCheckOutTime,checkOutStatus,checkOutExtra);
 
 @override
 String toString() {
-  return 'AttendanceCardModel.afterCheckOut(workHours: $workHours, overtime: $overtime, leaveEarly: $leaveEarly, leaveLate: $leaveLate)';
+  return 'AttendanceCardModel.afterCheckOut(workedTime: $workedTime, plannedWorkedTime: $plannedWorkedTime, overtime: $overtime, actualCheckInTime: $actualCheckInTime, plannedCheckInTime: $plannedCheckInTime, checkInStatus: $checkInStatus, checkInExtra: $checkInExtra, actualCheckOutTime: $actualCheckOutTime, plannedCheckOutTime: $plannedCheckOutTime, checkOutStatus: $checkOutStatus, checkOutExtra: $checkOutExtra)';
 }
 
 
@@ -377,7 +384,7 @@ abstract mixin class _$AfterCheckOutCopyWith<$Res> implements $AttendanceCardMod
   factory _$AfterCheckOutCopyWith(_AfterCheckOut value, $Res Function(_AfterCheckOut) _then) = __$AfterCheckOutCopyWithImpl;
 @useResult
 $Res call({
- String workHours, String overtime, String? leaveEarly, String? leaveLate
+ String workedTime, String plannedWorkedTime, String overtime, String actualCheckInTime, String plannedCheckInTime, CheckInStatus checkInStatus, String checkInExtra, String actualCheckOutTime, String plannedCheckOutTime, CheckOutStatus checkOutStatus, String checkOutExtra
 });
 
 
@@ -394,13 +401,20 @@ class __$AfterCheckOutCopyWithImpl<$Res>
 
 /// Create a copy of AttendanceCardModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? workHours = null,Object? overtime = null,Object? leaveEarly = freezed,Object? leaveLate = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? workedTime = null,Object? plannedWorkedTime = null,Object? overtime = null,Object? actualCheckInTime = null,Object? plannedCheckInTime = null,Object? checkInStatus = null,Object? checkInExtra = null,Object? actualCheckOutTime = null,Object? plannedCheckOutTime = null,Object? checkOutStatus = null,Object? checkOutExtra = null,}) {
   return _then(_AfterCheckOut(
-workHours: null == workHours ? _self.workHours : workHours // ignore: cast_nullable_to_non_nullable
+workedTime: null == workedTime ? _self.workedTime : workedTime // ignore: cast_nullable_to_non_nullable
+as String,plannedWorkedTime: null == plannedWorkedTime ? _self.plannedWorkedTime : plannedWorkedTime // ignore: cast_nullable_to_non_nullable
 as String,overtime: null == overtime ? _self.overtime : overtime // ignore: cast_nullable_to_non_nullable
-as String,leaveEarly: freezed == leaveEarly ? _self.leaveEarly : leaveEarly // ignore: cast_nullable_to_non_nullable
-as String?,leaveLate: freezed == leaveLate ? _self.leaveLate : leaveLate // ignore: cast_nullable_to_non_nullable
-as String?,
+as String,actualCheckInTime: null == actualCheckInTime ? _self.actualCheckInTime : actualCheckInTime // ignore: cast_nullable_to_non_nullable
+as String,plannedCheckInTime: null == plannedCheckInTime ? _self.plannedCheckInTime : plannedCheckInTime // ignore: cast_nullable_to_non_nullable
+as String,checkInStatus: null == checkInStatus ? _self.checkInStatus : checkInStatus // ignore: cast_nullable_to_non_nullable
+as CheckInStatus,checkInExtra: null == checkInExtra ? _self.checkInExtra : checkInExtra // ignore: cast_nullable_to_non_nullable
+as String,actualCheckOutTime: null == actualCheckOutTime ? _self.actualCheckOutTime : actualCheckOutTime // ignore: cast_nullable_to_non_nullable
+as String,plannedCheckOutTime: null == plannedCheckOutTime ? _self.plannedCheckOutTime : plannedCheckOutTime // ignore: cast_nullable_to_non_nullable
+as String,checkOutStatus: null == checkOutStatus ? _self.checkOutStatus : checkOutStatus // ignore: cast_nullable_to_non_nullable
+as CheckOutStatus,checkOutExtra: null == checkOutExtra ? _self.checkOutExtra : checkOutExtra // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

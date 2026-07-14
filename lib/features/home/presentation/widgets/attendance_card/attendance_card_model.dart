@@ -30,28 +30,65 @@ class AttendanceCardModel with _$AttendanceCardModel {
   }) = _Working;
 
   const factory AttendanceCardModel.afterCheckOut({
-    required String workHours,
+    required String workedTime,
+    required String plannedWorkedTime,
     required String overtime,
-    required String? leaveEarly,
-    required String? leaveLate,
+    required String actualCheckInTime,
+    required String plannedCheckInTime,
+    required CheckInStatus checkInStatus,
+    required String checkInExtra,
+    required String actualCheckOutTime,
+    required String plannedCheckOutTime,
+    required CheckOutStatus checkOutStatus,
+    required String checkOutExtra,
   }) = _AfterCheckOut;
 
   static AttendanceCardModel fromAttendance(Attendance attendance) {
     if (attendance.checkOut != null) {
-      final workHours = TimeFormat.hMm(attendance.workedMinutes);
+      final workedTime = TimeFormat.hMm(attendance.workedMinutes);
+      final plannedWorkedTime = TimeFormat.hMm(
+        attendance.expectedEndMinute -
+            attendance.expectedStartMinute -
+            attendance.lunchMinutes,
+      );
       final overtime = TimeFormat.hMm(attendance.overtimeMinutes);
-      final leaveEarly = attendance.earlyLeaveMinutes > 0
-          ? TimeFormat.hMm(attendance.earlyLeaveMinutes)
-          : null;
-      final leaveLate = attendance.lateMinutes > 0
-          ? TimeFormat.hMm(attendance.lateMinutes)
-          : null;
+
+      final actualCheckInTime = TimeFormat.hhMmFromDateTime(
+        attendance.checkIn!,
+      );
+      final plannedCheckInTime = TimeFormat.hhMm(
+        attendance.expectedStartMinute,
+      );
+      final checkInDiff =
+          _minuteOfDay(attendance.checkIn!) - attendance.expectedStartMinute;
+      final checkInStatus = checkInDiff > 0
+          ? CheckInStatus.late
+          : CheckInStatus.soon;
+      final checkInExtra = TimeFormat.hMm(checkInDiff.abs());
+
+      final actualCheckOutTime = TimeFormat.hhMmFromDateTime(
+        attendance.checkOut!,
+      );
+      final plannedCheckOutTime = TimeFormat.hhMm(attendance.expectedEndMinute);
+      final checkOutDiff =
+          _minuteOfDay(attendance.checkOut!) - attendance.expectedEndMinute;
+      final checkOutStatus = checkOutDiff >= 0
+          ? CheckOutStatus.overtime
+          : CheckOutStatus.soon;
+      final checkOutExtra = TimeFormat.hMm(checkOutDiff.abs());
 
       return AttendanceCardModel.afterCheckOut(
-        workHours: workHours,
+        workedTime: workedTime,
+        plannedWorkedTime: plannedWorkedTime,
         overtime: overtime,
-        leaveEarly: leaveEarly,
-        leaveLate: leaveLate,
+        actualCheckInTime: actualCheckInTime,
+        plannedCheckInTime: plannedCheckInTime,
+        checkInStatus: checkInStatus,
+        checkInExtra: checkInExtra,
+        actualCheckOutTime: actualCheckOutTime,
+        plannedCheckOutTime: plannedCheckOutTime,
+        checkOutStatus: checkOutStatus,
+        checkOutExtra: checkOutExtra,
       );
     } else if (attendance.checkIn != null) {
       final actualCheckInTime = TimeFormat.hhMmFromDateTime(

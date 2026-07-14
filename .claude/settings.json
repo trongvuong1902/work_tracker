@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/^class AndroidFlutterLocalNotificationsPlugin/,/^class IOSFlutterLocalNotificationsPlugin/' ~/.pub-cache/hosted/pub.dev/flutter_local_notifications-19.5.0/lib/src/platform_flutter_local_notifications.dart)",
+      "Bash(cat /Volumes/M2-SATA/work_trackier/work_tracker/.fvm/flutter_sdk 2>/dev/null; readlink /Volumes/M2-SATA/work_trackier/work_tracker/.fvm/flutter_sdk 2>/dev/null; ls -la /Volumes/M2-SATA/work_trackier/work_tracker/.fvm/)",
+      "Read(//Users/dotrongvuong/fvm/versions/stable/**)",
+      "Bash(xargs cat)"
+    ]
+  }
+}

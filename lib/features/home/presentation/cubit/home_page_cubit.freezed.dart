@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HomePageState {
 
- DateTime? get checkInTime; DateTime? get checkOutTime; WorkSchedule? get workSchedule; HeroCardModel? get heroCardModel; AttendanceCardModel? get attendanceCardModel;
+ DateTime? get checkInTime; DateTime? get checkOutTime; WorkSchedule? get workSchedule; HeroCardModel? get heroCardModel; AttendanceCardModel? get attendanceCardModel; LeaveReminderPromptTrigger? get pendingLeaveReminderTrigger;
 /// Create a copy of HomePageState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $HomePageStateCopyWith<HomePageState> get copyWith => _$HomePageStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomePageState&&(identical(other.checkInTime, checkInTime) || other.checkInTime == checkInTime)&&(identical(other.checkOutTime, checkOutTime) || other.checkOutTime == checkOutTime)&&(identical(other.workSchedule, workSchedule) || other.workSchedule == workSchedule)&&(identical(other.heroCardModel, heroCardModel) || other.heroCardModel == heroCardModel)&&(identical(other.attendanceCardModel, attendanceCardModel) || other.attendanceCardModel == attendanceCardModel));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomePageState&&(identical(other.checkInTime, checkInTime) || other.checkInTime == checkInTime)&&(identical(other.checkOutTime, checkOutTime) || other.checkOutTime == checkOutTime)&&(identical(other.workSchedule, workSchedule) || other.workSchedule == workSchedule)&&(identical(other.heroCardModel, heroCardModel) || other.heroCardModel == heroCardModel)&&(identical(other.attendanceCardModel, attendanceCardModel) || other.attendanceCardModel == attendanceCardModel)&&(identical(other.pendingLeaveReminderTrigger, pendingLeaveReminderTrigger) || other.pendingLeaveReminderTrigger == pendingLeaveReminderTrigger));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,checkInTime,checkOutTime,workSchedule,heroCardModel,attendanceCardModel);
+int get hashCode => Object.hash(runtimeType,checkInTime,checkOutTime,workSchedule,heroCardModel,attendanceCardModel,pendingLeaveReminderTrigger);
 
 @override
 String toString() {
-  return 'HomePageState(checkInTime: $checkInTime, checkOutTime: $checkOutTime, workSchedule: $workSchedule, heroCardModel: $heroCardModel, attendanceCardModel: $attendanceCardModel)';
+  return 'HomePageState(checkInTime: $checkInTime, checkOutTime: $checkOutTime, workSchedule: $workSchedule, heroCardModel: $heroCardModel, attendanceCardModel: $attendanceCardModel, pendingLeaveReminderTrigger: $pendingLeaveReminderTrigger)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $HomePageStateCopyWith<$Res>  {
   factory $HomePageStateCopyWith(HomePageState value, $Res Function(HomePageState) _then) = _$HomePageStateCopyWithImpl;
 @useResult
 $Res call({
- DateTime? checkInTime, DateTime? checkOutTime, WorkSchedule? workSchedule, HeroCardModel? heroCardModel, AttendanceCardModel? attendanceCardModel
+ DateTime? checkInTime, DateTime? checkOutTime, WorkSchedule? workSchedule, HeroCardModel? heroCardModel, AttendanceCardModel? attendanceCardModel, LeaveReminderPromptTrigger? pendingLeaveReminderTrigger
 });
 
 
@@ -62,14 +62,15 @@ class _$HomePageStateCopyWithImpl<$Res>
 
 /// Create a copy of HomePageState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? checkInTime = freezed,Object? checkOutTime = freezed,Object? workSchedule = freezed,Object? heroCardModel = freezed,Object? attendanceCardModel = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? checkInTime = freezed,Object? checkOutTime = freezed,Object? workSchedule = freezed,Object? heroCardModel = freezed,Object? attendanceCardModel = freezed,Object? pendingLeaveReminderTrigger = freezed,}) {
   return _then(_self.copyWith(
 checkInTime: freezed == checkInTime ? _self.checkInTime : checkInTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,checkOutTime: freezed == checkOutTime ? _self.checkOutTime : checkOutTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,workSchedule: freezed == workSchedule ? _self.workSchedule : workSchedule // ignore: cast_nullable_to_non_nullable
 as WorkSchedule?,heroCardModel: freezed == heroCardModel ? _self.heroCardModel : heroCardModel // ignore: cast_nullable_to_non_nullable
 as HeroCardModel?,attendanceCardModel: freezed == attendanceCardModel ? _self.attendanceCardModel : attendanceCardModel // ignore: cast_nullable_to_non_nullable
-as AttendanceCardModel?,
+as AttendanceCardModel?,pendingLeaveReminderTrigger: freezed == pendingLeaveReminderTrigger ? _self.pendingLeaveReminderTrigger : pendingLeaveReminderTrigger // ignore: cast_nullable_to_non_nullable
+as LeaveReminderPromptTrigger?,
   ));
 }
 /// Create a copy of HomePageState
@@ -190,10 +191,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DateTime? checkInTime,  DateTime? checkOutTime,  WorkSchedule? workSchedule,  HeroCardModel? heroCardModel,  AttendanceCardModel? attendanceCardModel)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DateTime? checkInTime,  DateTime? checkOutTime,  WorkSchedule? workSchedule,  HeroCardModel? heroCardModel,  AttendanceCardModel? attendanceCardModel,  LeaveReminderPromptTrigger? pendingLeaveReminderTrigger)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HomePageState() when $default != null:
-return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.heroCardModel,_that.attendanceCardModel);case _:
+return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.heroCardModel,_that.attendanceCardModel,_that.pendingLeaveReminderTrigger);case _:
   return orElse();
 
 }
@@ -211,10 +212,10 @@ return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.he
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DateTime? checkInTime,  DateTime? checkOutTime,  WorkSchedule? workSchedule,  HeroCardModel? heroCardModel,  AttendanceCardModel? attendanceCardModel)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DateTime? checkInTime,  DateTime? checkOutTime,  WorkSchedule? workSchedule,  HeroCardModel? heroCardModel,  AttendanceCardModel? attendanceCardModel,  LeaveReminderPromptTrigger? pendingLeaveReminderTrigger)  $default,) {final _that = this;
 switch (_that) {
 case _HomePageState():
-return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.heroCardModel,_that.attendanceCardModel);case _:
+return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.heroCardModel,_that.attendanceCardModel,_that.pendingLeaveReminderTrigger);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -231,10 +232,10 @@ return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.he
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DateTime? checkInTime,  DateTime? checkOutTime,  WorkSchedule? workSchedule,  HeroCardModel? heroCardModel,  AttendanceCardModel? attendanceCardModel)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DateTime? checkInTime,  DateTime? checkOutTime,  WorkSchedule? workSchedule,  HeroCardModel? heroCardModel,  AttendanceCardModel? attendanceCardModel,  LeaveReminderPromptTrigger? pendingLeaveReminderTrigger)?  $default,) {final _that = this;
 switch (_that) {
 case _HomePageState() when $default != null:
-return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.heroCardModel,_that.attendanceCardModel);case _:
+return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.heroCardModel,_that.attendanceCardModel,_that.pendingLeaveReminderTrigger);case _:
   return null;
 
 }
@@ -246,7 +247,7 @@ return $default(_that.checkInTime,_that.checkOutTime,_that.workSchedule,_that.he
 
 
 class _HomePageState implements HomePageState {
-  const _HomePageState({this.checkInTime, this.checkOutTime, this.workSchedule, this.heroCardModel, this.attendanceCardModel});
+  const _HomePageState({this.checkInTime, this.checkOutTime, this.workSchedule, this.heroCardModel, this.attendanceCardModel, this.pendingLeaveReminderTrigger});
   
 
 @override final  DateTime? checkInTime;
@@ -254,6 +255,7 @@ class _HomePageState implements HomePageState {
 @override final  WorkSchedule? workSchedule;
 @override final  HeroCardModel? heroCardModel;
 @override final  AttendanceCardModel? attendanceCardModel;
+@override final  LeaveReminderPromptTrigger? pendingLeaveReminderTrigger;
 
 /// Create a copy of HomePageState
 /// with the given fields replaced by the non-null parameter values.
@@ -265,16 +267,16 @@ _$HomePageStateCopyWith<_HomePageState> get copyWith => __$HomePageStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomePageState&&(identical(other.checkInTime, checkInTime) || other.checkInTime == checkInTime)&&(identical(other.checkOutTime, checkOutTime) || other.checkOutTime == checkOutTime)&&(identical(other.workSchedule, workSchedule) || other.workSchedule == workSchedule)&&(identical(other.heroCardModel, heroCardModel) || other.heroCardModel == heroCardModel)&&(identical(other.attendanceCardModel, attendanceCardModel) || other.attendanceCardModel == attendanceCardModel));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomePageState&&(identical(other.checkInTime, checkInTime) || other.checkInTime == checkInTime)&&(identical(other.checkOutTime, checkOutTime) || other.checkOutTime == checkOutTime)&&(identical(other.workSchedule, workSchedule) || other.workSchedule == workSchedule)&&(identical(other.heroCardModel, heroCardModel) || other.heroCardModel == heroCardModel)&&(identical(other.attendanceCardModel, attendanceCardModel) || other.attendanceCardModel == attendanceCardModel)&&(identical(other.pendingLeaveReminderTrigger, pendingLeaveReminderTrigger) || other.pendingLeaveReminderTrigger == pendingLeaveReminderTrigger));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,checkInTime,checkOutTime,workSchedule,heroCardModel,attendanceCardModel);
+int get hashCode => Object.hash(runtimeType,checkInTime,checkOutTime,workSchedule,heroCardModel,attendanceCardModel,pendingLeaveReminderTrigger);
 
 @override
 String toString() {
-  return 'HomePageState(checkInTime: $checkInTime, checkOutTime: $checkOutTime, workSchedule: $workSchedule, heroCardModel: $heroCardModel, attendanceCardModel: $attendanceCardModel)';
+  return 'HomePageState(checkInTime: $checkInTime, checkOutTime: $checkOutTime, workSchedule: $workSchedule, heroCardModel: $heroCardModel, attendanceCardModel: $attendanceCardModel, pendingLeaveReminderTrigger: $pendingLeaveReminderTrigger)';
 }
 
 
@@ -285,7 +287,7 @@ abstract mixin class _$HomePageStateCopyWith<$Res> implements $HomePageStateCopy
   factory _$HomePageStateCopyWith(_HomePageState value, $Res Function(_HomePageState) _then) = __$HomePageStateCopyWithImpl;
 @override @useResult
 $Res call({
- DateTime? checkInTime, DateTime? checkOutTime, WorkSchedule? workSchedule, HeroCardModel? heroCardModel, AttendanceCardModel? attendanceCardModel
+ DateTime? checkInTime, DateTime? checkOutTime, WorkSchedule? workSchedule, HeroCardModel? heroCardModel, AttendanceCardModel? attendanceCardModel, LeaveReminderPromptTrigger? pendingLeaveReminderTrigger
 });
 
 
@@ -302,14 +304,15 @@ class __$HomePageStateCopyWithImpl<$Res>
 
 /// Create a copy of HomePageState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? checkInTime = freezed,Object? checkOutTime = freezed,Object? workSchedule = freezed,Object? heroCardModel = freezed,Object? attendanceCardModel = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? checkInTime = freezed,Object? checkOutTime = freezed,Object? workSchedule = freezed,Object? heroCardModel = freezed,Object? attendanceCardModel = freezed,Object? pendingLeaveReminderTrigger = freezed,}) {
   return _then(_HomePageState(
 checkInTime: freezed == checkInTime ? _self.checkInTime : checkInTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,checkOutTime: freezed == checkOutTime ? _self.checkOutTime : checkOutTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,workSchedule: freezed == workSchedule ? _self.workSchedule : workSchedule // ignore: cast_nullable_to_non_nullable
 as WorkSchedule?,heroCardModel: freezed == heroCardModel ? _self.heroCardModel : heroCardModel // ignore: cast_nullable_to_non_nullable
 as HeroCardModel?,attendanceCardModel: freezed == attendanceCardModel ? _self.attendanceCardModel : attendanceCardModel // ignore: cast_nullable_to_non_nullable
-as AttendanceCardModel?,
+as AttendanceCardModel?,pendingLeaveReminderTrigger: freezed == pendingLeaveReminderTrigger ? _self.pendingLeaveReminderTrigger : pendingLeaveReminderTrigger // ignore: cast_nullable_to_non_nullable
+as LeaveReminderPromptTrigger?,
   ));
 }
 

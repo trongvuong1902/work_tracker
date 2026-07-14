@@ -9,13 +9,22 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as _i163;
 import 'package:get_it/get_it.dart' as _i174;
+import 'package:google_maps_webservice/distance.dart' as _i557;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:objectbox/objectbox.dart' as _i1034;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 import 'package:work_tracker/app/cubit/app_cubit.dart' as _i108;
+import 'package:work_tracker/core/notifications/notification_service.dart'
+    as _i43;
+import 'package:work_tracker/core/notifications/notification_service_impl.dart'
+    as _i807;
 import 'package:work_tracker/database/attendance/attendance_entity.dart'
     as _i602;
+import 'package:work_tracker/database/leave_reminder/leave_reminder_settings_entity.dart'
+    as _i1017;
 import 'package:work_tracker/database/objectbox.g.dart' as _i625;
 import 'package:work_tracker/database/work_schedule/work_schedule_entity.dart'
     as _i911;
@@ -35,6 +44,24 @@ import 'package:work_tracker/features/home/presentation/widgets/attendance_card/
     as _i726;
 import 'package:work_tracker/features/home/presentation/widgets/hero_card/cubit/hero_card_cubit.dart'
     as _i629;
+import 'package:work_tracker/features/leave_reminder/data/commute_routing_client.dart'
+    as _i925;
+import 'package:work_tracker/features/leave_reminder/data/leave_reminder_dao.dart'
+    as _i591;
+import 'package:work_tracker/features/leave_reminder/data/leave_reminder_datasource.dart'
+    as _i707;
+import 'package:work_tracker/features/leave_reminder/data/leave_reminder_datasource_impl.dart'
+    as _i14;
+import 'package:work_tracker/features/leave_reminder/data/location_source.dart'
+    as _i343;
+import 'package:work_tracker/features/leave_reminder/data/weather_client.dart'
+    as _i1043;
+import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart'
+    as _i468;
+import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository_impl.dart'
+    as _i347;
+import 'package:work_tracker/features/leave_reminder/presentation/cubit/leave_reminder_setup_cubit.dart'
+    as _i262;
 import 'package:work_tracker/features/schedule/data/work_schedule_dao.dart'
     as _i196;
 import 'package:work_tracker/features/schedule/data/work_schedule_datasource.dart'
@@ -64,9 +91,29 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.store,
       preResolve: true,
     );
+    gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
+      () => registerModule.flutterLocalNotificationsPlugin(),
+    );
+    gh.lazySingleton<_i557.GoogleDistanceMatrix>(
+      () => registerModule.distanceMatrixClient(),
+    );
+    gh.lazySingleton<_i343.LocationSource>(() => _i343.LocationSourceImpl());
+    gh.lazySingleton<_i1043.WeatherClient>(
+      () => _i1043.OpenMeteoWeatherClient(),
+    );
     gh.lazySingleton<_i204.AppRepository>(
       () => _i927.AppRepositoryImpl(
         sharedPreferences: gh<_i460.SharedPreferences>(),
+      ),
+    );
+    gh.lazySingleton<_i925.CommuteRoutingClient>(
+      () => _i925.GoogleDistanceMatrixRoutingClient(
+        gh<_i557.GoogleDistanceMatrix>(),
+      ),
+    );
+    gh.lazySingleton<_i43.NotificationService>(
+      () => _i807.NotificationServiceImpl(
+        gh<_i163.FlutterLocalNotificationsPlugin>(),
       ),
     );
     gh.singleton<_i625.Box<_i911.WorkScheduleEntity>>(
@@ -75,8 +122,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i625.Box<_i602.AttendanceEntity>>(
       () => registerModule.attendanceBox(gh<_i625.Store>()),
     );
+    gh.singleton<_i625.Box<_i1017.LeaveReminderSettingsEntity>>(
+      () => registerModule.leaveReminderBox(gh<_i625.Store>()),
+    );
     gh.lazySingleton<_i616.AttendanceDao>(
       () => _i616.AttendanceDaoImpl(gh<_i625.Box<_i602.AttendanceEntity>>()),
+    );
+    gh.lazySingleton<_i591.LeaveReminderDao>(
+      () => _i591.LeaveReminderDaoImpl(
+        gh<_i1034.Box<_i1017.LeaveReminderSettingsEntity>>(),
+      ),
     );
     gh.lazySingleton<_i196.WorkScheduleDao>(
       () =>
@@ -98,15 +153,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i542.SettingScheduleCubit>(
       () => _i542.SettingScheduleCubit(gh<_i513.WorkScheduleRepository>()),
     );
-    gh.factory<_i594.HomePageCubit>(
-      () => _i594.HomePageCubit(
-        workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
-        attendanceRepository: gh<_i331.AttendanceRepository>(),
-      ),
+    gh.lazySingleton<_i707.LeaveReminderDatasource>(
+      () => _i14.LeaveReminderDatasourceImpl(gh<_i591.LeaveReminderDao>()),
     );
     gh.factory<_i629.HeroCardCubit>(
       () => _i629.HeroCardCubit(
         attendanceRepository: gh<_i331.AttendanceRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i468.LeaveReminderRepository>(
+      () => _i347.LeaveReminderRepositoryImpl(
+        gh<_i707.LeaveReminderDatasource>(),
+        gh<_i925.CommuteRoutingClient>(),
+        gh<_i1043.WeatherClient>(),
+        gh<_i43.NotificationService>(),
+        gh<_i460.SharedPreferences>(),
+        gh<_i513.WorkScheduleRepository>(),
+        gh<_i331.AttendanceRepository>(),
       ),
     );
     gh.singleton<_i108.AppCubit>(
@@ -120,6 +183,16 @@ extension GetItInjectableX on _i174.GetIt {
         attendanceRepository: gh<_i331.AttendanceRepository>(),
         workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
       ),
+    );
+    gh.factory<_i594.HomePageCubit>(
+      () => _i594.HomePageCubit(
+        workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
+        attendanceRepository: gh<_i331.AttendanceRepository>(),
+        leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
+      ),
+    );
+    gh.factory<_i262.LeaveReminderSetupCubit>(
+      () => _i262.LeaveReminderSetupCubit(gh<_i468.LeaveReminderRepository>()),
     );
     return this;
   }

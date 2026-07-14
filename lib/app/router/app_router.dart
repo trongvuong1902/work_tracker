@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:work_tracker/app/router/app_routes.dart';
 import 'package:work_tracker/app/router/app_shell.dart';
 import 'package:work_tracker/app/router/calendar_branch.dart';
@@ -10,11 +11,20 @@ import 'package:work_tracker/app/router/setting_branch.dart';
 import 'package:work_tracker/debug/components_showcase_page.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/app/cubit/app_cubit.dart';
+import 'package:work_tracker/features/leave_reminder/presentation/pages/location_picker_page.dart';
 import 'package:work_tracker/features/onboard/presentation/pages/onboard_page.dart';
 import 'package:work_tracker/features/schedule/presentation/pages/setting_schedule_page.dart';
 import 'package:work_tracker/features/splash/presentation/pages/splash_page.dart';
 
 import 'insight_branch.dart';
+
+/// Typed `state.extra` payload for [AppRoutes.leaveReminderLocationPicker].
+class LocationPickerArgs {
+  const LocationPickerArgs({required this.title, this.initial});
+
+  final String title;
+  final LatLng? initial;
+}
 
 final appRouter = GoRouter(
   initialLocation: AppRoutes.home,
@@ -59,6 +69,16 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.workScheduleSettings,
       builder: (context, state) => const SettingSchedulePage(),
+    ),
+    GoRoute(
+      path: AppRoutes.leaveReminderLocationPicker,
+      builder: (context, state) {
+        final args = state.extra as LocationPickerArgs?;
+        return LocationPickerPage(
+          title: args?.title ?? 'Pick a location',
+          initial: args?.initial,
+        );
+      },
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>

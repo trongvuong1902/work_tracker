@@ -8,6 +8,7 @@ abstract class HomePageState with _$HomePageState {
     WorkSchedule? workSchedule,
     HeroCardModel? heroCardModel,
     AttendanceCardModel? attendanceCardModel,
+    LeaveReminderPromptTrigger? pendingLeaveReminderTrigger,
   }) = _HomePageState;
 }
 

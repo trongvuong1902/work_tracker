@@ -43,6 +43,15 @@ dependencies:
   shared_preferences: ^2.5.5
   bloc: ^9.2.1
   freezed_annotation: ^3.1.0
+  google_maps_flutter: ^2.13.0
+  google_maps_webservice: ^0.0.20-nullsafety.5
+  flutter_local_notifications: ^19.4.2
+  timezone: ^0.10.1
+  flutter_timezone: ^4.1.1
+  workmanager: ^0.9.0+3
+  geolocator: ^14.0.2
+  permission_handler: ^12.0.1
+  http: ^1.2.1
 
 
 dev_dependencies:
@@ -61,6 +70,14 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+# google_maps_webservice (unmaintained since its last nullsafety release)
+# still pins http ^0.13.0, which conflicts with the http ^1.x required by
+# timezone/flutter_local_notifications. http's public API used here
+# (Client/get/post) is unchanged across that range, so it's safe to force
+# the newer version.
+dependency_overrides:
+  http: ^1.2.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
