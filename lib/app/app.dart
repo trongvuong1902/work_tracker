@@ -16,18 +16,21 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [BlocProvider(create: (context) => getIt<AppCubit>())],
 
-      child: MaterialApp.router(
-        title: 'Work Tracker',
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        routerConfig: appRouter,
-        builder: (context, child) => Overlay(
-          initialEntries: [
-            OverlayEntry(
-              builder: (context) =>
-                  DebugOverlay(child: child ?? const SizedBox.shrink()),
-            ),
-          ],
+      child: BlocBuilder<AppCubit, AppState>(
+        builder: (context, state) => MaterialApp.router(
+          title: 'Work Tracker',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: state.themeMode,
+          routerConfig: appRouter,
+          builder: (context, child) => Overlay(
+            initialEntries: [
+              OverlayEntry(
+                builder: (context) =>
+                    DebugOverlay(child: child ?? const SizedBox.shrink()),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:work_tracker/app/cubit/app_cubit.dart';
 import 'package:work_tracker/domain/repository/app_repository.dart';
@@ -9,10 +10,16 @@ import 'package:work_tracker/features/schedule/domain/work_schedule_repository.d
 /// in pubspec.yaml yet; these interfaces are small enough that fakes are
 /// straightforward here.
 class FakeAppRepository implements AppRepository {
-  FakeAppRepository({this.isOnboardingCompleted = false});
+  FakeAppRepository({
+    this.isOnboardingCompleted = false,
+    this.themeMode = ThemeMode.system,
+  });
 
   @override
   bool isOnboardingCompleted;
+
+  @override
+  ThemeMode themeMode;
 
   int completeOnboardingCallCount = 0;
 
@@ -20,6 +27,11 @@ class FakeAppRepository implements AppRepository {
   Future<void> completeOnboarding() async {
     completeOnboardingCallCount++;
     isOnboardingCompleted = true;
+  }
+
+  @override
+  Future<void> setThemeMode(ThemeMode mode) async {
+    themeMode = mode;
   }
 }
 

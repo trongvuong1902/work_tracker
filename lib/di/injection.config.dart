@@ -192,7 +192,10 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.factory<_i262.LeaveReminderSetupCubit>(
-      () => _i262.LeaveReminderSetupCubit(gh<_i468.LeaveReminderRepository>()),
+      () => _i262.LeaveReminderSetupCubit(
+        gh<_i468.LeaveReminderRepository>(),
+        gh<_i513.WorkScheduleRepository>(),
+      ),
     );
     return this;
   }

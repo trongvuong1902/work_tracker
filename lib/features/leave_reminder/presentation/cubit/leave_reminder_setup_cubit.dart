@@ -3,22 +3,26 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/geo_point.dart';
+import 'package:work_tracker/features/schedule/domain/models/work_schedule.dart';
+import 'package:work_tracker/features/schedule/domain/work_schedule_repository.dart';
 
 part 'leave_reminder_setup_state.dart';
 part 'leave_reminder_setup_cubit.freezed.dart';
 
 @injectable
 class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
-  LeaveReminderSetupCubit(this._repository)
+  LeaveReminderSetupCubit(this._repository, this._workScheduleRepository)
     : super(const LeaveReminderSetupState()) {
     _loadSettings();
   }
 
   final LeaveReminderRepository _repository;
+  final WorkScheduleRepository _workScheduleRepository;
 
   Future<void> _loadSettings() async {
     emit(state.copyWith(isLoading: true));
     final settings = await _repository.getSettings();
+    final schedule = await _workScheduleRepository.getCurrentActiveSchedule();
     emit(
       state.copyWith(
         isLoading: false,
@@ -27,6 +31,7 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
         work: settings.work,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        schedule: schedule,
       ),
     );
   }
@@ -81,6 +86,16 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
       ),
     );
     if (state.hasBothLocations) refreshCommute();
+  }
+
+  Future<void> updateReminderMinutes(int minutes) async {
+    final schedule = state.schedule;
+    if (schedule == null) return;
+
+    final updated = schedule.copyWith(reminderMinutes: minutes.clamp(0, 60));
+    emit(state.copyWith(schedule: updated));
+    await _workScheduleRepository.saveWorkSchedule(updated);
+    await _repository.scheduleTodayReminders();
   }
 
   Future<void> refreshCommute() async {

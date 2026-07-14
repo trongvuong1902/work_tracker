@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
@@ -87,12 +88,14 @@ class _HomePageState extends State<HomePage> {
             return Scaffold(
               appBar: AppBar(
                 actions: [
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      cubit.clearAll();
-                    },
-                  ),
+                  if (kDebugMode)
+                    IconButton(
+                      icon: const Icon(Icons.clear),
+                      tooltip: 'Clear today\'s attendance (debug)',
+                      onPressed: () {
+                        cubit.clearAll();
+                      },
+                    ),
                 ],
               ),
               body: SafeArea(

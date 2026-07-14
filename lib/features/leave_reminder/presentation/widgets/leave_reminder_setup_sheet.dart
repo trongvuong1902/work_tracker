@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
@@ -10,7 +11,9 @@ import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/geo_point.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/leave_reminder_prompt_trigger.dart';
+import 'package:work_tracker/features/leave_reminder/leave_reminder_constants.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/cubit/leave_reminder_setup_cubit.dart';
+import 'package:work_tracker/features/schedule/domain/work_schedule_constants.dart';
 
 extension _GeoPointToLatLng on GeoPoint {
   LatLng toLatLng() => LatLng(latitude, longitude);
@@ -161,6 +164,38 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                         onRefresh: cubit.refreshCommute,
                       ),
                     ],
+                    const SizedBox(height: AppSpacing.space16),
+                    MinutePickerRow(
+                      label: 'Arrive early by',
+                      minutes: state.schedule?.reminderMinutes,
+                      options: kReminderBufferOptions,
+                      enabled: state.schedule != null,
+                      placeholder: 'Set a work schedule first',
+                      valueBuilder: (minutes) =>
+                          state.expectedArriveMinuteOfDay != null
+                          ? '$minutes min · '
+                                '${TimeFormat.hhMm(state.expectedArriveMinuteOfDay!)}'
+                          : '$minutes min',
+                      onChanged: cubit.updateReminderMinutes,
+                    ),
+                    const SizedBox(height: AppSpacing.space16),
+                    _ScheduleReadoutCard(
+                      expectedArriveMinuteOfDay:
+                          state.expectedArriveMinuteOfDay,
+                      alertMinuteOfDay: state.alertMinuteOfDay,
+                    ),
+                    if (kDebugMode) ...[
+                      const SizedBox(height: AppSpacing.space16),
+                      _DebugNotificationTimesCard(
+                        alertMinuteOfDay: state.alertMinuteOfDay,
+                        unavailableReason: state.schedule == null
+                            ? 'No work schedule set'
+                            : state.lastCommuteMinutes == null
+                            ? 'No commute estimate yet — set Home & Work '
+                                  'locations above'
+                            : null,
+                      ),
+                    ],
                     if (state.errorMessage != null) ...[
                       const SizedBox(height: AppSpacing.space16),
                       Text(
@@ -252,6 +287,122 @@ class _LocationRow extends StatelessWidget {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScheduleReadoutCard extends StatelessWidget {
+  const _ScheduleReadoutCard({
+    required this.expectedArriveMinuteOfDay,
+    required this.alertMinuteOfDay,
+  });
+
+  final int? expectedArriveMinuteOfDay;
+  final int? alertMinuteOfDay;
+
+  @override
+  Widget build(BuildContext context) {
+    return ShadowCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.space16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _ReadoutRow(
+              label: 'Expected arrival',
+              value: expectedArriveMinuteOfDay != null
+                  ? TimeFormat.hhMm(expectedArriveMinuteOfDay!)
+                  : 'Set a work schedule',
+            ),
+            const SizedBox(height: AppSpacing.space8),
+            _ReadoutRow(
+              label: 'Leave reminder alert',
+              value: alertMinuteOfDay != null
+                  ? TimeFormat.hhMm(alertMinuteOfDay!)
+                  : 'Needs a commute estimate',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReadoutRow extends StatelessWidget {
+  const _ReadoutRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: AppTypography.label(context)),
+        Text(value, style: AppTypography.body(context)),
+      ],
+    );
+  }
+}
+
+/// Debug-only readout of when the two local notifications actually get
+/// scheduled to fire — the same [alertMinuteOfDay] value passed to
+/// `scheduleAt` for the "leave now" alert, and that minus
+/// [kDefaultHeadsUpLeadMinutes] for the earlier heads-up. Not shown in
+/// release builds.
+class _DebugNotificationTimesCard extends StatelessWidget {
+  const _DebugNotificationTimesCard({
+    required this.alertMinuteOfDay,
+    this.unavailableReason,
+  });
+
+  final int? alertMinuteOfDay;
+
+  /// Why [alertMinuteOfDay] is null, shown instead of the readout rows so
+  /// it's clear this isn't a rendering bug — the times just aren't
+  /// computable yet.
+  final String? unavailableReason;
+
+  @override
+  Widget build(BuildContext context) {
+    final alert = alertMinuteOfDay;
+    final headsUp = alert != null ? alert - kDefaultHeadsUpLeadMinutes : null;
+
+    return ShadowCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.space16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '🐛 Notification schedule (debug)',
+              style: AppTypography.label(context),
+            ),
+            const SizedBox(height: AppSpacing.space8),
+            if (alert == null)
+              Text(
+                unavailableReason ?? 'Not scheduled yet',
+                style: AppTypography.body(
+                  context,
+                )?.copyWith(color: context.colors.textSecondary),
+              )
+            else ...[
+              _ReadoutRow(
+                label: 'Heads-up fires at',
+                value: TimeFormat.hhMm(headsUp!),
+              ),
+              const SizedBox(height: AppSpacing.space8),
+              _ReadoutRow(
+                label: 'Leave-now fires at',
+                value: TimeFormat.hhMm(alert),
+              ),
+            ],
+          ],
         ),
       ),
     );

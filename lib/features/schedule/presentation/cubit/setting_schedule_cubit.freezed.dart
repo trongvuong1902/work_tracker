@@ -214,7 +214,7 @@ return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_
 
 
 class _SettingScheduleState implements SettingScheduleState {
-  const _SettingScheduleState({this.startMinuteOfDay = 540, this.endMinuteOfDay = 1080, this.lunchMinutes = 60, this.reminderMinutes = 0, this.workingDaysMask = kDefaultWorkingDaysMask, this.isLoading = false, this.isSaving = false, this.isEditing = false, this.errorMessage});
+  const _SettingScheduleState({this.startMinuteOfDay = 540, this.endMinuteOfDay = 1080, this.lunchMinutes = 60, this.reminderMinutes = 10, this.workingDaysMask = kDefaultWorkingDaysMask, this.isLoading = false, this.isSaving = false, this.isEditing = false, this.errorMessage});
   
 
 @override@JsonKey() final  int startMinuteOfDay;

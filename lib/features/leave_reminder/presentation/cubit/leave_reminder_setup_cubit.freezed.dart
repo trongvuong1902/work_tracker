@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LeaveReminderSetupState {
 
- bool get isLoading; bool get enabled; GeoPoint? get home; GeoPoint? get work; int? get lastCommuteMinutes; DateTime? get lastCommuteUpdatedAt; bool get isSettingHome; bool get isSettingWork; bool get isRefreshingCommute; bool get isTogglingEnabled; String? get errorMessage; bool get didCloseSuccessfully;
+ bool get isLoading; bool get enabled; GeoPoint? get home; GeoPoint? get work; int? get lastCommuteMinutes; DateTime? get lastCommuteUpdatedAt; bool get isSettingHome; bool get isSettingWork; bool get isRefreshingCommute; bool get isTogglingEnabled; String? get errorMessage; bool get didCloseSuccessfully; WorkSchedule? get schedule;
 /// Create a copy of LeaveReminderSetupState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $LeaveReminderSetupStateCopyWith<LeaveReminderSetupState> get copyWith => _$Leav
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LeaveReminderSetupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.home, home) || other.home == home)&&(identical(other.work, work) || other.work == work)&&(identical(other.lastCommuteMinutes, lastCommuteMinutes) || other.lastCommuteMinutes == lastCommuteMinutes)&&(identical(other.lastCommuteUpdatedAt, lastCommuteUpdatedAt) || other.lastCommuteUpdatedAt == lastCommuteUpdatedAt)&&(identical(other.isSettingHome, isSettingHome) || other.isSettingHome == isSettingHome)&&(identical(other.isSettingWork, isSettingWork) || other.isSettingWork == isSettingWork)&&(identical(other.isRefreshingCommute, isRefreshingCommute) || other.isRefreshingCommute == isRefreshingCommute)&&(identical(other.isTogglingEnabled, isTogglingEnabled) || other.isTogglingEnabled == isTogglingEnabled)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.didCloseSuccessfully, didCloseSuccessfully) || other.didCloseSuccessfully == didCloseSuccessfully));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LeaveReminderSetupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.home, home) || other.home == home)&&(identical(other.work, work) || other.work == work)&&(identical(other.lastCommuteMinutes, lastCommuteMinutes) || other.lastCommuteMinutes == lastCommuteMinutes)&&(identical(other.lastCommuteUpdatedAt, lastCommuteUpdatedAt) || other.lastCommuteUpdatedAt == lastCommuteUpdatedAt)&&(identical(other.isSettingHome, isSettingHome) || other.isSettingHome == isSettingHome)&&(identical(other.isSettingWork, isSettingWork) || other.isSettingWork == isSettingWork)&&(identical(other.isRefreshingCommute, isRefreshingCommute) || other.isRefreshingCommute == isRefreshingCommute)&&(identical(other.isTogglingEnabled, isTogglingEnabled) || other.isTogglingEnabled == isTogglingEnabled)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.didCloseSuccessfully, didCloseSuccessfully) || other.didCloseSuccessfully == didCloseSuccessfully)&&(identical(other.schedule, schedule) || other.schedule == schedule));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,enabled,home,work,lastCommuteMinutes,lastCommuteUpdatedAt,isSettingHome,isSettingWork,isRefreshingCommute,isTogglingEnabled,errorMessage,didCloseSuccessfully);
+int get hashCode => Object.hash(runtimeType,isLoading,enabled,home,work,lastCommuteMinutes,lastCommuteUpdatedAt,isSettingHome,isSettingWork,isRefreshingCommute,isTogglingEnabled,errorMessage,didCloseSuccessfully,schedule);
 
 @override
 String toString() {
-  return 'LeaveReminderSetupState(isLoading: $isLoading, enabled: $enabled, home: $home, work: $work, lastCommuteMinutes: $lastCommuteMinutes, lastCommuteUpdatedAt: $lastCommuteUpdatedAt, isSettingHome: $isSettingHome, isSettingWork: $isSettingWork, isRefreshingCommute: $isRefreshingCommute, isTogglingEnabled: $isTogglingEnabled, errorMessage: $errorMessage, didCloseSuccessfully: $didCloseSuccessfully)';
+  return 'LeaveReminderSetupState(isLoading: $isLoading, enabled: $enabled, home: $home, work: $work, lastCommuteMinutes: $lastCommuteMinutes, lastCommuteUpdatedAt: $lastCommuteUpdatedAt, isSettingHome: $isSettingHome, isSettingWork: $isSettingWork, isRefreshingCommute: $isRefreshingCommute, isTogglingEnabled: $isTogglingEnabled, errorMessage: $errorMessage, didCloseSuccessfully: $didCloseSuccessfully, schedule: $schedule)';
 }
 
 
@@ -45,11 +45,11 @@ abstract mixin class $LeaveReminderSetupStateCopyWith<$Res>  {
   factory $LeaveReminderSetupStateCopyWith(LeaveReminderSetupState value, $Res Function(LeaveReminderSetupState) _then) = _$LeaveReminderSetupStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, bool enabled, GeoPoint? home, GeoPoint? work, int? lastCommuteMinutes, DateTime? lastCommuteUpdatedAt, bool isSettingHome, bool isSettingWork, bool isRefreshingCommute, bool isTogglingEnabled, String? errorMessage, bool didCloseSuccessfully
+ bool isLoading, bool enabled, GeoPoint? home, GeoPoint? work, int? lastCommuteMinutes, DateTime? lastCommuteUpdatedAt, bool isSettingHome, bool isSettingWork, bool isRefreshingCommute, bool isTogglingEnabled, String? errorMessage, bool didCloseSuccessfully, WorkSchedule? schedule
 });
 
 
-$GeoPointCopyWith<$Res>? get home;$GeoPointCopyWith<$Res>? get work;
+$GeoPointCopyWith<$Res>? get home;$GeoPointCopyWith<$Res>? get work;$WorkScheduleCopyWith<$Res>? get schedule;
 
 }
 /// @nodoc
@@ -62,7 +62,7 @@ class _$LeaveReminderSetupStateCopyWithImpl<$Res>
 
 /// Create a copy of LeaveReminderSetupState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? enabled = null,Object? home = freezed,Object? work = freezed,Object? lastCommuteMinutes = freezed,Object? lastCommuteUpdatedAt = freezed,Object? isSettingHome = null,Object? isSettingWork = null,Object? isRefreshingCommute = null,Object? isTogglingEnabled = null,Object? errorMessage = freezed,Object? didCloseSuccessfully = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? enabled = null,Object? home = freezed,Object? work = freezed,Object? lastCommuteMinutes = freezed,Object? lastCommuteUpdatedAt = freezed,Object? isSettingHome = null,Object? isSettingWork = null,Object? isRefreshingCommute = null,Object? isTogglingEnabled = null,Object? errorMessage = freezed,Object? didCloseSuccessfully = null,Object? schedule = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
@@ -76,7 +76,8 @@ as bool,isRefreshingCommute: null == isRefreshingCommute ? _self.isRefreshingCom
 as bool,isTogglingEnabled: null == isTogglingEnabled ? _self.isTogglingEnabled : isTogglingEnabled // ignore: cast_nullable_to_non_nullable
 as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,didCloseSuccessfully: null == didCloseSuccessfully ? _self.didCloseSuccessfully : didCloseSuccessfully // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,schedule: freezed == schedule ? _self.schedule : schedule // ignore: cast_nullable_to_non_nullable
+as WorkSchedule?,
   ));
 }
 /// Create a copy of LeaveReminderSetupState
@@ -102,6 +103,18 @@ $GeoPointCopyWith<$Res>? get work {
 
   return $GeoPointCopyWith<$Res>(_self.work!, (value) {
     return _then(_self.copyWith(work: value));
+  });
+}/// Create a copy of LeaveReminderSetupState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WorkScheduleCopyWith<$Res>? get schedule {
+    if (_self.schedule == null) {
+    return null;
+  }
+
+  return $WorkScheduleCopyWith<$Res>(_self.schedule!, (value) {
+    return _then(_self.copyWith(schedule: value));
   });
 }
 }
@@ -185,10 +198,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  bool isSettingHome,  bool isSettingWork,  bool isRefreshingCommute,  bool isTogglingEnabled,  String? errorMessage,  bool didCloseSuccessfully)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  bool isSettingHome,  bool isSettingWork,  bool isRefreshingCommute,  bool isTogglingEnabled,  String? errorMessage,  bool didCloseSuccessfully,  WorkSchedule? schedule)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LeaveReminderSetupState() when $default != null:
-return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.isSettingHome,_that.isSettingWork,_that.isRefreshingCommute,_that.isTogglingEnabled,_that.errorMessage,_that.didCloseSuccessfully);case _:
+return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.isSettingHome,_that.isSettingWork,_that.isRefreshingCommute,_that.isTogglingEnabled,_that.errorMessage,_that.didCloseSuccessfully,_that.schedule);case _:
   return orElse();
 
 }
@@ -206,10 +219,10 @@ return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  bool isSettingHome,  bool isSettingWork,  bool isRefreshingCommute,  bool isTogglingEnabled,  String? errorMessage,  bool didCloseSuccessfully)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  bool isSettingHome,  bool isSettingWork,  bool isRefreshingCommute,  bool isTogglingEnabled,  String? errorMessage,  bool didCloseSuccessfully,  WorkSchedule? schedule)  $default,) {final _that = this;
 switch (_that) {
 case _LeaveReminderSetupState():
-return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.isSettingHome,_that.isSettingWork,_that.isRefreshingCommute,_that.isTogglingEnabled,_that.errorMessage,_that.didCloseSuccessfully);case _:
+return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.isSettingHome,_that.isSettingWork,_that.isRefreshingCommute,_that.isTogglingEnabled,_that.errorMessage,_that.didCloseSuccessfully,_that.schedule);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -226,10 +239,10 @@ return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  bool isSettingHome,  bool isSettingWork,  bool isRefreshingCommute,  bool isTogglingEnabled,  String? errorMessage,  bool didCloseSuccessfully)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  bool isSettingHome,  bool isSettingWork,  bool isRefreshingCommute,  bool isTogglingEnabled,  String? errorMessage,  bool didCloseSuccessfully,  WorkSchedule? schedule)?  $default,) {final _that = this;
 switch (_that) {
 case _LeaveReminderSetupState() when $default != null:
-return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.isSettingHome,_that.isSettingWork,_that.isRefreshingCommute,_that.isTogglingEnabled,_that.errorMessage,_that.didCloseSuccessfully);case _:
+return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.isSettingHome,_that.isSettingWork,_that.isRefreshingCommute,_that.isTogglingEnabled,_that.errorMessage,_that.didCloseSuccessfully,_that.schedule);case _:
   return null;
 
 }
@@ -241,7 +254,7 @@ return $default(_that.isLoading,_that.enabled,_that.home,_that.work,_that.lastCo
 
 
 class _LeaveReminderSetupState implements LeaveReminderSetupState {
-  const _LeaveReminderSetupState({this.isLoading = true, this.enabled = false, this.home, this.work, this.lastCommuteMinutes, this.lastCommuteUpdatedAt, this.isSettingHome = false, this.isSettingWork = false, this.isRefreshingCommute = false, this.isTogglingEnabled = false, this.errorMessage, this.didCloseSuccessfully = false});
+  const _LeaveReminderSetupState({this.isLoading = true, this.enabled = false, this.home, this.work, this.lastCommuteMinutes, this.lastCommuteUpdatedAt, this.isSettingHome = false, this.isSettingWork = false, this.isRefreshingCommute = false, this.isTogglingEnabled = false, this.errorMessage, this.didCloseSuccessfully = false, this.schedule});
   
 
 @override@JsonKey() final  bool isLoading;
@@ -256,6 +269,7 @@ class _LeaveReminderSetupState implements LeaveReminderSetupState {
 @override@JsonKey() final  bool isTogglingEnabled;
 @override final  String? errorMessage;
 @override@JsonKey() final  bool didCloseSuccessfully;
+@override final  WorkSchedule? schedule;
 
 /// Create a copy of LeaveReminderSetupState
 /// with the given fields replaced by the non-null parameter values.
@@ -267,16 +281,16 @@ _$LeaveReminderSetupStateCopyWith<_LeaveReminderSetupState> get copyWith => __$L
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LeaveReminderSetupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.home, home) || other.home == home)&&(identical(other.work, work) || other.work == work)&&(identical(other.lastCommuteMinutes, lastCommuteMinutes) || other.lastCommuteMinutes == lastCommuteMinutes)&&(identical(other.lastCommuteUpdatedAt, lastCommuteUpdatedAt) || other.lastCommuteUpdatedAt == lastCommuteUpdatedAt)&&(identical(other.isSettingHome, isSettingHome) || other.isSettingHome == isSettingHome)&&(identical(other.isSettingWork, isSettingWork) || other.isSettingWork == isSettingWork)&&(identical(other.isRefreshingCommute, isRefreshingCommute) || other.isRefreshingCommute == isRefreshingCommute)&&(identical(other.isTogglingEnabled, isTogglingEnabled) || other.isTogglingEnabled == isTogglingEnabled)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.didCloseSuccessfully, didCloseSuccessfully) || other.didCloseSuccessfully == didCloseSuccessfully));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LeaveReminderSetupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.home, home) || other.home == home)&&(identical(other.work, work) || other.work == work)&&(identical(other.lastCommuteMinutes, lastCommuteMinutes) || other.lastCommuteMinutes == lastCommuteMinutes)&&(identical(other.lastCommuteUpdatedAt, lastCommuteUpdatedAt) || other.lastCommuteUpdatedAt == lastCommuteUpdatedAt)&&(identical(other.isSettingHome, isSettingHome) || other.isSettingHome == isSettingHome)&&(identical(other.isSettingWork, isSettingWork) || other.isSettingWork == isSettingWork)&&(identical(other.isRefreshingCommute, isRefreshingCommute) || other.isRefreshingCommute == isRefreshingCommute)&&(identical(other.isTogglingEnabled, isTogglingEnabled) || other.isTogglingEnabled == isTogglingEnabled)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.didCloseSuccessfully, didCloseSuccessfully) || other.didCloseSuccessfully == didCloseSuccessfully)&&(identical(other.schedule, schedule) || other.schedule == schedule));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,enabled,home,work,lastCommuteMinutes,lastCommuteUpdatedAt,isSettingHome,isSettingWork,isRefreshingCommute,isTogglingEnabled,errorMessage,didCloseSuccessfully);
+int get hashCode => Object.hash(runtimeType,isLoading,enabled,home,work,lastCommuteMinutes,lastCommuteUpdatedAt,isSettingHome,isSettingWork,isRefreshingCommute,isTogglingEnabled,errorMessage,didCloseSuccessfully,schedule);
 
 @override
 String toString() {
-  return 'LeaveReminderSetupState(isLoading: $isLoading, enabled: $enabled, home: $home, work: $work, lastCommuteMinutes: $lastCommuteMinutes, lastCommuteUpdatedAt: $lastCommuteUpdatedAt, isSettingHome: $isSettingHome, isSettingWork: $isSettingWork, isRefreshingCommute: $isRefreshingCommute, isTogglingEnabled: $isTogglingEnabled, errorMessage: $errorMessage, didCloseSuccessfully: $didCloseSuccessfully)';
+  return 'LeaveReminderSetupState(isLoading: $isLoading, enabled: $enabled, home: $home, work: $work, lastCommuteMinutes: $lastCommuteMinutes, lastCommuteUpdatedAt: $lastCommuteUpdatedAt, isSettingHome: $isSettingHome, isSettingWork: $isSettingWork, isRefreshingCommute: $isRefreshingCommute, isTogglingEnabled: $isTogglingEnabled, errorMessage: $errorMessage, didCloseSuccessfully: $didCloseSuccessfully, schedule: $schedule)';
 }
 
 
@@ -287,11 +301,11 @@ abstract mixin class _$LeaveReminderSetupStateCopyWith<$Res> implements $LeaveRe
   factory _$LeaveReminderSetupStateCopyWith(_LeaveReminderSetupState value, $Res Function(_LeaveReminderSetupState) _then) = __$LeaveReminderSetupStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, bool enabled, GeoPoint? home, GeoPoint? work, int? lastCommuteMinutes, DateTime? lastCommuteUpdatedAt, bool isSettingHome, bool isSettingWork, bool isRefreshingCommute, bool isTogglingEnabled, String? errorMessage, bool didCloseSuccessfully
+ bool isLoading, bool enabled, GeoPoint? home, GeoPoint? work, int? lastCommuteMinutes, DateTime? lastCommuteUpdatedAt, bool isSettingHome, bool isSettingWork, bool isRefreshingCommute, bool isTogglingEnabled, String? errorMessage, bool didCloseSuccessfully, WorkSchedule? schedule
 });
 
 
-@override $GeoPointCopyWith<$Res>? get home;@override $GeoPointCopyWith<$Res>? get work;
+@override $GeoPointCopyWith<$Res>? get home;@override $GeoPointCopyWith<$Res>? get work;@override $WorkScheduleCopyWith<$Res>? get schedule;
 
 }
 /// @nodoc
@@ -304,7 +318,7 @@ class __$LeaveReminderSetupStateCopyWithImpl<$Res>
 
 /// Create a copy of LeaveReminderSetupState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? enabled = null,Object? home = freezed,Object? work = freezed,Object? lastCommuteMinutes = freezed,Object? lastCommuteUpdatedAt = freezed,Object? isSettingHome = null,Object? isSettingWork = null,Object? isRefreshingCommute = null,Object? isTogglingEnabled = null,Object? errorMessage = freezed,Object? didCloseSuccessfully = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? enabled = null,Object? home = freezed,Object? work = freezed,Object? lastCommuteMinutes = freezed,Object? lastCommuteUpdatedAt = freezed,Object? isSettingHome = null,Object? isSettingWork = null,Object? isRefreshingCommute = null,Object? isTogglingEnabled = null,Object? errorMessage = freezed,Object? didCloseSuccessfully = null,Object? schedule = freezed,}) {
   return _then(_LeaveReminderSetupState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
@@ -318,7 +332,8 @@ as bool,isRefreshingCommute: null == isRefreshingCommute ? _self.isRefreshingCom
 as bool,isTogglingEnabled: null == isTogglingEnabled ? _self.isTogglingEnabled : isTogglingEnabled // ignore: cast_nullable_to_non_nullable
 as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,didCloseSuccessfully: null == didCloseSuccessfully ? _self.didCloseSuccessfully : didCloseSuccessfully // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,schedule: freezed == schedule ? _self.schedule : schedule // ignore: cast_nullable_to_non_nullable
+as WorkSchedule?,
   ));
 }
 
@@ -345,6 +360,18 @@ $GeoPointCopyWith<$Res>? get work {
 
   return $GeoPointCopyWith<$Res>(_self.work!, (value) {
     return _then(_self.copyWith(work: value));
+  });
+}/// Create a copy of LeaveReminderSetupState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WorkScheduleCopyWith<$Res>? get schedule {
+    if (_self.schedule == null) {
+    return null;
+  }
+
+  return $WorkScheduleCopyWith<$Res>(_self.schedule!, (value) {
+    return _then(_self.copyWith(schedule: value));
   });
 }
 }

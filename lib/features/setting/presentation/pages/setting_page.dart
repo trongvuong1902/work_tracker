@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
+import 'package:work_tracker/app/cubit/app_cubit.dart';
 import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
@@ -61,6 +63,45 @@ class _SettingPageState extends State<SettingPage> {
                       const Icon(Icons.chevron_right),
                     ],
                   ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            ShadowCard(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.space16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Appearance', style: AppTypography.label(context)),
+                    const SizedBox(height: AppSpacing.space8),
+                    BlocBuilder<AppCubit, AppState>(
+                      builder: (context, state) => SegmentedButton<ThemeMode>(
+                        segments: const [
+                          ButtonSegment(
+                            value: ThemeMode.system,
+                            label: Text('System'),
+                            icon: Icon(Icons.brightness_auto),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.light,
+                            label: Text('Light'),
+                            icon: Icon(Icons.light_mode),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.dark,
+                            label: Text('Dark'),
+                            icon: Icon(Icons.dark_mode),
+                          ),
+                        ],
+                        selected: {state.themeMode},
+                        onSelectionChanged: (selection) => context
+                            .read<AppCubit>()
+                            .setThemeMode(selection.first),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

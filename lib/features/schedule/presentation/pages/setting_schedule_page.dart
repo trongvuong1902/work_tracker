@@ -8,6 +8,7 @@ import 'package:work_tracker/core/radius/app_radius.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
+import 'package:work_tracker/features/schedule/domain/work_schedule_constants.dart';
 import 'package:work_tracker/features/schedule/presentation/cubit/setting_schedule_cubit.dart';
 
 class SettingSchedulePage extends StatefulWidget {
@@ -113,50 +114,11 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                                   ),
                                 ),
                                 const SizedBox(height: AppSpacing.space16),
-                                ShadowCard(
-                                  margin: EdgeInsets.zero,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(
-                                      AppSpacing.space16,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Leave reminder buffer',
-                                          style: AppTypography.label(context),
-                                        ),
-                                        const SizedBox(
-                                          height: AppSpacing.space8,
-                                        ),
-                                        Row(
-                                          children: [
-                                            IconButton(
-                                              icon: const Icon(Icons.remove),
-                                              onPressed: () =>
-                                                  cubit.updateReminderMinutes(
-                                                    state.reminderMinutes - 5,
-                                                  ),
-                                            ),
-                                            Text(
-                                              '${state.reminderMinutes} min',
-                                              style: AppTypography.body(
-                                                context,
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.add),
-                                              onPressed: () =>
-                                                  cubit.updateReminderMinutes(
-                                                    state.reminderMinutes + 5,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                MinutePickerRow(
+                                  label: 'Leave reminder buffer',
+                                  minutes: state.reminderMinutes,
+                                  options: kReminderBufferOptions,
+                                  onChanged: cubit.updateReminderMinutes,
                                 ),
                                 const SizedBox(height: AppSpacing.space16),
                                 ShadowCard(

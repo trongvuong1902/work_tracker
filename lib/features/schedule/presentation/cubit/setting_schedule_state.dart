@@ -6,7 +6,7 @@ abstract class SettingScheduleState with _$SettingScheduleState {
     @Default(540) int startMinuteOfDay,
     @Default(1080) int endMinuteOfDay,
     @Default(60) int lunchMinutes,
-    @Default(0) int reminderMinutes,
+    @Default(10) int reminderMinutes,
     @Default(kDefaultWorkingDaysMask) int workingDaysMask,
     @Default(false) bool isLoading,
     @Default(false) bool isSaving,
