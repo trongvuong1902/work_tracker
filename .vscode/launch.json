@@ -8,19 +8,22 @@
         {
             "name": "work_tracker",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "toolArgs": ["--dart-define-from-file=dart_defines.json"]
         },
         {
             "name": "work_tracker (profile mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "toolArgs": ["--dart-define-from-file=dart_defines.json"]
         },
         {
             "name": "work_tracker (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "toolArgs": ["--dart-define-from-file=dart_defines.json"]
         }
     ]
 }

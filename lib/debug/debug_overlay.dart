@@ -17,17 +17,30 @@ class DebugOverlay extends StatelessWidget {
       children: [
         child,
         Align(
-          alignment: Alignment.bottomRight,
+          alignment: Alignment.topRight,
           child: SafeArea(
             minimum: const EdgeInsets.only(
-              right: AppSpacing.space16,
-              bottom: AppSpacing.space64,
+              right: AppSpacing.space8,
+              top: AppSpacing.space8,
             ),
-            child: FloatingActionButton(
-              heroTag: 'debug-components-fab',
-              tooltip: 'View components (debug)',
-              onPressed: () => appRouter.push(AppRoutes.debug),
-              child: const Icon(Icons.widgets_outlined),
+            child: Opacity(
+              opacity: 0.6,
+              child: Material(
+                color: Colors.black87,
+                shape: const CircleBorder(),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => appRouter.push(AppRoutes.debug),
+                  child: const Padding(
+                    padding: EdgeInsets.all(AppSpacing.space8),
+                    child: Icon(
+                      Icons.widgets_outlined,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),

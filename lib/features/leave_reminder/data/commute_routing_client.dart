@@ -34,10 +34,10 @@ class GoogleDistanceMatrixRoutingClient implements CommuteRoutingClient {
     required GeoPoint to,
   }) async {
     final url = _client.buildUrl(
-      origin: [
+      origin: <gmaps_distance.Location>[
         gmaps_distance.Location(lat: from.latitude, lng: from.longitude),
       ],
-      destination: [
+      destination: <gmaps_distance.Location>[
         gmaps_distance.Location(lat: to.latitude, lng: to.longitude),
       ],
       travelMode: gmaps_distance.TravelMode.driving,

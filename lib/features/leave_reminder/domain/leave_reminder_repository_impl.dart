@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
@@ -111,7 +112,8 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
         estimate.durationInTrafficMinutes,
         DateTime.now(),
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Failed to fetch commute estimate: $e');
       // Offline / API failure: fall back to the cached lastCommuteMinutes,
       // handled below via `commuteMinutes`.
     }
@@ -134,9 +136,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
 
     String weatherPhrase;
     try {
-      final weatherCode = await _weatherClient.fetchWeatherCode(
-        settings.work!,
-      );
+      final weatherCode = await _weatherClient.fetchWeatherCode(settings.work!);
       weatherPhrase = weatherHeadline(weatherCode);
     } catch (_) {
       weatherPhrase = '';

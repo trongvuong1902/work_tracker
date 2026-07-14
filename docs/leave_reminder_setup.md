@@ -55,6 +55,46 @@ GOOGLE_MAPS_API_KEY = your-real-key-here
 `GMSServices.provideAPIKey(...)`. If the key is missing, the app still
 builds/launches; the map view just won't render tiles.
 
+This only wires up the **native** Maps SDK key used for map rendering — it
+does *not* supply the key the Dart-side Distance Matrix HTTP client needs
+(see next section).
+
+## Dart side: populate `dart_defines.json`
+
+`lib/di/register_module.dart` reads the commute-routing key via
+`String.fromEnvironment('GOOGLE_MAPS_API_KEY')`, which is a Dart
+**compile-time** define — separate from both the Android/iOS native config
+above. Without it, every build (debug, profile, *and* release) resolves the
+key to an empty string and Distance Matrix requests fail.
+
+Copy the tracked example and fill in the real key:
+
+```bash
+cp dart_defines.json.example dart_defines.json
+```
+
+`dart_defines.json` is gitignored (see root `.gitignore`). VS Code's
+`.vscode/launch.json` already passes `--dart-define-from-file=dart_defines.json`
+for all three run configs, so `flutter run`/debugging from the IDE picks it
+up automatically. For CLI/CI builds, pass the same flag explicitly:
+
+```bash
+flutter build ios --release --dart-define-from-file=dart_defines.json
+flutter build ipa --release --dart-define-from-file=dart_defines.json
+```
+
+If you archive directly from Xcode's UI (Product → Archive) instead of via
+`flutter build ipa`, this flag never reaches the build — Xcode's archive
+action doesn't invoke the Flutter CLI with it. Prefer `flutter build ipa`
+for release archives so the define is always applied.
+
+Note: a Google Cloud key restricted by "Android apps" / "iOS apps"
+application restrictions (as set up above for the native Maps SDK) is
+**not** honored by the Distance Matrix REST API — those restrictions only
+apply to calls made through the native Maps SDKs. If you reuse the same key
+for both, either leave it unrestricted or restrict by IP instead; otherwise
+provision a second, separately-restricted key just for Distance Matrix.
+
 ## Manual steps that still require Xcode/Android Studio
 
 - Actually filling in the real API key in `android/local.properties` and
