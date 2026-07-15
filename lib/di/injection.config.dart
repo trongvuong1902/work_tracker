@@ -23,6 +23,8 @@ import 'package:work_tracker/core/notifications/notification_service_impl.dart'
     as _i807;
 import 'package:work_tracker/database/attendance/attendance_entity.dart'
     as _i602;
+import 'package:work_tracker/database/checkout_reminder/checkout_reminder_settings_entity.dart'
+    as _i337;
 import 'package:work_tracker/database/leave_reminder/leave_reminder_settings_entity.dart'
     as _i1017;
 import 'package:work_tracker/database/objectbox.g.dart' as _i625;
@@ -40,6 +42,18 @@ import 'package:work_tracker/features/attendance/domain/attendance_repository_im
     as _i284;
 import 'package:work_tracker/features/calendar/presentation/cubit/calendar_cubit.dart'
     as _i474;
+import 'package:work_tracker/features/checkout_reminder/data/checkout_reminder_dao.dart'
+    as _i226;
+import 'package:work_tracker/features/checkout_reminder/data/checkout_reminder_datasource.dart'
+    as _i654;
+import 'package:work_tracker/features/checkout_reminder/data/checkout_reminder_datasource_impl.dart'
+    as _i900;
+import 'package:work_tracker/features/checkout_reminder/domain/checkout_reminder_repository.dart'
+    as _i530;
+import 'package:work_tracker/features/checkout_reminder/domain/checkout_reminder_repository_impl.dart'
+    as _i308;
+import 'package:work_tracker/features/checkout_reminder/presentation/cubit/checkout_reminder_setup_cubit.dart'
+    as _i757;
 import 'package:work_tracker/features/home/presentation/cubit/home_page_cubit.dart'
     as _i594;
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/cubit/attendace_card_cubit.dart'
@@ -127,8 +141,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i625.Box<_i1017.LeaveReminderSettingsEntity>>(
       () => registerModule.leaveReminderBox(gh<_i625.Store>()),
     );
+    gh.singleton<_i625.Box<_i337.CheckoutReminderSettingsEntity>>(
+      () => registerModule.checkoutReminderBox(gh<_i625.Store>()),
+    );
     gh.lazySingleton<_i616.AttendanceDao>(
       () => _i616.AttendanceDaoImpl(gh<_i625.Box<_i602.AttendanceEntity>>()),
+    );
+    gh.lazySingleton<_i226.CheckoutReminderDao>(
+      () => _i226.CheckoutReminderDaoImpl(
+        gh<_i1034.Box<_i337.CheckoutReminderSettingsEntity>>(),
+      ),
     );
     gh.lazySingleton<_i591.LeaveReminderDao>(
       () => _i591.LeaveReminderDaoImpl(
@@ -152,6 +174,10 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i625.WorkScheduleRepositoryImpl(gh<_i762.WorkScheduleDatasource>()),
     );
+    gh.lazySingleton<_i654.CheckoutReminderDatasource>(
+      () =>
+          _i900.CheckoutReminderDatasourceImpl(gh<_i226.CheckoutReminderDao>()),
+    );
     gh.factory<_i542.SettingScheduleCubit>(
       () => _i542.SettingScheduleCubit(gh<_i513.WorkScheduleRepository>()),
     );
@@ -164,7 +190,10 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.factory<_i474.CalendarCubit>(
-      () => _i474.CalendarCubit(gh<_i331.AttendanceRepository>()),
+      () => _i474.CalendarCubit(
+        gh<_i331.AttendanceRepository>(),
+        gh<_i513.WorkScheduleRepository>(),
+      ),
     );
     gh.lazySingleton<_i468.LeaveReminderRepository>(
       () => _i347.LeaveReminderRepositoryImpl(
@@ -187,6 +216,18 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i726.AttendaceCardCubit(
         attendanceRepository: gh<_i331.AttendanceRepository>(),
         workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i530.CheckoutReminderRepository>(
+      () => _i308.CheckoutReminderRepositoryImpl(
+        gh<_i654.CheckoutReminderDatasource>(),
+        gh<_i43.NotificationService>(),
+        gh<_i331.AttendanceRepository>(),
+      ),
+    );
+    gh.factory<_i757.CheckoutReminderSetupCubit>(
+      () => _i757.CheckoutReminderSetupCubit(
+        gh<_i530.CheckoutReminderRepository>(),
       ),
     );
     gh.factory<_i594.HomePageCubit>(

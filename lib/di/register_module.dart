@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/attendance/attendance_entity.dart';
+import '../database/checkout_reminder/checkout_reminder_settings_entity.dart';
 import '../database/leave_reminder/leave_reminder_settings_entity.dart';
 import '../database/objectbox.g.dart';
 import '../database/work_schedule/work_schedule_entity.dart';
@@ -29,6 +30,10 @@ abstract class RegisterModule {
   @singleton
   Box<LeaveReminderSettingsEntity> leaveReminderBox(Store store) =>
       store.box<LeaveReminderSettingsEntity>();
+
+  @singleton
+  Box<CheckoutReminderSettingsEntity> checkoutReminderBox(Store store) =>
+      store.box<CheckoutReminderSettingsEntity>();
 
   @lazySingleton
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin() =>

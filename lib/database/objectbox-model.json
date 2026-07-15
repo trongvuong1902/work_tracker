@@ -194,9 +194,33 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "4:5221361258848994198",
+      "lastPropertyId": "3:7666057814368555657",
+      "name": "CheckoutReminderSettingsEntity",
+      "properties": [
+        {
+          "id": "1:1389034202621098215",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4853571702626953403",
+          "name": "enabled",
+          "type": 1
+        },
+        {
+          "id": "3:7666057814368555657",
+          "name": "leadMinutes",
+          "type": 6
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "3:6679202978330319836",
+  "lastEntityId": "4:5221361258848994198",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

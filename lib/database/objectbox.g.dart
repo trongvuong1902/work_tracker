@@ -15,6 +15,7 @@ import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import '../database/attendance/attendance_entity.dart';
+import '../database/checkout_reminder/checkout_reminder_settings_entity.dart';
 import '../database/leave_reminder/leave_reminder_settings_entity.dart';
 import '../database/work_schedule/work_schedule_entity.dart';
 
@@ -249,6 +250,34 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(4, 5221361258848994198),
+    name: 'CheckoutReminderSettingsEntity',
+    lastPropertyId: const obx_int.IdUid(3, 7666057814368555657),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 1389034202621098215),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 4853571702626953403),
+        name: 'enabled',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 7666057814368555657),
+        name: 'leadMinutes',
+        type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -294,7 +323,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(3, 6679202978330319836),
+    lastEntityId: const obx_int.IdUid(4, 5221361258848994198),
     lastIndexId: const obx_int.IdUid(0, 0),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
@@ -617,6 +646,46 @@ obx_int.ModelDefinition getObjectBoxModel() {
             return object;
           },
         ),
+    CheckoutReminderSettingsEntity:
+        obx_int.EntityDefinition<CheckoutReminderSettingsEntity>(
+          model: _entities[3],
+          toOneRelations: (CheckoutReminderSettingsEntity object) => [],
+          toManyRelations: (CheckoutReminderSettingsEntity object) => {},
+          getId: (CheckoutReminderSettingsEntity object) => object.id,
+          setId: (CheckoutReminderSettingsEntity object, int id) {
+            object.id = id;
+          },
+          objectToFB: (CheckoutReminderSettingsEntity object, fb.Builder fbb) {
+            fbb.startTable(4);
+            fbb.addInt64(0, object.id);
+            fbb.addBool(1, object.enabled);
+            fbb.addInt64(2, object.leadMinutes);
+            fbb.finish(fbb.endTable());
+            return object.id;
+          },
+          objectFromFB: (obx.Store store, ByteData fbData) {
+            final buffer = fb.BufferContext(fbData);
+            final rootOffset = buffer.derefObject(0);
+            final enabledParam = const fb.BoolReader().vTableGet(
+              buffer,
+              rootOffset,
+              6,
+              false,
+            );
+            final leadMinutesParam = const fb.Int64Reader().vTableGet(
+              buffer,
+              rootOffset,
+              8,
+              0,
+            );
+            final object = CheckoutReminderSettingsEntity(
+              enabled: enabledParam,
+              leadMinutes: leadMinutesParam,
+            )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+
+            return object;
+          },
+        ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -795,5 +864,25 @@ class LeaveReminderSettingsEntity_ {
   static final headsUpLeadMinutes =
       obx.QueryIntegerProperty<LeaveReminderSettingsEntity>(
         _entities[2].properties[8],
+      );
+}
+
+/// [CheckoutReminderSettingsEntity] entity fields to define ObjectBox queries.
+class CheckoutReminderSettingsEntity_ {
+  /// See [CheckoutReminderSettingsEntity.id].
+  static final id = obx.QueryIntegerProperty<CheckoutReminderSettingsEntity>(
+    _entities[3].properties[0],
+  );
+
+  /// See [CheckoutReminderSettingsEntity.enabled].
+  static final enabled =
+      obx.QueryBooleanProperty<CheckoutReminderSettingsEntity>(
+        _entities[3].properties[1],
+      );
+
+  /// See [CheckoutReminderSettingsEntity.leadMinutes].
+  static final leadMinutes =
+      obx.QueryIntegerProperty<CheckoutReminderSettingsEntity>(
+        _entities[3].properties[2],
       );
 }
