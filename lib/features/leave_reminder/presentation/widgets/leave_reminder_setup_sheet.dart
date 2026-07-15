@@ -44,44 +44,73 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LeaveReminderSetupCubit, LeaveReminderSetupState>(
-      listenWhen: (previous, current) =>
-          !previous.didCloseSuccessfully && current.didCloseSuccessfully,
-      listener: (context, state) => Navigator.pop(context),
-      child: BlocBuilder<LeaveReminderSetupCubit, LeaveReminderSetupState>(
-        builder: (context, state) {
-          final cubit = context.read<LeaveReminderSetupCubit>();
+    return BlocBuilder<LeaveReminderSetupCubit, LeaveReminderSetupState>(
+      builder: (context, state) {
+        final cubit = context.read<LeaveReminderSetupCubit>();
 
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.space16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (trigger != null) ...[
-                    _TriggerBanner(trigger: trigger!),
-                    const SizedBox(height: AppSpacing.space16),
-                  ] else ...[
-                    Text(
-                      'Leave reminders',
-                      style: AppTypography.title(
-                        context,
-                      )?.copyWith(fontWeight: FontWeight.w600),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.space16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (trigger != null) ...[
+                  _TriggerBanner(trigger: trigger!),
+                  const SizedBox(height: AppSpacing.space16),
+                ] else ...[
+                  Text(
+                    'Leave reminders',
+                    style: AppTypography.title(
+                      context,
+                    )?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: AppSpacing.space16),
+                ],
+                if (state.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: AppSpacing.space32,
                     ),
-                    const SizedBox(height: AppSpacing.space16),
-                  ],
-                  if (state.isLoading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: AppSpacing.space32,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else ...[
+                  ShadowCard(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.space16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Enable leave reminders',
+                              style: AppTypography.label(context),
+                            ),
+                          ),
+                          state.isTogglingEnabled
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Switch(
+                                  value: state.enabled,
+                                  activeThumbColor: context.colors.primary,
+                                  onChanged: (value) =>
+                                      cubit.toggleEnabled(value),
+                                ),
+                        ],
                       ),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else ...[
+                    ),
+                  ),
+                  if (state.enabled) ...[
+                    const SizedBox(height: AppSpacing.space16),
                     _LocationRow(
                       label: 'Set Home',
                       isSet: state.home != null,
@@ -123,96 +152,72 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                         }
                       },
                     ),
+                  ],
+                  if (state.hasBothLocations) ...[
                     const SizedBox(height: AppSpacing.space16),
-                    ShadowCard(
-                      margin: EdgeInsets.zero,
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.space16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Enable leave reminders',
-                                style: AppTypography.label(context),
-                              ),
-                            ),
-                            state.isTogglingEnabled
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Switch(
-                                    value: state.enabled,
-                                    activeThumbColor: context.colors.primary,
-                                    onChanged: (value) =>
-                                        cubit.toggleEnabled(value),
-                                  ),
-                          ],
-                        ),
-                      ),
+                    _CommuteReadoutCard(
+                      minutes: state.lastCommuteMinutes,
+                      updatedAt: state.lastCommuteUpdatedAt,
+                      isRefreshing: state.isRefreshingCommute,
+                      onRefresh: cubit.refreshCommute,
                     ),
-                    if (state.hasBothLocations) ...[
-                      const SizedBox(height: AppSpacing.space16),
-                      _CommuteReadoutCard(
-                        minutes: state.lastCommuteMinutes,
-                        updatedAt: state.lastCommuteUpdatedAt,
-                        isRefreshing: state.isRefreshingCommute,
-                        onRefresh: cubit.refreshCommute,
-                      ),
-                    ],
-                    const SizedBox(height: AppSpacing.space16),
-                    MinutePickerRow(
-                      label: 'Arrive early by',
-                      minutes: state.schedule?.reminderMinutes,
-                      options: kReminderBufferOptions,
-                      enabled: state.schedule != null,
-                      placeholder: 'Set a work schedule first',
-                      valueBuilder: (minutes) =>
-                          state.expectedArriveMinuteOfDay != null
-                          ? '$minutes min · '
-                                '${TimeFormat.hhMm(state.expectedArriveMinuteOfDay!)}'
-                          : '$minutes min',
-                      onChanged: cubit.updateReminderMinutes,
-                    ),
-                    const SizedBox(height: AppSpacing.space16),
-                    _ScheduleReadoutCard(
-                      expectedArriveMinuteOfDay:
-                          state.expectedArriveMinuteOfDay,
-                      alertMinuteOfDay: state.alertMinuteOfDay,
-                    ),
-                    if (kDebugMode) ...[
-                      const SizedBox(height: AppSpacing.space16),
-                      _DebugNotificationTimesCard(
-                        alertMinuteOfDay: state.alertMinuteOfDay,
-                        unavailableReason: state.schedule == null
-                            ? 'No work schedule set'
-                            : state.lastCommuteMinutes == null
-                            ? 'No commute estimate yet — set Home & Work '
-                                  'locations above'
-                            : null,
-                      ),
-                    ],
-                    if (state.errorMessage != null) ...[
-                      const SizedBox(height: AppSpacing.space16),
-                      Text(
-                        state.errorMessage!,
-                        style: AppTypography.body(
-                          context,
-                        )?.copyWith(color: context.colors.error),
-                      ),
-                    ],
                   ],
                   const SizedBox(height: AppSpacing.space16),
+                  MinutePickerRow(
+                    label: 'Arrive early by',
+                    minutes: state.schedule?.reminderMinutes,
+                    options: kReminderBufferOptions,
+                    enabled: state.schedule != null,
+                    placeholder: 'Set a work schedule first',
+                    valueBuilder: (minutes) =>
+                        state.expectedArriveMinuteOfDay != null
+                        ? '$minutes min · '
+                              '${TimeFormat.hhMm(state.expectedArriveMinuteOfDay!)}'
+                        : '$minutes min',
+                    onChanged: cubit.updateReminderMinutes,
+                  ),
+                  const SizedBox(height: AppSpacing.space16),
+                  MinutePickerRow(
+                    label: 'Notify before leaving',
+                    minutes: state.headsUpLeadMinutes,
+                    options: kHeadsUpLeadOptions,
+                    valueBuilder: (minutes) => '$minutes min',
+                    onChanged: cubit.updateHeadsUpLeadMinutes,
+                  ),
+                  const SizedBox(height: AppSpacing.space16),
+                  _ScheduleReadoutCard(
+                    expectedArriveMinuteOfDay: state.expectedArriveMinuteOfDay,
+                    alertMinuteOfDay: state.alertMinuteOfDay,
+                  ),
+                  if (kDebugMode) ...[
+                    const SizedBox(height: AppSpacing.space16),
+                    _DebugNotificationTimesCard(
+                      alertMinuteOfDay: state.alertMinuteOfDay,
+                      headsUpLeadMinutes: state.headsUpLeadMinutes,
+                      unavailableReason: state.schedule == null
+                          ? 'No work schedule set'
+                          : state.lastCommuteMinutes == null
+                          ? 'No commute estimate yet — set Home & Work '
+                                'locations above'
+                          : null,
+                    ),
+                  ],
+                  if (state.errorMessage != null) ...[
+                    const SizedBox(height: AppSpacing.space16),
+                    Text(
+                      state.errorMessage!,
+                      style: AppTypography.body(
+                        context,
+                      )?.copyWith(color: context.colors.error),
+                    ),
+                  ],
                 ],
-              ),
+                const SizedBox(height: AppSpacing.space16),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -352,15 +357,17 @@ class _ReadoutRow extends StatelessWidget {
 /// Debug-only readout of when the two local notifications actually get
 /// scheduled to fire — the same [alertMinuteOfDay] value passed to
 /// `scheduleAt` for the "leave now" alert, and that minus
-/// [kDefaultHeadsUpLeadMinutes] for the earlier heads-up. Not shown in
-/// release builds.
+/// [headsUpLeadMinutes] for the earlier heads-up. Not shown in release
+/// builds.
 class _DebugNotificationTimesCard extends StatelessWidget {
   const _DebugNotificationTimesCard({
     required this.alertMinuteOfDay,
+    required this.headsUpLeadMinutes,
     this.unavailableReason,
   });
 
   final int? alertMinuteOfDay;
+  final int headsUpLeadMinutes;
 
   /// Why [alertMinuteOfDay] is null, shown instead of the readout rows so
   /// it's clear this isn't a rendering bug — the times just aren't
@@ -370,7 +377,7 @@ class _DebugNotificationTimesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final alert = alertMinuteOfDay;
-    final headsUp = alert != null ? alert - kDefaultHeadsUpLeadMinutes : null;
+    final headsUp = alert != null ? alert - headsUpLeadMinutes : null;
 
     return ShadowCard(
       margin: EdgeInsets.zero,

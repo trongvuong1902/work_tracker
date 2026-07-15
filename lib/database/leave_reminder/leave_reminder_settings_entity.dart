@@ -18,6 +18,8 @@ class LeaveReminderSettingsEntity {
   @Property(type: PropertyType.date)
   DateTime? lastCommuteUpdatedAt;
 
+  int headsUpLeadMinutes;
+
   LeaveReminderSettingsEntity({
     this.enabled = false,
     this.homeLat,
@@ -26,5 +28,6 @@ class LeaveReminderSettingsEntity {
     this.workLng,
     this.lastCommuteMinutes,
     this.lastCommuteUpdatedAt,
+    this.headsUpLeadMinutes = 15,
   });
 }

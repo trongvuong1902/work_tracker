@@ -24,4 +24,6 @@ abstract final class AppRoutes {
   static const workScheduleSettings = '/work_schedule_settings';
 
   static const leaveReminderLocationPicker = '/leave_reminder_location_picker';
+
+  static const privacyPolicy = '/privacy_policy';
 }

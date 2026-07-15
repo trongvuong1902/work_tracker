@@ -9,6 +9,7 @@ abstract class LeaveReminderRepository {
   Future<EnableLeaveReminderResult> setEnabled(bool enabled);
   Future<LeaveReminderSettings> setHomeLocation(GeoPoint point);
   Future<LeaveReminderSettings> setWorkLocation(GeoPoint point);
+  Future<LeaveReminderSettings> setHeadsUpLeadMinutes(int minutes);
   Future<void> scheduleTodayReminders();
 
   /// Evaluates the discovery-prompt condition and, if it fires, marks the

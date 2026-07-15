@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/geo_point.dart';
+import 'package:work_tracker/features/leave_reminder/leave_reminder_constants.dart';
 import 'package:work_tracker/features/schedule/domain/models/work_schedule.dart';
 import 'package:work_tracker/features/schedule/domain/work_schedule_repository.dart';
 
@@ -31,6 +32,7 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
         work: settings.work,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        headsUpLeadMinutes: settings.headsUpLeadMinutes,
         schedule: schedule,
       ),
     );
@@ -41,13 +43,7 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
     final result = await _repository.setEnabled(value);
     switch (result) {
       case EnableLeaveReminderResult.success:
-        emit(
-          state.copyWith(
-            isTogglingEnabled: false,
-            enabled: value,
-            didCloseSuccessfully: value,
-          ),
-        );
+        emit(state.copyWith(isTogglingEnabled: false, enabled: value));
       case EnableLeaveReminderResult.notificationPermissionDenied:
         emit(
           state.copyWith(
@@ -95,6 +91,14 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
     final updated = schedule.copyWith(reminderMinutes: minutes.clamp(0, 60));
     emit(state.copyWith(schedule: updated));
     await _workScheduleRepository.saveWorkSchedule(updated);
+    await _repository.scheduleTodayReminders();
+  }
+
+  Future<void> updateHeadsUpLeadMinutes(int minutes) async {
+    final settings = await _repository.setHeadsUpLeadMinutes(
+      minutes.clamp(0, 60),
+    );
+    emit(state.copyWith(headsUpLeadMinutes: settings.headsUpLeadMinutes));
     await _repository.scheduleTodayReminders();
   }
 

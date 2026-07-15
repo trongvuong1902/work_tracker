@@ -86,7 +86,8 @@ flutter build ipa --release --dart-define-from-file=dart_defines.json
 If you archive directly from Xcode's UI (Product → Archive) instead of via
 `flutter build ipa`, this flag never reaches the build — Xcode's archive
 action doesn't invoke the Flutter CLI with it. Prefer `flutter build ipa`
-for release archives so the define is always applied.
+for release archives so the define is always applied. See "Release /
+Archive builds" below for the supported way to do this.
 
 Note: a Google Cloud key restricted by "Android apps" / "iOS apps"
 application restrictions (as set up above for the native Maps SDK) is
@@ -94,6 +95,28 @@ application restrictions (as set up above for the native Maps SDK) is
 apply to calls made through the native Maps SDKs. If you reuse the same key
 for both, either leave it unrestricted or restrict by IP instead; otherwise
 provision a second, separately-restricted key just for Distance Matrix.
+
+## Release / Archive builds
+
+Do **not** produce the App Store build via Xcode's Product → Archive menu
+directly — it packages whatever's already built and never calls
+`flutter build`, so the `--dart-define-from-file=dart_defines.json` flag
+described above is skipped entirely. The resulting IPA still builds and
+installs fine, it just silently ships with an empty `GOOGLE_MAPS_API_KEY`,
+breaking commute estimates for all users.
+
+Instead, always build release IPAs with:
+
+```bash
+./scripts/build_release_ipa.sh
+```
+
+This wraps `fvm flutter build ipa --release --dart-define-from-file=dart_defines.json`
+and fails fast with a clear error if `dart_defines.json` is missing. Once
+it finishes, open the generated archive in Xcode (or use
+`xcrun altool`/Transporter) to upload to App Store Connect as usual —
+Xcode's Archive UI is fine for the *upload* step, just not for producing
+the build itself.
 
 ## Manual steps that still require Xcode/Android Studio
 

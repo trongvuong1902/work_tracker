@@ -14,6 +14,7 @@ import 'package:work_tracker/app/cubit/app_cubit.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/pages/location_picker_page.dart';
 import 'package:work_tracker/features/onboard/presentation/pages/onboard_page.dart';
 import 'package:work_tracker/features/schedule/presentation/pages/setting_schedule_page.dart';
+import 'package:work_tracker/features/setting/presentation/pages/privacy_policy_page.dart';
 import 'package:work_tracker/features/splash/presentation/pages/splash_page.dart';
 
 import 'insight_branch.dart';
@@ -69,6 +70,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.workScheduleSettings,
       builder: (context, state) => const SettingSchedulePage(),
+    ),
+    GoRoute(
+      path: AppRoutes.privacyPolicy,
+      builder: (context, state) => const PrivacyPolicyPage(),
     ),
     GoRoute(
       path: AppRoutes.leaveReminderLocationPicker,

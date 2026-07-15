@@ -133,7 +133,7 @@
     },
     {
       "id": "3:6679202978330319836",
-      "lastPropertyId": "8:2800194175799672012",
+      "lastPropertyId": "9:2573635761723676714",
       "name": "LeaveReminderSettingsEntity",
       "properties": [
         {
@@ -176,6 +176,11 @@
           "id": "8:2800194175799672012",
           "name": "lastCommuteUpdatedAt",
           "type": 10
+        },
+        {
+          "id": "9:2573635761723676714",
+          "name": "headsUpLeadMinutes",
+          "type": 6
         }
       ],
       "relations": []

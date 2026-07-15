@@ -14,7 +14,7 @@ abstract class LeaveReminderSetupState with _$LeaveReminderSetupState {
     @Default(false) bool isRefreshingCommute,
     @Default(false) bool isTogglingEnabled,
     String? errorMessage,
-    @Default(false) bool didCloseSuccessfully,
+    @Default(kDefaultHeadsUpLeadMinutes) int headsUpLeadMinutes,
     WorkSchedule? schedule,
   }) = _LeaveReminderSetupState;
 }

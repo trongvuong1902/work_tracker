@@ -1,6 +1,11 @@
-/// Fixed lead time (minutes) for the "heads-up" notification before the
-/// computed leave time. Not user-configurable for MVP.
-const int kDefaultHeadsUpLeadMinutes = 45;
+/// Default lead time (minutes) for the "heads-up" notification before the
+/// computed leave time, used until the user picks their own value via
+/// [kHeadsUpLeadOptions] in the leave-reminder setup sheet.
+const int kDefaultHeadsUpLeadMinutes = 15;
+
+/// Selectable values (minutes) for the "notify before leaving" heads-up lead
+/// time.
+const List<int> kHeadsUpLeadOptions = [5, 10, 15, 20, 30, 45, 60];
 
 /// Number of consecutive on-time check-ins required to trigger the
 /// "on-time streak" discovery prompt for leave reminders.

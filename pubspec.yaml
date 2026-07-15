@@ -52,6 +52,7 @@ dependencies:
   geolocator: ^14.0.2
   permission_handler: ^12.0.1
   http: ^1.2.1
+  package_info_plus: ^9.0.0
 
 
 dev_dependencies:
@@ -61,6 +62,7 @@ dev_dependencies:
   build_runner: ^2.15.1
   objectbox_generator:
   freezed: ^3.2.5
+  flutter_launcher_icons: ^0.14.4
 
   
 
@@ -127,3 +129,11 @@ objectbox:
   # output_dir:
   #   lib: custom
   #   test: other
+
+# Regenerates native app launcher icons from a single source image.
+# See docs/app_icon_setup.md for how to supply the source image and run this.
+flutter_launcher_icons:
+  image_path: "assets/icon/icon.png"
+  ios: true
+  remove_alpha_ios: true
+  android: true

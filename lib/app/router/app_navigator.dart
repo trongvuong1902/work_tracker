@@ -26,6 +26,9 @@ abstract final class AppNavigator {
 
   static void pushDebug(BuildContext context) => context.push(AppRoutes.debug);
 
+  static void pushPrivacyPolicy(BuildContext context) =>
+      context.push(AppRoutes.privacyPolicy);
+
   static Future<LatLng?> pushLocationPicker(
     BuildContext context, {
     LatLng? initial,

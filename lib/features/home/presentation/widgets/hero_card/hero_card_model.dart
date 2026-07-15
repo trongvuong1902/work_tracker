@@ -16,8 +16,9 @@ class HeroCardModel with _$HeroCardModel {
     if (attendance.checkIn == null) {
       return const HeroCardModel.beforeCheckIn();
     } else if (attendance.checkOut == null) {
-      final totalMinutes =
-          attendance.expectedEndMinute - attendance.expectedStartMinute;
+      final totalMinutes = attendance.expectedEndMinute -
+          attendance.expectedStartMinute -
+          attendance.lunchMinutes;
       final leaveAt = attendance.checkIn!.add(Duration(minutes: totalMinutes));
 
       return HeroCardModel.working(

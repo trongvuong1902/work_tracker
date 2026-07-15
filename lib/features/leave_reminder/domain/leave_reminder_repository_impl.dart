@@ -88,6 +88,14 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
   }
 
   @override
+  Future<LeaveReminderSettings> setHeadsUpLeadMinutes(int minutes) async {
+    final settings = await getSettings();
+    final updated = settings.copyWith(headsUpLeadMinutes: minutes);
+    await _datasource.saveSettings(updated);
+    return updated;
+  }
+
+  @override
   Future<void> scheduleTodayReminders() async {
     final schedule = await _workScheduleRepository.getCurrentActiveSchedule();
     final settings = await getSettings();
@@ -129,7 +137,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
       schedule.startMinuteOfDay,
     ).subtract(Duration(minutes: schedule.reminderMinutes + commuteMinutes));
     final headsUpTime = leaveTime.subtract(
-      const Duration(minutes: kDefaultHeadsUpLeadMinutes),
+      Duration(minutes: settings.headsUpLeadMinutes),
     );
 
     final now = DateTime.now();

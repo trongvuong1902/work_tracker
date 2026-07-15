@@ -176,7 +176,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 6679202978330319836),
     name: 'LeaveReminderSettingsEntity',
-    lastPropertyId: const obx_int.IdUid(8, 2800194175799672012),
+    lastPropertyId: const obx_int.IdUid(9, 2573635761723676714),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -225,6 +225,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(8, 2800194175799672012),
         name: 'lastCommuteUpdatedAt',
         type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 2573635761723676714),
+        name: 'headsUpLeadMinutes',
+        type: 6,
         flags: 0,
       ),
     ],
@@ -509,7 +515,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
             object.id = id;
           },
           objectToFB: (LeaveReminderSettingsEntity object, fb.Builder fbb) {
-            fbb.startTable(9);
+            fbb.startTable(10);
             fbb.addInt64(0, object.id);
             fbb.addBool(1, object.enabled);
             fbb.addFloat64(2, object.homeLat);
@@ -521,6 +527,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               7,
               object.lastCommuteUpdatedAt?.millisecondsSinceEpoch,
             );
+            fbb.addInt64(8, object.headsUpLeadMinutes);
             fbb.finish(fbb.endTable());
             return object.id;
           },
@@ -562,6 +569,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
                 : DateTime.fromMillisecondsSinceEpoch(
                     lastCommuteUpdatedAtValue,
                   );
+            final headsUpLeadMinutesParam = const fb.Int64Reader().vTableGet(
+              buffer,
+              rootOffset,
+              20,
+              0,
+            );
             final object = LeaveReminderSettingsEntity(
               enabled: enabledParam,
               homeLat: homeLatParam,
@@ -570,6 +583,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               workLng: workLngParam,
               lastCommuteMinutes: lastCommuteMinutesParam,
               lastCommuteUpdatedAt: lastCommuteUpdatedAtParam,
+              headsUpLeadMinutes: headsUpLeadMinutesParam,
             )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
             return object;
@@ -738,5 +752,11 @@ class LeaveReminderSettingsEntity_ {
   static final lastCommuteUpdatedAt =
       obx.QueryDateProperty<LeaveReminderSettingsEntity>(
         _entities[2].properties[7],
+      );
+
+  /// See [LeaveReminderSettingsEntity.headsUpLeadMinutes].
+  static final headsUpLeadMinutes =
+      obx.QueryIntegerProperty<LeaveReminderSettingsEntity>(
+        _entities[2].properties[8],
       );
 }

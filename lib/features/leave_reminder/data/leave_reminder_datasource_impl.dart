@@ -42,6 +42,7 @@ class LeaveReminderDatasourceImpl implements LeaveReminderDatasource {
             : null,
         lastCommuteMinutes: entity.lastCommuteMinutes,
         lastCommuteUpdatedAt: entity.lastCommuteUpdatedAt,
+        headsUpLeadMinutes: entity.headsUpLeadMinutes,
       );
 
   LeaveReminderSettingsEntity _toEntity(LeaveReminderSettings settings) =>
@@ -53,5 +54,6 @@ class LeaveReminderDatasourceImpl implements LeaveReminderDatasource {
         workLng: settings.work?.longitude,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        headsUpLeadMinutes: settings.headsUpLeadMinutes,
       );
 }

@@ -86,18 +86,19 @@ class _HomePageState extends State<HomePage> {
             final cubit = context.read<HomePageCubit>();
 
             return Scaffold(
-              appBar: AppBar(
-                actions: [
-                  if (kDebugMode)
-                    IconButton(
-                      icon: const Icon(Icons.clear),
-                      tooltip: 'Clear today\'s attendance (debug)',
-                      onPressed: () {
-                        cubit.clearAll();
-                      },
-                    ),
-                ],
-              ),
+              appBar: kDebugMode
+                  ? AppBar(
+                      actions: [
+                        IconButton(
+                          icon: const Icon(Icons.clear),
+                          tooltip: 'Clear today\'s attendance (debug)',
+                          onPressed: () {
+                            cubit.clearAll();
+                          },
+                        ),
+                      ],
+                    )
+                  : null,
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(AppSpacing.space16),
