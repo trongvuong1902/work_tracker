@@ -1,0 +1,25 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build the release IPA (via repo build script) and upload it to TestFlight"
+  lane :beta do
+    repo_root = File.expand_path("../..", __dir__)
+
+    sh("#{repo_root}/scripts/build_release_ipa.sh")
+
+    ipa_path = Dir.glob("#{repo_root}/build/ios/ipa/*.ipa").max_by { |f| File.mtime(f) }
+    UI.user_error!("No .ipa found in build/ios/ipa after build_release_ipa.sh") unless ipa_path
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end
