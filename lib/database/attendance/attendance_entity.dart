@@ -23,6 +23,8 @@ class AttendanceEntity {
 
   int lunchMinutes;
 
+  int expectedLunchStartMinute;
+
   int workedMinutes;
 
   int lateMinutes;
@@ -46,6 +48,7 @@ class AttendanceEntity {
     required this.expectedStartMinute,
     required this.expectedEndMinute,
     required this.lunchMinutes,
+    required this.expectedLunchStartMinute,
     required this.workedMinutes,
     this.lateMinutes = 0,
     this.overtimeMinutes = 0,

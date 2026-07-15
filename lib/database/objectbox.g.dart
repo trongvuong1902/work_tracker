@@ -24,7 +24,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 3634202302063934173),
     name: 'AttendanceEntity',
-    lastPropertyId: const obx_int.IdUid(16, 1412025691473653403),
+    lastPropertyId: const obx_int.IdUid(17, 6172843247117442083),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -123,6 +123,12 @@ final _entities = <obx_int.ModelEntity>[
         type: 10,
         flags: 0,
       ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(17, 6172843247117442083),
+        name: 'expectedLunchStartMinute',
+        type: 6,
+        flags: 0,
+      ),
     ],
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
@@ -130,7 +136,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(2, 2238911637897544245),
     name: 'WorkScheduleEntity',
-    lastPropertyId: const obx_int.IdUid(6, 3290344717990253593),
+    lastPropertyId: const obx_int.IdUid(7, 5878804006344107488),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -166,6 +172,12 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(6, 3290344717990253593),
         name: 'workingDaysMask',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 5878804006344107488),
+        name: 'lunchStartMinute',
         type: 6,
         flags: 0,
       ),
@@ -308,7 +320,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final noteOffset = object.note == null
             ? null
             : fbb.writeString(object.note!);
-        fbb.startTable(17);
+        fbb.startTable(18);
         fbb.addInt64(0, object.id);
         fbb.addInt64(1, object.workDate.millisecondsSinceEpoch);
         fbb.addInt64(2, object.dayKey);
@@ -325,6 +337,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(13, noteOffset);
         fbb.addBool(14, object.isEdited);
         fbb.addInt64(15, object.editedAt?.millisecondsSinceEpoch);
+        fbb.addInt64(16, object.expectedLunchStartMinute);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -371,6 +384,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
           buffer,
           rootOffset,
           18,
+          0,
+        );
+        final expectedLunchStartMinuteParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          36,
           0,
         );
         final workedMinutesParam = const fb.Int64Reader().vTableGet(
@@ -427,6 +446,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           expectedStartMinute: expectedStartMinuteParam,
           expectedEndMinute: expectedEndMinuteParam,
           lunchMinutes: lunchMinutesParam,
+          expectedLunchStartMinute: expectedLunchStartMinuteParam,
           workedMinutes: workedMinutesParam,
           lateMinutes: lateMinutesParam,
           overtimeMinutes: overtimeMinutesParam,
@@ -451,13 +471,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
         object.id = id;
       },
       objectToFB: (WorkScheduleEntity object, fb.Builder fbb) {
-        fbb.startTable(7);
+        fbb.startTable(8);
         fbb.addInt64(0, object.id);
         fbb.addInt64(1, object.startMinute);
         fbb.addInt64(2, object.endMinute);
         fbb.addInt64(3, object.lunchMinutes);
         fbb.addInt64(4, object.reminderMinutes);
         fbb.addInt64(5, object.workingDaysMask);
+        fbb.addInt64(6, object.lunchStartMinute);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -482,6 +503,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
           10,
           0,
         );
+        final lunchStartMinuteParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          16,
+          0,
+        );
         final reminderMinutesParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -498,6 +525,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           startMinute: startMinuteParam,
           endMinute: endMinuteParam,
           lunchMinutes: lunchMinutesParam,
+          lunchStartMinute: lunchStartMinuteParam,
           reminderMinutes: reminderMinutesParam,
           workingDaysMask: workingDaysMaskParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
@@ -675,6 +703,10 @@ class AttendanceEntity_ {
   static final editedAt = obx.QueryDateProperty<AttendanceEntity>(
     _entities[0].properties[15],
   );
+
+  /// See [AttendanceEntity.expectedLunchStartMinute].
+  static final expectedLunchStartMinute =
+      obx.QueryIntegerProperty<AttendanceEntity>(_entities[0].properties[16]);
 }
 
 /// [WorkScheduleEntity] entity fields to define ObjectBox queries.
@@ -707,6 +739,11 @@ class WorkScheduleEntity_ {
   /// See [WorkScheduleEntity.workingDaysMask].
   static final workingDaysMask = obx.QueryIntegerProperty<WorkScheduleEntity>(
     _entities[1].properties[5],
+  );
+
+  /// See [WorkScheduleEntity.lunchStartMinute].
+  static final lunchStartMinute = obx.QueryIntegerProperty<WorkScheduleEntity>(
+    _entities[1].properties[6],
   );
 }
 

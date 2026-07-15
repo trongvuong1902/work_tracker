@@ -31,6 +31,7 @@ class SettingScheduleCubit extends Cubit<SettingScheduleState> {
         startMinuteOfDay: existing.startMinuteOfDay,
         endMinuteOfDay: existing.endMinuteOfDay,
         lunchMinutes: existing.lunchMinutes,
+        lunchStartMinuteOfDay: existing.lunchStartMinuteOfDay,
         reminderMinutes: existing.reminderMinutes,
         workingDaysMask: existing.workingDaysMask ?? kDefaultWorkingDaysMask,
       ),
@@ -47,6 +48,12 @@ class SettingScheduleCubit extends Cubit<SettingScheduleState> {
 
   void updateLunchMinutes(int minutes) {
     emit(state.copyWith(lunchMinutes: minutes.clamp(0, 180)));
+  }
+
+  void updateLunchStartMinute(int minuteOfDay) {
+    emit(
+      state.copyWith(lunchStartMinuteOfDay: minuteOfDay, errorMessage: null),
+    );
   }
 
   void updateReminderMinutes(int minutes) {
@@ -70,6 +77,7 @@ class SettingScheduleCubit extends Cubit<SettingScheduleState> {
         startMinuteOfDay: state.startMinuteOfDay,
         endMinuteOfDay: state.endMinuteOfDay,
         lunchMinutes: state.lunchMinutes,
+        lunchStartMinuteOfDay: state.lunchStartMinuteOfDay,
         reminderMinutes: state.reminderMinutes,
         workingDaysMask: state.workingDaysMask,
       ),

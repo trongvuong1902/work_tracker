@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Attendance {
 
- DateTime get workDate; int get dayKey; DateTime? get checkIn; DateTime? get checkOut; int get expectedStartMinute; int get expectedEndMinute; int get lunchMinutes; int get workedMinutes; int get lateMinutes; int get overtimeMinutes; int get earlyLeaveMinutes; int get status; String? get note; bool get isEdited; DateTime? get editedAt;
+ DateTime get workDate; int get dayKey; DateTime? get checkIn; DateTime? get checkOut; int get expectedStartMinute; int get expectedEndMinute; int get lunchMinutes; int get expectedLunchStartMinute; int get workedMinutes; int get lateMinutes; int get overtimeMinutes; int get earlyLeaveMinutes; int get status; String? get note; bool get isEdited; DateTime? get editedAt;
 /// Create a copy of Attendance
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $AttendanceCopyWith<Attendance> get copyWith => _$AttendanceCopyWithImpl<Attenda
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Attendance&&(identical(other.workDate, workDate) || other.workDate == workDate)&&(identical(other.dayKey, dayKey) || other.dayKey == dayKey)&&(identical(other.checkIn, checkIn) || other.checkIn == checkIn)&&(identical(other.checkOut, checkOut) || other.checkOut == checkOut)&&(identical(other.expectedStartMinute, expectedStartMinute) || other.expectedStartMinute == expectedStartMinute)&&(identical(other.expectedEndMinute, expectedEndMinute) || other.expectedEndMinute == expectedEndMinute)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.workedMinutes, workedMinutes) || other.workedMinutes == workedMinutes)&&(identical(other.lateMinutes, lateMinutes) || other.lateMinutes == lateMinutes)&&(identical(other.overtimeMinutes, overtimeMinutes) || other.overtimeMinutes == overtimeMinutes)&&(identical(other.earlyLeaveMinutes, earlyLeaveMinutes) || other.earlyLeaveMinutes == earlyLeaveMinutes)&&(identical(other.status, status) || other.status == status)&&(identical(other.note, note) || other.note == note)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Attendance&&(identical(other.workDate, workDate) || other.workDate == workDate)&&(identical(other.dayKey, dayKey) || other.dayKey == dayKey)&&(identical(other.checkIn, checkIn) || other.checkIn == checkIn)&&(identical(other.checkOut, checkOut) || other.checkOut == checkOut)&&(identical(other.expectedStartMinute, expectedStartMinute) || other.expectedStartMinute == expectedStartMinute)&&(identical(other.expectedEndMinute, expectedEndMinute) || other.expectedEndMinute == expectedEndMinute)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.expectedLunchStartMinute, expectedLunchStartMinute) || other.expectedLunchStartMinute == expectedLunchStartMinute)&&(identical(other.workedMinutes, workedMinutes) || other.workedMinutes == workedMinutes)&&(identical(other.lateMinutes, lateMinutes) || other.lateMinutes == lateMinutes)&&(identical(other.overtimeMinutes, overtimeMinutes) || other.overtimeMinutes == overtimeMinutes)&&(identical(other.earlyLeaveMinutes, earlyLeaveMinutes) || other.earlyLeaveMinutes == earlyLeaveMinutes)&&(identical(other.status, status) || other.status == status)&&(identical(other.note, note) || other.note == note)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,workDate,dayKey,checkIn,checkOut,expectedStartMinute,expectedEndMinute,lunchMinutes,workedMinutes,lateMinutes,overtimeMinutes,earlyLeaveMinutes,status,note,isEdited,editedAt);
+int get hashCode => Object.hash(runtimeType,workDate,dayKey,checkIn,checkOut,expectedStartMinute,expectedEndMinute,lunchMinutes,expectedLunchStartMinute,workedMinutes,lateMinutes,overtimeMinutes,earlyLeaveMinutes,status,note,isEdited,editedAt);
 
 @override
 String toString() {
-  return 'Attendance(workDate: $workDate, dayKey: $dayKey, checkIn: $checkIn, checkOut: $checkOut, expectedStartMinute: $expectedStartMinute, expectedEndMinute: $expectedEndMinute, lunchMinutes: $lunchMinutes, workedMinutes: $workedMinutes, lateMinutes: $lateMinutes, overtimeMinutes: $overtimeMinutes, earlyLeaveMinutes: $earlyLeaveMinutes, status: $status, note: $note, isEdited: $isEdited, editedAt: $editedAt)';
+  return 'Attendance(workDate: $workDate, dayKey: $dayKey, checkIn: $checkIn, checkOut: $checkOut, expectedStartMinute: $expectedStartMinute, expectedEndMinute: $expectedEndMinute, lunchMinutes: $lunchMinutes, expectedLunchStartMinute: $expectedLunchStartMinute, workedMinutes: $workedMinutes, lateMinutes: $lateMinutes, overtimeMinutes: $overtimeMinutes, earlyLeaveMinutes: $earlyLeaveMinutes, status: $status, note: $note, isEdited: $isEdited, editedAt: $editedAt)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $AttendanceCopyWith<$Res>  {
   factory $AttendanceCopyWith(Attendance value, $Res Function(Attendance) _then) = _$AttendanceCopyWithImpl;
 @useResult
 $Res call({
- DateTime workDate, int dayKey, DateTime? checkIn, DateTime? checkOut, int expectedStartMinute, int expectedEndMinute, int lunchMinutes, int workedMinutes, int lateMinutes, int overtimeMinutes, int earlyLeaveMinutes, int status, String? note, bool isEdited, DateTime? editedAt
+ DateTime workDate, int dayKey, DateTime? checkIn, DateTime? checkOut, int expectedStartMinute, int expectedEndMinute, int lunchMinutes, int expectedLunchStartMinute, int workedMinutes, int lateMinutes, int overtimeMinutes, int earlyLeaveMinutes, int status, String? note, bool isEdited, DateTime? editedAt
 });
 
 
@@ -62,7 +62,7 @@ class _$AttendanceCopyWithImpl<$Res>
 
 /// Create a copy of Attendance
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? workDate = null,Object? dayKey = null,Object? checkIn = freezed,Object? checkOut = freezed,Object? expectedStartMinute = null,Object? expectedEndMinute = null,Object? lunchMinutes = null,Object? workedMinutes = null,Object? lateMinutes = null,Object? overtimeMinutes = null,Object? earlyLeaveMinutes = null,Object? status = null,Object? note = freezed,Object? isEdited = null,Object? editedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? workDate = null,Object? dayKey = null,Object? checkIn = freezed,Object? checkOut = freezed,Object? expectedStartMinute = null,Object? expectedEndMinute = null,Object? lunchMinutes = null,Object? expectedLunchStartMinute = null,Object? workedMinutes = null,Object? lateMinutes = null,Object? overtimeMinutes = null,Object? earlyLeaveMinutes = null,Object? status = null,Object? note = freezed,Object? isEdited = null,Object? editedAt = freezed,}) {
   return _then(_self.copyWith(
 workDate: null == workDate ? _self.workDate : workDate // ignore: cast_nullable_to_non_nullable
 as DateTime,dayKey: null == dayKey ? _self.dayKey : dayKey // ignore: cast_nullable_to_non_nullable
@@ -71,6 +71,7 @@ as DateTime?,checkOut: freezed == checkOut ? _self.checkOut : checkOut // ignore
 as DateTime?,expectedStartMinute: null == expectedStartMinute ? _self.expectedStartMinute : expectedStartMinute // ignore: cast_nullable_to_non_nullable
 as int,expectedEndMinute: null == expectedEndMinute ? _self.expectedEndMinute : expectedEndMinute // ignore: cast_nullable_to_non_nullable
 as int,lunchMinutes: null == lunchMinutes ? _self.lunchMinutes : lunchMinutes // ignore: cast_nullable_to_non_nullable
+as int,expectedLunchStartMinute: null == expectedLunchStartMinute ? _self.expectedLunchStartMinute : expectedLunchStartMinute // ignore: cast_nullable_to_non_nullable
 as int,workedMinutes: null == workedMinutes ? _self.workedMinutes : workedMinutes // ignore: cast_nullable_to_non_nullable
 as int,lateMinutes: null == lateMinutes ? _self.lateMinutes : lateMinutes // ignore: cast_nullable_to_non_nullable
 as int,overtimeMinutes: null == overtimeMinutes ? _self.overtimeMinutes : overtimeMinutes // ignore: cast_nullable_to_non_nullable
@@ -164,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DateTime workDate,  int dayKey,  DateTime? checkIn,  DateTime? checkOut,  int expectedStartMinute,  int expectedEndMinute,  int lunchMinutes,  int workedMinutes,  int lateMinutes,  int overtimeMinutes,  int earlyLeaveMinutes,  int status,  String? note,  bool isEdited,  DateTime? editedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DateTime workDate,  int dayKey,  DateTime? checkIn,  DateTime? checkOut,  int expectedStartMinute,  int expectedEndMinute,  int lunchMinutes,  int expectedLunchStartMinute,  int workedMinutes,  int lateMinutes,  int overtimeMinutes,  int earlyLeaveMinutes,  int status,  String? note,  bool isEdited,  DateTime? editedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Attendance() when $default != null:
-return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.expectedStartMinute,_that.expectedEndMinute,_that.lunchMinutes,_that.workedMinutes,_that.lateMinutes,_that.overtimeMinutes,_that.earlyLeaveMinutes,_that.status,_that.note,_that.isEdited,_that.editedAt);case _:
+return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.expectedStartMinute,_that.expectedEndMinute,_that.lunchMinutes,_that.expectedLunchStartMinute,_that.workedMinutes,_that.lateMinutes,_that.overtimeMinutes,_that.earlyLeaveMinutes,_that.status,_that.note,_that.isEdited,_that.editedAt);case _:
   return orElse();
 
 }
@@ -185,10 +186,10 @@ return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.e
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DateTime workDate,  int dayKey,  DateTime? checkIn,  DateTime? checkOut,  int expectedStartMinute,  int expectedEndMinute,  int lunchMinutes,  int workedMinutes,  int lateMinutes,  int overtimeMinutes,  int earlyLeaveMinutes,  int status,  String? note,  bool isEdited,  DateTime? editedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DateTime workDate,  int dayKey,  DateTime? checkIn,  DateTime? checkOut,  int expectedStartMinute,  int expectedEndMinute,  int lunchMinutes,  int expectedLunchStartMinute,  int workedMinutes,  int lateMinutes,  int overtimeMinutes,  int earlyLeaveMinutes,  int status,  String? note,  bool isEdited,  DateTime? editedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Attendance():
-return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.expectedStartMinute,_that.expectedEndMinute,_that.lunchMinutes,_that.workedMinutes,_that.lateMinutes,_that.overtimeMinutes,_that.earlyLeaveMinutes,_that.status,_that.note,_that.isEdited,_that.editedAt);case _:
+return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.expectedStartMinute,_that.expectedEndMinute,_that.lunchMinutes,_that.expectedLunchStartMinute,_that.workedMinutes,_that.lateMinutes,_that.overtimeMinutes,_that.earlyLeaveMinutes,_that.status,_that.note,_that.isEdited,_that.editedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +206,10 @@ return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.e
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DateTime workDate,  int dayKey,  DateTime? checkIn,  DateTime? checkOut,  int expectedStartMinute,  int expectedEndMinute,  int lunchMinutes,  int workedMinutes,  int lateMinutes,  int overtimeMinutes,  int earlyLeaveMinutes,  int status,  String? note,  bool isEdited,  DateTime? editedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DateTime workDate,  int dayKey,  DateTime? checkIn,  DateTime? checkOut,  int expectedStartMinute,  int expectedEndMinute,  int lunchMinutes,  int expectedLunchStartMinute,  int workedMinutes,  int lateMinutes,  int overtimeMinutes,  int earlyLeaveMinutes,  int status,  String? note,  bool isEdited,  DateTime? editedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Attendance() when $default != null:
-return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.expectedStartMinute,_that.expectedEndMinute,_that.lunchMinutes,_that.workedMinutes,_that.lateMinutes,_that.overtimeMinutes,_that.earlyLeaveMinutes,_that.status,_that.note,_that.isEdited,_that.editedAt);case _:
+return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.expectedStartMinute,_that.expectedEndMinute,_that.lunchMinutes,_that.expectedLunchStartMinute,_that.workedMinutes,_that.lateMinutes,_that.overtimeMinutes,_that.earlyLeaveMinutes,_that.status,_that.note,_that.isEdited,_that.editedAt);case _:
   return null;
 
 }
@@ -220,7 +221,7 @@ return $default(_that.workDate,_that.dayKey,_that.checkIn,_that.checkOut,_that.e
 
 
 class _Attendance implements Attendance {
-  const _Attendance({required this.workDate, required this.dayKey, this.checkIn, this.checkOut, required this.expectedStartMinute, required this.expectedEndMinute, required this.lunchMinutes, this.workedMinutes = 0, this.lateMinutes = 0, this.overtimeMinutes = 0, this.earlyLeaveMinutes = 0, this.status = 0, this.note, this.isEdited = false, this.editedAt});
+  const _Attendance({required this.workDate, required this.dayKey, this.checkIn, this.checkOut, required this.expectedStartMinute, required this.expectedEndMinute, required this.lunchMinutes, required this.expectedLunchStartMinute, this.workedMinutes = 0, this.lateMinutes = 0, this.overtimeMinutes = 0, this.earlyLeaveMinutes = 0, this.status = 0, this.note, this.isEdited = false, this.editedAt});
   
 
 @override final  DateTime workDate;
@@ -230,6 +231,7 @@ class _Attendance implements Attendance {
 @override final  int expectedStartMinute;
 @override final  int expectedEndMinute;
 @override final  int lunchMinutes;
+@override final  int expectedLunchStartMinute;
 @override@JsonKey() final  int workedMinutes;
 @override@JsonKey() final  int lateMinutes;
 @override@JsonKey() final  int overtimeMinutes;
@@ -249,16 +251,16 @@ _$AttendanceCopyWith<_Attendance> get copyWith => __$AttendanceCopyWithImpl<_Att
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Attendance&&(identical(other.workDate, workDate) || other.workDate == workDate)&&(identical(other.dayKey, dayKey) || other.dayKey == dayKey)&&(identical(other.checkIn, checkIn) || other.checkIn == checkIn)&&(identical(other.checkOut, checkOut) || other.checkOut == checkOut)&&(identical(other.expectedStartMinute, expectedStartMinute) || other.expectedStartMinute == expectedStartMinute)&&(identical(other.expectedEndMinute, expectedEndMinute) || other.expectedEndMinute == expectedEndMinute)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.workedMinutes, workedMinutes) || other.workedMinutes == workedMinutes)&&(identical(other.lateMinutes, lateMinutes) || other.lateMinutes == lateMinutes)&&(identical(other.overtimeMinutes, overtimeMinutes) || other.overtimeMinutes == overtimeMinutes)&&(identical(other.earlyLeaveMinutes, earlyLeaveMinutes) || other.earlyLeaveMinutes == earlyLeaveMinutes)&&(identical(other.status, status) || other.status == status)&&(identical(other.note, note) || other.note == note)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Attendance&&(identical(other.workDate, workDate) || other.workDate == workDate)&&(identical(other.dayKey, dayKey) || other.dayKey == dayKey)&&(identical(other.checkIn, checkIn) || other.checkIn == checkIn)&&(identical(other.checkOut, checkOut) || other.checkOut == checkOut)&&(identical(other.expectedStartMinute, expectedStartMinute) || other.expectedStartMinute == expectedStartMinute)&&(identical(other.expectedEndMinute, expectedEndMinute) || other.expectedEndMinute == expectedEndMinute)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.expectedLunchStartMinute, expectedLunchStartMinute) || other.expectedLunchStartMinute == expectedLunchStartMinute)&&(identical(other.workedMinutes, workedMinutes) || other.workedMinutes == workedMinutes)&&(identical(other.lateMinutes, lateMinutes) || other.lateMinutes == lateMinutes)&&(identical(other.overtimeMinutes, overtimeMinutes) || other.overtimeMinutes == overtimeMinutes)&&(identical(other.earlyLeaveMinutes, earlyLeaveMinutes) || other.earlyLeaveMinutes == earlyLeaveMinutes)&&(identical(other.status, status) || other.status == status)&&(identical(other.note, note) || other.note == note)&&(identical(other.isEdited, isEdited) || other.isEdited == isEdited)&&(identical(other.editedAt, editedAt) || other.editedAt == editedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,workDate,dayKey,checkIn,checkOut,expectedStartMinute,expectedEndMinute,lunchMinutes,workedMinutes,lateMinutes,overtimeMinutes,earlyLeaveMinutes,status,note,isEdited,editedAt);
+int get hashCode => Object.hash(runtimeType,workDate,dayKey,checkIn,checkOut,expectedStartMinute,expectedEndMinute,lunchMinutes,expectedLunchStartMinute,workedMinutes,lateMinutes,overtimeMinutes,earlyLeaveMinutes,status,note,isEdited,editedAt);
 
 @override
 String toString() {
-  return 'Attendance(workDate: $workDate, dayKey: $dayKey, checkIn: $checkIn, checkOut: $checkOut, expectedStartMinute: $expectedStartMinute, expectedEndMinute: $expectedEndMinute, lunchMinutes: $lunchMinutes, workedMinutes: $workedMinutes, lateMinutes: $lateMinutes, overtimeMinutes: $overtimeMinutes, earlyLeaveMinutes: $earlyLeaveMinutes, status: $status, note: $note, isEdited: $isEdited, editedAt: $editedAt)';
+  return 'Attendance(workDate: $workDate, dayKey: $dayKey, checkIn: $checkIn, checkOut: $checkOut, expectedStartMinute: $expectedStartMinute, expectedEndMinute: $expectedEndMinute, lunchMinutes: $lunchMinutes, expectedLunchStartMinute: $expectedLunchStartMinute, workedMinutes: $workedMinutes, lateMinutes: $lateMinutes, overtimeMinutes: $overtimeMinutes, earlyLeaveMinutes: $earlyLeaveMinutes, status: $status, note: $note, isEdited: $isEdited, editedAt: $editedAt)';
 }
 
 
@@ -269,7 +271,7 @@ abstract mixin class _$AttendanceCopyWith<$Res> implements $AttendanceCopyWith<$
   factory _$AttendanceCopyWith(_Attendance value, $Res Function(_Attendance) _then) = __$AttendanceCopyWithImpl;
 @override @useResult
 $Res call({
- DateTime workDate, int dayKey, DateTime? checkIn, DateTime? checkOut, int expectedStartMinute, int expectedEndMinute, int lunchMinutes, int workedMinutes, int lateMinutes, int overtimeMinutes, int earlyLeaveMinutes, int status, String? note, bool isEdited, DateTime? editedAt
+ DateTime workDate, int dayKey, DateTime? checkIn, DateTime? checkOut, int expectedStartMinute, int expectedEndMinute, int lunchMinutes, int expectedLunchStartMinute, int workedMinutes, int lateMinutes, int overtimeMinutes, int earlyLeaveMinutes, int status, String? note, bool isEdited, DateTime? editedAt
 });
 
 
@@ -286,7 +288,7 @@ class __$AttendanceCopyWithImpl<$Res>
 
 /// Create a copy of Attendance
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? workDate = null,Object? dayKey = null,Object? checkIn = freezed,Object? checkOut = freezed,Object? expectedStartMinute = null,Object? expectedEndMinute = null,Object? lunchMinutes = null,Object? workedMinutes = null,Object? lateMinutes = null,Object? overtimeMinutes = null,Object? earlyLeaveMinutes = null,Object? status = null,Object? note = freezed,Object? isEdited = null,Object? editedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? workDate = null,Object? dayKey = null,Object? checkIn = freezed,Object? checkOut = freezed,Object? expectedStartMinute = null,Object? expectedEndMinute = null,Object? lunchMinutes = null,Object? expectedLunchStartMinute = null,Object? workedMinutes = null,Object? lateMinutes = null,Object? overtimeMinutes = null,Object? earlyLeaveMinutes = null,Object? status = null,Object? note = freezed,Object? isEdited = null,Object? editedAt = freezed,}) {
   return _then(_Attendance(
 workDate: null == workDate ? _self.workDate : workDate // ignore: cast_nullable_to_non_nullable
 as DateTime,dayKey: null == dayKey ? _self.dayKey : dayKey // ignore: cast_nullable_to_non_nullable
@@ -295,6 +297,7 @@ as DateTime?,checkOut: freezed == checkOut ? _self.checkOut : checkOut // ignore
 as DateTime?,expectedStartMinute: null == expectedStartMinute ? _self.expectedStartMinute : expectedStartMinute // ignore: cast_nullable_to_non_nullable
 as int,expectedEndMinute: null == expectedEndMinute ? _self.expectedEndMinute : expectedEndMinute // ignore: cast_nullable_to_non_nullable
 as int,lunchMinutes: null == lunchMinutes ? _self.lunchMinutes : lunchMinutes // ignore: cast_nullable_to_non_nullable
+as int,expectedLunchStartMinute: null == expectedLunchStartMinute ? _self.expectedLunchStartMinute : expectedLunchStartMinute // ignore: cast_nullable_to_non_nullable
 as int,workedMinutes: null == workedMinutes ? _self.workedMinutes : workedMinutes // ignore: cast_nullable_to_non_nullable
 as int,lateMinutes: null == lateMinutes ? _self.lateMinutes : lateMinutes // ignore: cast_nullable_to_non_nullable
 as int,overtimeMinutes: null == overtimeMinutes ? _self.overtimeMinutes : overtimeMinutes // ignore: cast_nullable_to_non_nullable

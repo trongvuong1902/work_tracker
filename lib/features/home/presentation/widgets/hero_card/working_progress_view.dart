@@ -14,20 +14,37 @@ class WorkingProgressView extends StatelessWidget {
     super.key,
     required this.checkIn,
     required this.leaveAt,
+    required this.breakStart,
+    required this.breakEnd,
   });
 
   final DateTime checkIn;
   final DateTime leaveAt;
+  final DateTime breakStart;
+  final DateTime breakEnd;
 
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
+    // Before the break starts, count down to the break; from the break
+    // onward (including during it), count down to leaveAt instead. leaveAt
+    // already spans the full schedule (start to end), so no separate lunch
+    // deduction is needed once the break has been reached.
+    final beforeBreak = now.isBefore(breakStart);
+    final remaining = beforeBreak
+        ? breakStart.difference(now)
+        : leaveAt.difference(now);
+    final sectionLabel = beforeBreak ? 'Until break' : 'Remaining';
+
+    // Overall day progress (checkIn -> leaveAt), independent of which phase
+    // the countdown above is in.
     final totalMinutes = leaveAt.difference(checkIn).inMinutes;
-    final remaining = leaveAt.difference(now);
-    final remainMinutes = remaining.inMinutes;
+    final elapsedMinutes = now.difference(checkIn).inMinutes;
     final progress = totalMinutes > 0
-        ? (1 - remainMinutes / totalMinutes).clamp(0.0, 1.0)
+        ? (elapsedMinutes / totalMinutes).clamp(0.0, 1.0)
         : 1.0;
+
+    final remainMinutes = remaining.inMinutes;
     final remainingLabel = remaining.inHours >= 1
         ? TimeFormat.hMm(remainMinutes > 0 ? remainMinutes : 0)
         : TimeFormat.mSs(remaining.inSeconds > 0 ? remaining.inSeconds : 0);
@@ -40,7 +57,7 @@ class WorkingProgressView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Remaining',
+              sectionLabel,
               style: AppTypography.label(context)?.copyWith(
                 color: context.colors.textSecondary,
                 fontWeight: FontWeight.w600,

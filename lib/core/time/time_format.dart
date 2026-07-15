@@ -1,3 +1,21 @@
+const monthNames = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+/// Monday-first weekday initials (Mon..Sun).
+const weekdayInitials = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
 abstract final class TimeFormat {
   static String hhMm(int minuteOfDay) {
     final hours = (minuteOfDay ~/ 60) % 24;
@@ -19,5 +37,10 @@ abstract final class TimeFormat {
     final minutes = totalSeconds ~/ 60;
     final seconds = totalSeconds % 60;
     return '${minutes}m ${seconds.toString().padLeft(2, '0')}s';
+  }
+
+  /// Formats a date as "Month Year" (e.g. "July 2026").
+  static String monthYearLabel(DateTime date) {
+    return '${monthNames[date.month - 1]} ${date.year}';
   }
 }

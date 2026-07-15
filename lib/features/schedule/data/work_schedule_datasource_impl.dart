@@ -22,6 +22,7 @@ class WorkScheduleDatasourceImpl implements WorkScheduleDatasource {
     startMinuteOfDay: entity.startMinute,
     endMinuteOfDay: entity.endMinute,
     lunchMinutes: entity.lunchMinutes,
+    lunchStartMinuteOfDay: entity.lunchStartMinute,
     reminderMinutes: entity.reminderMinutes,
     workingDaysMask: entity.workingDaysMask,
   );
@@ -35,6 +36,7 @@ class WorkScheduleDatasourceImpl implements WorkScheduleDatasource {
     startMinute: workSchedule.startMinuteOfDay,
     endMinute: workSchedule.endMinuteOfDay,
     lunchMinutes: workSchedule.lunchMinutes,
+    lunchStartMinute: workSchedule.lunchStartMinuteOfDay,
     reminderMinutes: workSchedule.reminderMinutes,
     workingDaysMask: workSchedule.workingDaysMask ?? 0,
   );

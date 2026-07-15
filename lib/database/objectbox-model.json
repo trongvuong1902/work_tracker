@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:3634202302063934173",
-      "lastPropertyId": "16:1412025691473653403",
+      "lastPropertyId": "17:6172843247117442083",
       "name": "AttendanceEntity",
       "properties": [
         {
@@ -88,13 +88,18 @@
           "id": "16:1412025691473653403",
           "name": "editedAt",
           "type": 10
+        },
+        {
+          "id": "17:6172843247117442083",
+          "name": "expectedLunchStartMinute",
+          "type": 6
         }
       ],
       "relations": []
     },
     {
       "id": "2:2238911637897544245",
-      "lastPropertyId": "6:3290344717990253593",
+      "lastPropertyId": "7:5878804006344107488",
       "name": "WorkScheduleEntity",
       "properties": [
         {
@@ -126,6 +131,11 @@
         {
           "id": "6:3290344717990253593",
           "name": "workingDaysMask",
+          "type": 6
+        },
+        {
+          "id": "7:5878804006344107488",
+          "name": "lunchStartMinute",
           "type": 6
         }
       ],

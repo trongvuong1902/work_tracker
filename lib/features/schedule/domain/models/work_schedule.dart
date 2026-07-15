@@ -11,6 +11,8 @@ abstract class WorkSchedule with _$WorkSchedule {
 
     required int lunchMinutes,
 
+    required int lunchStartMinuteOfDay, // 720 (12:00)
+
     required int reminderMinutes,
 
     int? workingDaysMask,

@@ -125,11 +125,11 @@ return afterCheckOut(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  beforeCheckIn,TResult Function( DateTime checkIn,  DateTime leaveAt)?  working,TResult Function()?  afterCheckOut,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  beforeCheckIn,TResult Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)?  working,TResult Function()?  afterCheckOut,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn() when beforeCheckIn != null:
 return beforeCheckIn();case _Working() when working != null:
-return working(_that.checkIn,_that.leaveAt);case _AfterCheckOut() when afterCheckOut != null:
+return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _AfterCheckOut() when afterCheckOut != null:
 return afterCheckOut();case _:
   return orElse();
 
@@ -148,11 +148,11 @@ return afterCheckOut();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  beforeCheckIn,required TResult Function( DateTime checkIn,  DateTime leaveAt)  working,required TResult Function()  afterCheckOut,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  beforeCheckIn,required TResult Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)  working,required TResult Function()  afterCheckOut,}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn():
 return beforeCheckIn();case _Working():
-return working(_that.checkIn,_that.leaveAt);case _AfterCheckOut():
+return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _AfterCheckOut():
 return afterCheckOut();case _:
   throw StateError('Unexpected subclass');
 
@@ -170,11 +170,11 @@ return afterCheckOut();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  beforeCheckIn,TResult? Function( DateTime checkIn,  DateTime leaveAt)?  working,TResult? Function()?  afterCheckOut,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  beforeCheckIn,TResult? Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)?  working,TResult? Function()?  afterCheckOut,}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn() when beforeCheckIn != null:
 return beforeCheckIn();case _Working() when working != null:
-return working(_that.checkIn,_that.leaveAt);case _AfterCheckOut() when afterCheckOut != null:
+return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _AfterCheckOut() when afterCheckOut != null:
 return afterCheckOut();case _:
   return null;
 
@@ -219,11 +219,13 @@ String toString() {
 
 
 class _Working implements HeroCardModel {
-  const _Working({required this.checkIn, required this.leaveAt});
+  const _Working({required this.checkIn, required this.leaveAt, required this.breakStart, required this.breakEnd});
   
 
  final  DateTime checkIn;
  final  DateTime leaveAt;
+ final  DateTime breakStart;
+ final  DateTime breakEnd;
 
 /// Create a copy of HeroCardModel
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +237,16 @@ _$WorkingCopyWith<_Working> get copyWith => __$WorkingCopyWithImpl<_Working>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Working&&(identical(other.checkIn, checkIn) || other.checkIn == checkIn)&&(identical(other.leaveAt, leaveAt) || other.leaveAt == leaveAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Working&&(identical(other.checkIn, checkIn) || other.checkIn == checkIn)&&(identical(other.leaveAt, leaveAt) || other.leaveAt == leaveAt)&&(identical(other.breakStart, breakStart) || other.breakStart == breakStart)&&(identical(other.breakEnd, breakEnd) || other.breakEnd == breakEnd));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,checkIn,leaveAt);
+int get hashCode => Object.hash(runtimeType,checkIn,leaveAt,breakStart,breakEnd);
 
 @override
 String toString() {
-  return 'HeroCardModel.working(checkIn: $checkIn, leaveAt: $leaveAt)';
+  return 'HeroCardModel.working(checkIn: $checkIn, leaveAt: $leaveAt, breakStart: $breakStart, breakEnd: $breakEnd)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$WorkingCopyWith<$Res> implements $HeroCardModelCopyWith<$
   factory _$WorkingCopyWith(_Working value, $Res Function(_Working) _then) = __$WorkingCopyWithImpl;
 @useResult
 $Res call({
- DateTime checkIn, DateTime leaveAt
+ DateTime checkIn, DateTime leaveAt, DateTime breakStart, DateTime breakEnd
 });
 
 
@@ -272,10 +274,12 @@ class __$WorkingCopyWithImpl<$Res>
 
 /// Create a copy of HeroCardModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? checkIn = null,Object? leaveAt = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? checkIn = null,Object? leaveAt = null,Object? breakStart = null,Object? breakEnd = null,}) {
   return _then(_Working(
 checkIn: null == checkIn ? _self.checkIn : checkIn // ignore: cast_nullable_to_non_nullable
 as DateTime,leaveAt: null == leaveAt ? _self.leaveAt : leaveAt // ignore: cast_nullable_to_non_nullable
+as DateTime,breakStart: null == breakStart ? _self.breakStart : breakStart // ignore: cast_nullable_to_non_nullable
+as DateTime,breakEnd: null == breakEnd ? _self.breakEnd : breakEnd // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
 }

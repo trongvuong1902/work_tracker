@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SettingScheduleState {
 
- int get startMinuteOfDay; int get endMinuteOfDay; int get lunchMinutes; int get reminderMinutes; int get workingDaysMask; bool get isLoading; bool get isSaving; bool get isEditing; String? get errorMessage;
+ int get startMinuteOfDay; int get endMinuteOfDay; int get lunchMinutes; int get lunchStartMinuteOfDay; int get reminderMinutes; int get workingDaysMask; bool get isLoading; bool get isSaving; bool get isEditing; String? get errorMessage;
 /// Create a copy of SettingScheduleState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SettingScheduleStateCopyWith<SettingScheduleState> get copyWith => _$SettingSch
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingScheduleState&&(identical(other.startMinuteOfDay, startMinuteOfDay) || other.startMinuteOfDay == startMinuteOfDay)&&(identical(other.endMinuteOfDay, endMinuteOfDay) || other.endMinuteOfDay == endMinuteOfDay)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.workingDaysMask, workingDaysMask) || other.workingDaysMask == workingDaysMask)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isSaving, isSaving) || other.isSaving == isSaving)&&(identical(other.isEditing, isEditing) || other.isEditing == isEditing)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingScheduleState&&(identical(other.startMinuteOfDay, startMinuteOfDay) || other.startMinuteOfDay == startMinuteOfDay)&&(identical(other.endMinuteOfDay, endMinuteOfDay) || other.endMinuteOfDay == endMinuteOfDay)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.lunchStartMinuteOfDay, lunchStartMinuteOfDay) || other.lunchStartMinuteOfDay == lunchStartMinuteOfDay)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.workingDaysMask, workingDaysMask) || other.workingDaysMask == workingDaysMask)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isSaving, isSaving) || other.isSaving == isSaving)&&(identical(other.isEditing, isEditing) || other.isEditing == isEditing)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,startMinuteOfDay,endMinuteOfDay,lunchMinutes,reminderMinutes,workingDaysMask,isLoading,isSaving,isEditing,errorMessage);
+int get hashCode => Object.hash(runtimeType,startMinuteOfDay,endMinuteOfDay,lunchMinutes,lunchStartMinuteOfDay,reminderMinutes,workingDaysMask,isLoading,isSaving,isEditing,errorMessage);
 
 @override
 String toString() {
-  return 'SettingScheduleState(startMinuteOfDay: $startMinuteOfDay, endMinuteOfDay: $endMinuteOfDay, lunchMinutes: $lunchMinutes, reminderMinutes: $reminderMinutes, workingDaysMask: $workingDaysMask, isLoading: $isLoading, isSaving: $isSaving, isEditing: $isEditing, errorMessage: $errorMessage)';
+  return 'SettingScheduleState(startMinuteOfDay: $startMinuteOfDay, endMinuteOfDay: $endMinuteOfDay, lunchMinutes: $lunchMinutes, lunchStartMinuteOfDay: $lunchStartMinuteOfDay, reminderMinutes: $reminderMinutes, workingDaysMask: $workingDaysMask, isLoading: $isLoading, isSaving: $isSaving, isEditing: $isEditing, errorMessage: $errorMessage)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $SettingScheduleStateCopyWith<$Res>  {
   factory $SettingScheduleStateCopyWith(SettingScheduleState value, $Res Function(SettingScheduleState) _then) = _$SettingScheduleStateCopyWithImpl;
 @useResult
 $Res call({
- int startMinuteOfDay, int endMinuteOfDay, int lunchMinutes, int reminderMinutes, int workingDaysMask, bool isLoading, bool isSaving, bool isEditing, String? errorMessage
+ int startMinuteOfDay, int endMinuteOfDay, int lunchMinutes, int lunchStartMinuteOfDay, int reminderMinutes, int workingDaysMask, bool isLoading, bool isSaving, bool isEditing, String? errorMessage
 });
 
 
@@ -62,11 +62,12 @@ class _$SettingScheduleStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingScheduleState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? startMinuteOfDay = null,Object? endMinuteOfDay = null,Object? lunchMinutes = null,Object? reminderMinutes = null,Object? workingDaysMask = null,Object? isLoading = null,Object? isSaving = null,Object? isEditing = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? startMinuteOfDay = null,Object? endMinuteOfDay = null,Object? lunchMinutes = null,Object? lunchStartMinuteOfDay = null,Object? reminderMinutes = null,Object? workingDaysMask = null,Object? isLoading = null,Object? isSaving = null,Object? isEditing = null,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 startMinuteOfDay: null == startMinuteOfDay ? _self.startMinuteOfDay : startMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,endMinuteOfDay: null == endMinuteOfDay ? _self.endMinuteOfDay : endMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,lunchMinutes: null == lunchMinutes ? _self.lunchMinutes : lunchMinutes // ignore: cast_nullable_to_non_nullable
+as int,lunchStartMinuteOfDay: null == lunchStartMinuteOfDay ? _self.lunchStartMinuteOfDay : lunchStartMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,reminderMinutes: null == reminderMinutes ? _self.reminderMinutes : reminderMinutes // ignore: cast_nullable_to_non_nullable
 as int,workingDaysMask: null == workingDaysMask ? _self.workingDaysMask : workingDaysMask // ignore: cast_nullable_to_non_nullable
 as int,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
@@ -158,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int reminderMinutes,  int workingDaysMask,  bool isLoading,  bool isSaving,  bool isEditing,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int lunchStartMinuteOfDay,  int reminderMinutes,  int workingDaysMask,  bool isLoading,  bool isSaving,  bool isEditing,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SettingScheduleState() when $default != null:
-return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.reminderMinutes,_that.workingDaysMask,_that.isLoading,_that.isSaving,_that.isEditing,_that.errorMessage);case _:
+return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.lunchStartMinuteOfDay,_that.reminderMinutes,_that.workingDaysMask,_that.isLoading,_that.isSaving,_that.isEditing,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -179,10 +180,10 @@ return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int reminderMinutes,  int workingDaysMask,  bool isLoading,  bool isSaving,  bool isEditing,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int lunchStartMinuteOfDay,  int reminderMinutes,  int workingDaysMask,  bool isLoading,  bool isSaving,  bool isEditing,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _SettingScheduleState():
-return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.reminderMinutes,_that.workingDaysMask,_that.isLoading,_that.isSaving,_that.isEditing,_that.errorMessage);case _:
+return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.lunchStartMinuteOfDay,_that.reminderMinutes,_that.workingDaysMask,_that.isLoading,_that.isSaving,_that.isEditing,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +200,10 @@ return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int reminderMinutes,  int workingDaysMask,  bool isLoading,  bool isSaving,  bool isEditing,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int lunchStartMinuteOfDay,  int reminderMinutes,  int workingDaysMask,  bool isLoading,  bool isSaving,  bool isEditing,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _SettingScheduleState() when $default != null:
-return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.reminderMinutes,_that.workingDaysMask,_that.isLoading,_that.isSaving,_that.isEditing,_that.errorMessage);case _:
+return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.lunchStartMinuteOfDay,_that.reminderMinutes,_that.workingDaysMask,_that.isLoading,_that.isSaving,_that.isEditing,_that.errorMessage);case _:
   return null;
 
 }
@@ -214,12 +215,13 @@ return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_
 
 
 class _SettingScheduleState implements SettingScheduleState {
-  const _SettingScheduleState({this.startMinuteOfDay = 540, this.endMinuteOfDay = 1080, this.lunchMinutes = 60, this.reminderMinutes = 10, this.workingDaysMask = kDefaultWorkingDaysMask, this.isLoading = false, this.isSaving = false, this.isEditing = false, this.errorMessage});
+  const _SettingScheduleState({this.startMinuteOfDay = 540, this.endMinuteOfDay = 1080, this.lunchMinutes = 60, this.lunchStartMinuteOfDay = 720, this.reminderMinutes = 10, this.workingDaysMask = kDefaultWorkingDaysMask, this.isLoading = false, this.isSaving = false, this.isEditing = false, this.errorMessage});
   
 
 @override@JsonKey() final  int startMinuteOfDay;
 @override@JsonKey() final  int endMinuteOfDay;
 @override@JsonKey() final  int lunchMinutes;
+@override@JsonKey() final  int lunchStartMinuteOfDay;
 @override@JsonKey() final  int reminderMinutes;
 @override@JsonKey() final  int workingDaysMask;
 @override@JsonKey() final  bool isLoading;
@@ -237,16 +239,16 @@ _$SettingScheduleStateCopyWith<_SettingScheduleState> get copyWith => __$Setting
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingScheduleState&&(identical(other.startMinuteOfDay, startMinuteOfDay) || other.startMinuteOfDay == startMinuteOfDay)&&(identical(other.endMinuteOfDay, endMinuteOfDay) || other.endMinuteOfDay == endMinuteOfDay)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.workingDaysMask, workingDaysMask) || other.workingDaysMask == workingDaysMask)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isSaving, isSaving) || other.isSaving == isSaving)&&(identical(other.isEditing, isEditing) || other.isEditing == isEditing)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingScheduleState&&(identical(other.startMinuteOfDay, startMinuteOfDay) || other.startMinuteOfDay == startMinuteOfDay)&&(identical(other.endMinuteOfDay, endMinuteOfDay) || other.endMinuteOfDay == endMinuteOfDay)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.lunchStartMinuteOfDay, lunchStartMinuteOfDay) || other.lunchStartMinuteOfDay == lunchStartMinuteOfDay)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.workingDaysMask, workingDaysMask) || other.workingDaysMask == workingDaysMask)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isSaving, isSaving) || other.isSaving == isSaving)&&(identical(other.isEditing, isEditing) || other.isEditing == isEditing)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,startMinuteOfDay,endMinuteOfDay,lunchMinutes,reminderMinutes,workingDaysMask,isLoading,isSaving,isEditing,errorMessage);
+int get hashCode => Object.hash(runtimeType,startMinuteOfDay,endMinuteOfDay,lunchMinutes,lunchStartMinuteOfDay,reminderMinutes,workingDaysMask,isLoading,isSaving,isEditing,errorMessage);
 
 @override
 String toString() {
-  return 'SettingScheduleState(startMinuteOfDay: $startMinuteOfDay, endMinuteOfDay: $endMinuteOfDay, lunchMinutes: $lunchMinutes, reminderMinutes: $reminderMinutes, workingDaysMask: $workingDaysMask, isLoading: $isLoading, isSaving: $isSaving, isEditing: $isEditing, errorMessage: $errorMessage)';
+  return 'SettingScheduleState(startMinuteOfDay: $startMinuteOfDay, endMinuteOfDay: $endMinuteOfDay, lunchMinutes: $lunchMinutes, lunchStartMinuteOfDay: $lunchStartMinuteOfDay, reminderMinutes: $reminderMinutes, workingDaysMask: $workingDaysMask, isLoading: $isLoading, isSaving: $isSaving, isEditing: $isEditing, errorMessage: $errorMessage)';
 }
 
 
@@ -257,7 +259,7 @@ abstract mixin class _$SettingScheduleStateCopyWith<$Res> implements $SettingSch
   factory _$SettingScheduleStateCopyWith(_SettingScheduleState value, $Res Function(_SettingScheduleState) _then) = __$SettingScheduleStateCopyWithImpl;
 @override @useResult
 $Res call({
- int startMinuteOfDay, int endMinuteOfDay, int lunchMinutes, int reminderMinutes, int workingDaysMask, bool isLoading, bool isSaving, bool isEditing, String? errorMessage
+ int startMinuteOfDay, int endMinuteOfDay, int lunchMinutes, int lunchStartMinuteOfDay, int reminderMinutes, int workingDaysMask, bool isLoading, bool isSaving, bool isEditing, String? errorMessage
 });
 
 
@@ -274,11 +276,12 @@ class __$SettingScheduleStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingScheduleState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? startMinuteOfDay = null,Object? endMinuteOfDay = null,Object? lunchMinutes = null,Object? reminderMinutes = null,Object? workingDaysMask = null,Object? isLoading = null,Object? isSaving = null,Object? isEditing = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? startMinuteOfDay = null,Object? endMinuteOfDay = null,Object? lunchMinutes = null,Object? lunchStartMinuteOfDay = null,Object? reminderMinutes = null,Object? workingDaysMask = null,Object? isLoading = null,Object? isSaving = null,Object? isEditing = null,Object? errorMessage = freezed,}) {
   return _then(_SettingScheduleState(
 startMinuteOfDay: null == startMinuteOfDay ? _self.startMinuteOfDay : startMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,endMinuteOfDay: null == endMinuteOfDay ? _self.endMinuteOfDay : endMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,lunchMinutes: null == lunchMinutes ? _self.lunchMinutes : lunchMinutes // ignore: cast_nullable_to_non_nullable
+as int,lunchStartMinuteOfDay: null == lunchStartMinuteOfDay ? _self.lunchStartMinuteOfDay : lunchStartMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,reminderMinutes: null == reminderMinutes ? _self.reminderMinutes : reminderMinutes // ignore: cast_nullable_to_non_nullable
 as int,workingDaysMask: null == workingDaysMask ? _self.workingDaysMask : workingDaysMask // ignore: cast_nullable_to_non_nullable
 as int,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable

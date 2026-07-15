@@ -38,6 +38,8 @@ import 'package:work_tracker/features/attendance/domain/attendance_repository.da
     as _i331;
 import 'package:work_tracker/features/attendance/domain/attendance_repository_impl.dart'
     as _i284;
+import 'package:work_tracker/features/calendar/presentation/cubit/calendar_cubit.dart'
+    as _i474;
 import 'package:work_tracker/features/home/presentation/cubit/home_page_cubit.dart'
     as _i594;
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/cubit/attendace_card_cubit.dart'
@@ -160,6 +162,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i629.HeroCardCubit(
         attendanceRepository: gh<_i331.AttendanceRepository>(),
       ),
+    );
+    gh.factory<_i474.CalendarCubit>(
+      () => _i474.CalendarCubit(gh<_i331.AttendanceRepository>()),
     );
     gh.lazySingleton<_i468.LeaveReminderRepository>(
       () => _i347.LeaveReminderRepositoryImpl(

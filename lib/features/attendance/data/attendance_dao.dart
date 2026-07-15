@@ -11,6 +11,13 @@ abstract class AttendanceDao {
   /// Most-recent-first rows (ordered by [AttendanceEntity.workDate]
   /// descending), capped at [limit].
   List<AttendanceEntity> getRecent({required int limit});
+
+  /// Rows whose [AttendanceEntity.dayKey] falls within
+  /// `[startDayKey, endDayKey]` (inclusive).
+  List<AttendanceEntity> getByDayKeyRange({
+    required int startDayKey,
+    required int endDayKey,
+  });
 }
 
 @LazySingleton(as: AttendanceDao)
@@ -52,6 +59,21 @@ class AttendanceDaoImpl implements AttendanceDao {
         .order(AttendanceEntity_.workDate, flags: Order.descending)
         .build();
     query.limit = limit;
+    try {
+      return query.find();
+    } finally {
+      query.close();
+    }
+  }
+
+  @override
+  List<AttendanceEntity> getByDayKeyRange({
+    required int startDayKey,
+    required int endDayKey,
+  }) {
+    final query = _box
+        .query(AttendanceEntity_.dayKey.between(startDayKey, endDayKey))
+        .build();
     try {
       return query.find();
     } finally {

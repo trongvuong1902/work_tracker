@@ -12,6 +12,7 @@ abstract class Attendance with _$Attendance {
     required int expectedStartMinute,
     required int expectedEndMinute,
     required int lunchMinutes,
+    required int expectedLunchStartMinute,
     @Default(0) int workedMinutes,
     @Default(0) int lateMinutes,
     @Default(0) int overtimeMinutes,

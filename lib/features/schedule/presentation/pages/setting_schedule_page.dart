@@ -68,6 +68,12 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                                   onChanged: cubit.updateEndMinute,
                                 ),
                                 const SizedBox(height: AppSpacing.space16),
+                                _TimeRow(
+                                  label: 'Lunch start',
+                                  minuteOfDay: state.lunchStartMinuteOfDay,
+                                  onChanged: cubit.updateLunchStartMinute,
+                                ),
+                                const SizedBox(height: AppSpacing.space16),
                                 ShadowCard(
                                   margin: EdgeInsets.zero,
                                   child: Padding(

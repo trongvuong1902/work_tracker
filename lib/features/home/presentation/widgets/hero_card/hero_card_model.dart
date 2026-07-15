@@ -9,6 +9,8 @@ class HeroCardModel with _$HeroCardModel {
   const factory HeroCardModel.working({
     required DateTime checkIn,
     required DateTime leaveAt,
+    required DateTime breakStart,
+    required DateTime breakEnd,
   }) = _Working;
   const factory HeroCardModel.afterCheckOut() = _AfterCheckOut;
 
@@ -16,14 +18,27 @@ class HeroCardModel with _$HeroCardModel {
     if (attendance.checkIn == null) {
       return const HeroCardModel.beforeCheckIn();
     } else if (attendance.checkOut == null) {
-      final totalMinutes = attendance.expectedEndMinute -
-          attendance.expectedStartMinute -
-          attendance.lunchMinutes;
-      final leaveAt = attendance.checkIn!.add(Duration(minutes: totalMinutes));
+      final checkIn = attendance.checkIn!;
+      final totalMinutes =
+          attendance.expectedEndMinute - attendance.expectedStartMinute;
+      final leaveAt = checkIn.add(Duration(minutes: totalMinutes));
+
+      final breakStart = DateTime(
+        checkIn.year,
+        checkIn.month,
+        checkIn.day,
+        attendance.expectedLunchStartMinute ~/ 60,
+        attendance.expectedLunchStartMinute % 60,
+      );
+      final breakEnd = breakStart.add(
+        Duration(minutes: attendance.lunchMinutes),
+      );
 
       return HeroCardModel.working(
-        checkIn: attendance.checkIn!,
+        checkIn: checkIn,
         leaveAt: leaveAt,
+        breakStart: breakStart,
+        breakEnd: breakEnd,
       );
     } else {
       return const HeroCardModel.afterCheckOut();

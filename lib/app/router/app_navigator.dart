@@ -26,6 +26,9 @@ abstract final class AppNavigator {
 
   static void pushDebug(BuildContext context) => context.push(AppRoutes.debug);
 
+  static void pushDebugOnboardingPreview(BuildContext context) =>
+      context.push(AppRoutes.debugOnboardingPreview);
+
   static void pushPrivacyPolicy(BuildContext context) =>
       context.push(AppRoutes.privacyPolicy);
 

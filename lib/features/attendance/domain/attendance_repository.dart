@@ -9,5 +9,12 @@ abstract class AttendanceRepository {
   /// Most-recent-first attendance history, capped at [limit] rows.
   Future<List<Attendance>> getRecentAttendances({int limit = 10});
 
+  /// Attendance rows for the given [year]/[month], keyed by dayKey
+  /// (`yyyyMMdd`).
+  Future<Map<int, Attendance>> getAttendanceForMonth({
+    required int year,
+    required int month,
+  });
+
   void clearTodayAttendance();
 }

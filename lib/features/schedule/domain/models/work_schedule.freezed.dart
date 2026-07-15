@@ -16,7 +16,8 @@ mixin _$WorkSchedule {
 
  int get startMinuteOfDay;// 540 (09:00)
  int get endMinuteOfDay;// 1080 (18:00)
- int get lunchMinutes; int get reminderMinutes; int? get workingDaysMask;
+ int get lunchMinutes; int get lunchStartMinuteOfDay;// 720 (12:00)
+ int get reminderMinutes; int? get workingDaysMask;
 /// Create a copy of WorkSchedule
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,16 +28,16 @@ $WorkScheduleCopyWith<WorkSchedule> get copyWith => _$WorkScheduleCopyWithImpl<W
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkSchedule&&(identical(other.startMinuteOfDay, startMinuteOfDay) || other.startMinuteOfDay == startMinuteOfDay)&&(identical(other.endMinuteOfDay, endMinuteOfDay) || other.endMinuteOfDay == endMinuteOfDay)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.workingDaysMask, workingDaysMask) || other.workingDaysMask == workingDaysMask));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkSchedule&&(identical(other.startMinuteOfDay, startMinuteOfDay) || other.startMinuteOfDay == startMinuteOfDay)&&(identical(other.endMinuteOfDay, endMinuteOfDay) || other.endMinuteOfDay == endMinuteOfDay)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.lunchStartMinuteOfDay, lunchStartMinuteOfDay) || other.lunchStartMinuteOfDay == lunchStartMinuteOfDay)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.workingDaysMask, workingDaysMask) || other.workingDaysMask == workingDaysMask));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,startMinuteOfDay,endMinuteOfDay,lunchMinutes,reminderMinutes,workingDaysMask);
+int get hashCode => Object.hash(runtimeType,startMinuteOfDay,endMinuteOfDay,lunchMinutes,lunchStartMinuteOfDay,reminderMinutes,workingDaysMask);
 
 @override
 String toString() {
-  return 'WorkSchedule(startMinuteOfDay: $startMinuteOfDay, endMinuteOfDay: $endMinuteOfDay, lunchMinutes: $lunchMinutes, reminderMinutes: $reminderMinutes, workingDaysMask: $workingDaysMask)';
+  return 'WorkSchedule(startMinuteOfDay: $startMinuteOfDay, endMinuteOfDay: $endMinuteOfDay, lunchMinutes: $lunchMinutes, lunchStartMinuteOfDay: $lunchStartMinuteOfDay, reminderMinutes: $reminderMinutes, workingDaysMask: $workingDaysMask)';
 }
 
 
@@ -47,7 +48,7 @@ abstract mixin class $WorkScheduleCopyWith<$Res>  {
   factory $WorkScheduleCopyWith(WorkSchedule value, $Res Function(WorkSchedule) _then) = _$WorkScheduleCopyWithImpl;
 @useResult
 $Res call({
- int startMinuteOfDay, int endMinuteOfDay, int lunchMinutes, int reminderMinutes, int? workingDaysMask
+ int startMinuteOfDay, int endMinuteOfDay, int lunchMinutes, int lunchStartMinuteOfDay, int reminderMinutes, int? workingDaysMask
 });
 
 
@@ -64,11 +65,12 @@ class _$WorkScheduleCopyWithImpl<$Res>
 
 /// Create a copy of WorkSchedule
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? startMinuteOfDay = null,Object? endMinuteOfDay = null,Object? lunchMinutes = null,Object? reminderMinutes = null,Object? workingDaysMask = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? startMinuteOfDay = null,Object? endMinuteOfDay = null,Object? lunchMinutes = null,Object? lunchStartMinuteOfDay = null,Object? reminderMinutes = null,Object? workingDaysMask = freezed,}) {
   return _then(_self.copyWith(
 startMinuteOfDay: null == startMinuteOfDay ? _self.startMinuteOfDay : startMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,endMinuteOfDay: null == endMinuteOfDay ? _self.endMinuteOfDay : endMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,lunchMinutes: null == lunchMinutes ? _self.lunchMinutes : lunchMinutes // ignore: cast_nullable_to_non_nullable
+as int,lunchStartMinuteOfDay: null == lunchStartMinuteOfDay ? _self.lunchStartMinuteOfDay : lunchStartMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,reminderMinutes: null == reminderMinutes ? _self.reminderMinutes : reminderMinutes // ignore: cast_nullable_to_non_nullable
 as int,workingDaysMask: freezed == workingDaysMask ? _self.workingDaysMask : workingDaysMask // ignore: cast_nullable_to_non_nullable
 as int?,
@@ -156,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int reminderMinutes,  int? workingDaysMask)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int lunchStartMinuteOfDay,  int reminderMinutes,  int? workingDaysMask)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WorkSchedule() when $default != null:
-return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.reminderMinutes,_that.workingDaysMask);case _:
+return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.lunchStartMinuteOfDay,_that.reminderMinutes,_that.workingDaysMask);case _:
   return orElse();
 
 }
@@ -177,10 +179,10 @@ return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int reminderMinutes,  int? workingDaysMask)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int lunchStartMinuteOfDay,  int reminderMinutes,  int? workingDaysMask)  $default,) {final _that = this;
 switch (_that) {
 case _WorkSchedule():
-return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.reminderMinutes,_that.workingDaysMask);case _:
+return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.lunchStartMinuteOfDay,_that.reminderMinutes,_that.workingDaysMask);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +199,10 @@ return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int reminderMinutes,  int? workingDaysMask)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int startMinuteOfDay,  int endMinuteOfDay,  int lunchMinutes,  int lunchStartMinuteOfDay,  int reminderMinutes,  int? workingDaysMask)?  $default,) {final _that = this;
 switch (_that) {
 case _WorkSchedule() when $default != null:
-return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.reminderMinutes,_that.workingDaysMask);case _:
+return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_that.lunchStartMinuteOfDay,_that.reminderMinutes,_that.workingDaysMask);case _:
   return null;
 
 }
@@ -212,7 +214,7 @@ return $default(_that.startMinuteOfDay,_that.endMinuteOfDay,_that.lunchMinutes,_
 
 
 class _WorkSchedule implements WorkSchedule {
-  const _WorkSchedule({required this.startMinuteOfDay, required this.endMinuteOfDay, required this.lunchMinutes, required this.reminderMinutes, this.workingDaysMask});
+  const _WorkSchedule({required this.startMinuteOfDay, required this.endMinuteOfDay, required this.lunchMinutes, required this.lunchStartMinuteOfDay, required this.reminderMinutes, this.workingDaysMask});
   
 
 @override final  int startMinuteOfDay;
@@ -220,6 +222,8 @@ class _WorkSchedule implements WorkSchedule {
 @override final  int endMinuteOfDay;
 // 1080 (18:00)
 @override final  int lunchMinutes;
+@override final  int lunchStartMinuteOfDay;
+// 720 (12:00)
 @override final  int reminderMinutes;
 @override final  int? workingDaysMask;
 
@@ -233,16 +237,16 @@ _$WorkScheduleCopyWith<_WorkSchedule> get copyWith => __$WorkScheduleCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkSchedule&&(identical(other.startMinuteOfDay, startMinuteOfDay) || other.startMinuteOfDay == startMinuteOfDay)&&(identical(other.endMinuteOfDay, endMinuteOfDay) || other.endMinuteOfDay == endMinuteOfDay)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.workingDaysMask, workingDaysMask) || other.workingDaysMask == workingDaysMask));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkSchedule&&(identical(other.startMinuteOfDay, startMinuteOfDay) || other.startMinuteOfDay == startMinuteOfDay)&&(identical(other.endMinuteOfDay, endMinuteOfDay) || other.endMinuteOfDay == endMinuteOfDay)&&(identical(other.lunchMinutes, lunchMinutes) || other.lunchMinutes == lunchMinutes)&&(identical(other.lunchStartMinuteOfDay, lunchStartMinuteOfDay) || other.lunchStartMinuteOfDay == lunchStartMinuteOfDay)&&(identical(other.reminderMinutes, reminderMinutes) || other.reminderMinutes == reminderMinutes)&&(identical(other.workingDaysMask, workingDaysMask) || other.workingDaysMask == workingDaysMask));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,startMinuteOfDay,endMinuteOfDay,lunchMinutes,reminderMinutes,workingDaysMask);
+int get hashCode => Object.hash(runtimeType,startMinuteOfDay,endMinuteOfDay,lunchMinutes,lunchStartMinuteOfDay,reminderMinutes,workingDaysMask);
 
 @override
 String toString() {
-  return 'WorkSchedule(startMinuteOfDay: $startMinuteOfDay, endMinuteOfDay: $endMinuteOfDay, lunchMinutes: $lunchMinutes, reminderMinutes: $reminderMinutes, workingDaysMask: $workingDaysMask)';
+  return 'WorkSchedule(startMinuteOfDay: $startMinuteOfDay, endMinuteOfDay: $endMinuteOfDay, lunchMinutes: $lunchMinutes, lunchStartMinuteOfDay: $lunchStartMinuteOfDay, reminderMinutes: $reminderMinutes, workingDaysMask: $workingDaysMask)';
 }
 
 
@@ -253,7 +257,7 @@ abstract mixin class _$WorkScheduleCopyWith<$Res> implements $WorkScheduleCopyWi
   factory _$WorkScheduleCopyWith(_WorkSchedule value, $Res Function(_WorkSchedule) _then) = __$WorkScheduleCopyWithImpl;
 @override @useResult
 $Res call({
- int startMinuteOfDay, int endMinuteOfDay, int lunchMinutes, int reminderMinutes, int? workingDaysMask
+ int startMinuteOfDay, int endMinuteOfDay, int lunchMinutes, int lunchStartMinuteOfDay, int reminderMinutes, int? workingDaysMask
 });
 
 
@@ -270,11 +274,12 @@ class __$WorkScheduleCopyWithImpl<$Res>
 
 /// Create a copy of WorkSchedule
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? startMinuteOfDay = null,Object? endMinuteOfDay = null,Object? lunchMinutes = null,Object? reminderMinutes = null,Object? workingDaysMask = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? startMinuteOfDay = null,Object? endMinuteOfDay = null,Object? lunchMinutes = null,Object? lunchStartMinuteOfDay = null,Object? reminderMinutes = null,Object? workingDaysMask = freezed,}) {
   return _then(_WorkSchedule(
 startMinuteOfDay: null == startMinuteOfDay ? _self.startMinuteOfDay : startMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,endMinuteOfDay: null == endMinuteOfDay ? _self.endMinuteOfDay : endMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,lunchMinutes: null == lunchMinutes ? _self.lunchMinutes : lunchMinutes // ignore: cast_nullable_to_non_nullable
+as int,lunchStartMinuteOfDay: null == lunchStartMinuteOfDay ? _self.lunchStartMinuteOfDay : lunchStartMinuteOfDay // ignore: cast_nullable_to_non_nullable
 as int,reminderMinutes: null == reminderMinutes ? _self.reminderMinutes : reminderMinutes // ignore: cast_nullable_to_non_nullable
 as int,workingDaysMask: freezed == workingDaysMask ? _self.workingDaysMask : workingDaysMask // ignore: cast_nullable_to_non_nullable
 as int?,

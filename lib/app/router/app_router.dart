@@ -68,6 +68,10 @@ final appRouter = GoRouter(
       builder: (context, state) => const ComponentsShowcasePage(),
     ),
     GoRoute(
+      path: AppRoutes.debugOnboardingPreview,
+      builder: (context, state) => const OnBoardPage(),
+    ),
+    GoRoute(
       path: AppRoutes.workScheduleSettings,
       builder: (context, state) => const SettingSchedulePage(),
     ),

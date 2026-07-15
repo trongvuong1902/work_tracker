@@ -97,6 +97,7 @@ void main() {
           startMinuteOfDay: 540,
           endMinuteOfDay: 1080,
           lunchMinutes: 60,
+          lunchStartMinuteOfDay: 720,
           reminderMinutes: 0,
         ),
       );

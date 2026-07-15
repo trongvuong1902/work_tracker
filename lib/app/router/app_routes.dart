@@ -21,6 +21,8 @@ abstract final class AppRoutes {
 
   static const debug = '/debug';
 
+  static const debugOnboardingPreview = '/debug/onboarding_preview';
+
   static const workScheduleSettings = '/work_schedule_settings';
 
   static const leaveReminderLocationPicker = '/leave_reminder_location_picker';

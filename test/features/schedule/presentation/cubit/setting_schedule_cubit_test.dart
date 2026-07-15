@@ -54,6 +54,7 @@ void main() {
         startMinuteOfDay: 480,
         endMinuteOfDay: 1020,
         lunchMinutes: 45,
+        lunchStartMinuteOfDay: 720,
         reminderMinutes: 10,
         workingDaysMask: 0x7F,
       );
@@ -78,6 +79,7 @@ void main() {
         startMinuteOfDay: 480,
         endMinuteOfDay: 1020,
         lunchMinutes: 45,
+        lunchStartMinuteOfDay: 720,
         reminderMinutes: 10,
       );
       final repo = FakeWorkScheduleRepository(schedule: existing);

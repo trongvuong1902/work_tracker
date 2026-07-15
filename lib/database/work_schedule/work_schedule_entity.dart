@@ -11,6 +11,8 @@ class WorkScheduleEntity {
 
   int lunchMinutes;
 
+  int lunchStartMinute;
+
   int reminderMinutes;
 
   int workingDaysMask;
@@ -19,6 +21,7 @@ class WorkScheduleEntity {
     required this.startMinute,
     required this.endMinute,
     required this.lunchMinutes,
+    required this.lunchStartMinute,
     required this.reminderMinutes,
     required this.workingDaysMask,
   });

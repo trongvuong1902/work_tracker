@@ -41,6 +41,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         expectedStartMinute: expectedStartMinute,
         expectedEndMinute: schedule?.endMinute ?? 0,
         lunchMinutes: schedule?.lunchMinutes ?? 0,
+        expectedLunchStartMinute: schedule?.lunchStartMinute ?? 0,
         workedMinutes: 0,
         lateMinutes: _lateMinutes(time, expectedStartMinute),
       );
@@ -126,6 +127,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     expectedStartMinute: entity.expectedStartMinute,
     expectedEndMinute: entity.expectedEndMinute,
     lunchMinutes: entity.lunchMinutes,
+    expectedLunchStartMinute: entity.expectedLunchStartMinute,
     workedMinutes: entity.workedMinutes,
     lateMinutes: entity.lateMinutes,
     overtimeMinutes: entity.overtimeMinutes,
@@ -139,6 +141,21 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   @override
   Future<List<Attendance>> getRecentAttendances({int limit = 10}) async {
     return _dao.getRecent(limit: limit).map(_toModel).toList();
+  }
+
+  @override
+  Future<Map<int, Attendance>> getAttendanceForMonth({
+    required int year,
+    required int month,
+  }) async {
+    final startDayKey = year * 10000 + month * 100 + 1;
+    final daysInMonth = DateTime(year, month + 1, 0).day;
+    final endDayKey = year * 10000 + month * 100 + daysInMonth;
+    final entities = _dao.getByDayKeyRange(
+      startDayKey: startDayKey,
+      endDayKey: endDayKey,
+    );
+    return {for (final entity in entities) entity.dayKey: _toModel(entity)};
   }
 
   @override
