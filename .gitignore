@@ -50,3 +50,16 @@ app.*.map.json
 # Local secrets (never commit real API keys)
 /ios/Flutter/Secrets.xcconfig
 /dart_defines.json
+
+# AI assistant files
+CLAUDE.md
+**/CLAUDE.md
+AGENTS.md
+**/AGENTS.md
+.cursorrules
+.cursor/
+.windsurfrules
+.github/copilot-instructions.md
+.clinerules/
+.aider*
+/PROJECT_CONTEXT.md
