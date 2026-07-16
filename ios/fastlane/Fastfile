@@ -5,21 +5,62 @@ platform :ios do
   lane :beta do
     repo_root = File.expand_path("../..", __dir__)
 
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: File.expand_path(ENV.fetch("ASC_KEY_FILEPATH"), __dir__)
+    )
+
+    latest_build = latest_testflight_build_number(api_key: api_key, initial_build_number: 0)
+    ENV["BUILD_NUMBER"] = (latest_build + 1).to_s
+
     sh("#{repo_root}/scripts/build_release_ipa.sh")
 
     ipa_path = Dir.glob("#{repo_root}/build/ios/ipa/*.ipa").max_by { |f| File.mtime(f) }
     UI.user_error!("No .ipa found in build/ios/ipa after build_release_ipa.sh") unless ipa_path
-
-    api_key = app_store_connect_api_key(
-      key_id: ENV.fetch("ASC_KEY_ID"),
-      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
-      key_filepath: ENV.fetch("ASC_KEY_FILEPATH")
-    )
 
     upload_to_testflight(
       api_key: api_key,
       ipa: ipa_path,
       skip_waiting_for_build_processing: true
     )
+  end
+
+  desc "Distribute the most recently uploaded build to the External Testers group"
+  lane :distribute_beta do
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: File.expand_path(ENV.fetch("ASC_KEY_FILEPATH"), __dir__)
+    )
+
+    begin
+      upload_to_testflight(
+        api_key: api_key,
+        app_platform: "ios",
+        distribute_only: true,
+        distribute_external: true,
+        groups: [ENV.fetch("TESTFLIGHT_GROUP", "External Testers")],
+        notify_external_testers: true,
+        demo_account_required: false,
+        changelog: ENV.fetch("BETA_CHANGELOG", "Bug fixes and improvements."),
+        beta_app_review_info: {
+          contact_email: ENV.fetch("BETA_CONTACT_EMAIL"),
+          contact_first_name: ENV.fetch("BETA_CONTACT_FIRST_NAME"),
+          contact_last_name: ENV.fetch("BETA_CONTACT_LAST_NAME"),
+          contact_phone: ENV.fetch("BETA_CONTACT_PHONE"),
+          notes: "Personal productivity app; no demo account or login required."
+        },
+        localized_app_info: {
+          "en-US" => {
+            feedback_email: ENV.fetch("BETA_FEEDBACK_EMAIL"),
+            description: ENV.fetch("BETA_APP_DESCRIPTION")
+          }
+        }
+      )
+    rescue => e
+      raise e unless e.message.include?("Another build is in review")
+      UI.important("A build for this app is already pending Apple's external beta review — rerun `distribute_beta` once that review finishes.")
+    end
   end
 end

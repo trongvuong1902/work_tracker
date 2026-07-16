@@ -9,6 +9,13 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  # Never analyze generated build output (e.g. the CocoaPods "SourcePackages"
+  # symlinks Flutter tooling creates under build/ios when resolving plugins
+  # with iOS support, such as firebase_crashlytics) — it's not project source.
+  exclude:
+    - build/**
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

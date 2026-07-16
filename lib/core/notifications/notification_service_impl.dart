@@ -112,6 +112,20 @@ class NotificationServiceImpl implements NotificationService {
   @override
   Future<void> cancel(int id) => _plugin.cancel(id);
 
+  @override
+  Future<List<ScheduledNotificationInfo>> pendingNotifications() async {
+    final pending = await _plugin.pendingNotificationRequests();
+    return pending
+        .map(
+          (request) => ScheduledNotificationInfo(
+            id: request.id,
+            title: request.title,
+            body: request.body,
+          ),
+        )
+        .toList();
+  }
+
   /// Checks (without prompting) whether exact alarms can currently be
   /// scheduled on Android. Always true on platforms without that
   /// restriction.

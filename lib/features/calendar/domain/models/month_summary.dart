@@ -6,38 +6,31 @@ part 'month_summary.freezed.dart';
 @freezed
 abstract class MonthSummary with _$MonthSummary {
   const factory MonthSummary({
-    @Default(0) int lateCount,
-    @Default(0) int soonCount,
-    @Default(0) int onTimeCount,
+    @Default(0) int totalLateMinutes,
+    @Default(0) int lateDayCount,
+    @Default(0) int totalOvertimeMinutes,
   }) = _MonthSummary;
 }
 
-/// Tallies check-in punctuality across a month's attendance records, each
-/// classified against its own snapshotted [Attendance.expectedStartMinute].
-/// Days with no check-in are not counted.
+/// Aggregates lateness and overtime across a month's attendance records,
+/// summing each record's already-computed [Attendance.lateMinutes] and
+/// [Attendance.overtimeMinutes].
 MonthSummary deriveMonthSummary(Iterable<Attendance> attendances) {
-  var lateCount = 0;
-  var soonCount = 0;
-  var onTimeCount = 0;
+  var totalLateMinutes = 0;
+  var lateDayCount = 0;
+  var totalOvertimeMinutes = 0;
 
   for (final attendance in attendances) {
-    final checkIn = attendance.checkIn;
-    if (checkIn == null) continue;
-
-    final checkInMinute = checkIn.hour * 60 + checkIn.minute;
-    final diff = checkInMinute - attendance.expectedStartMinute;
-    if (diff > 0) {
-      lateCount++;
-    } else if (diff < 0) {
-      soonCount++;
-    } else {
-      onTimeCount++;
+    totalLateMinutes += attendance.lateMinutes;
+    totalOvertimeMinutes += attendance.overtimeMinutes;
+    if (attendance.lateMinutes > 0) {
+      lateDayCount++;
     }
   }
 
   return MonthSummary(
-    lateCount: lateCount,
-    soonCount: soonCount,
-    onTimeCount: onTimeCount,
+    totalLateMinutes: totalLateMinutes,
+    lateDayCount: lateDayCount,
+    totalOvertimeMinutes: totalOvertimeMinutes,
   );
 }

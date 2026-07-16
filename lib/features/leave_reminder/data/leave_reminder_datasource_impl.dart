@@ -35,10 +35,18 @@ class LeaveReminderDatasourceImpl implements LeaveReminderDatasource {
       LeaveReminderSettings(
         enabled: entity.enabled,
         home: entity.homeLat != null && entity.homeLng != null
-            ? GeoPoint(latitude: entity.homeLat!, longitude: entity.homeLng!)
+            ? GeoPoint(
+                latitude: entity.homeLat!,
+                longitude: entity.homeLng!,
+                address: entity.homeAddress,
+              )
             : null,
         work: entity.workLat != null && entity.workLng != null
-            ? GeoPoint(latitude: entity.workLat!, longitude: entity.workLng!)
+            ? GeoPoint(
+                latitude: entity.workLat!,
+                longitude: entity.workLng!,
+                address: entity.workAddress,
+              )
             : null,
         lastCommuteMinutes: entity.lastCommuteMinutes,
         lastCommuteUpdatedAt: entity.lastCommuteUpdatedAt,
@@ -50,8 +58,10 @@ class LeaveReminderDatasourceImpl implements LeaveReminderDatasource {
         enabled: settings.enabled,
         homeLat: settings.home?.latitude,
         homeLng: settings.home?.longitude,
+        homeAddress: settings.home?.address,
         workLat: settings.work?.latitude,
         workLng: settings.work?.longitude,
+        workAddress: settings.work?.address,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
         headsUpLeadMinutes: settings.headsUpLeadMinutes,

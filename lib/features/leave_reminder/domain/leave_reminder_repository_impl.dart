@@ -4,9 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import '../../../core/notifications/notification_service.dart';
+import '../../../database/leave_reminder/commute_sample_entity.dart';
 import '../../attendance/domain/attendance_repository.dart';
 import '../../schedule/domain/work_schedule_repository.dart';
 import '../data/commute_routing_client.dart';
+import '../data/commute_sample_dao.dart';
 import '../data/leave_reminder_datasource.dart';
 import '../data/weather_client.dart';
 import '../leave_reminder_constants.dart';
@@ -14,9 +16,11 @@ import 'models/commute_estimate.dart';
 import 'models/geo_point.dart';
 import 'models/leave_reminder_prompt_trigger.dart';
 import 'models/leave_reminder_settings.dart';
+import 'models/weather_snapshot.dart';
 import 'leave_reminder_repository.dart';
 import 'traffic_copy.dart';
 import 'weather_copy.dart';
+import 'weather_forecast_lookup.dart';
 
 @LazySingleton(as: LeaveReminderRepository)
 class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
@@ -27,6 +31,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
   final SharedPreferences _prefs;
   final WorkScheduleRepository _workScheduleRepository;
   final AttendanceRepository _attendanceRepository;
+  final CommuteSampleDao _commuteSampleDao;
 
   LeaveReminderRepositoryImpl(
     this._datasource,
@@ -36,6 +41,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     this._prefs,
     this._workScheduleRepository,
     this._attendanceRepository,
+    this._commuteSampleDao,
   );
 
   @override
@@ -76,6 +82,9 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     final settings = await getSettings();
     final updated = settings.copyWith(home: point);
     await _datasource.saveSettings(updated);
+    // An average spanning a location change is meaningless — reset history
+    // whenever either endpoint is set, even to the same point.
+    _commuteSampleDao.deleteAll();
     return updated;
   }
 
@@ -84,6 +93,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     final settings = await getSettings();
     final updated = settings.copyWith(work: point);
     await _datasource.saveSettings(updated);
+    _commuteSampleDao.deleteAll();
     return updated;
   }
 
@@ -120,6 +130,21 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
         estimate.durationInTrafficMinutes,
         DateTime.now(),
       );
+
+      final recent = _commuteSampleDao.getSince(
+        DateTime.now().subtract(kCommuteSampleCooldown),
+      );
+      if (recent.isEmpty) {
+        _commuteSampleDao.insert(
+          CommuteSampleEntity(
+            minutes: estimate.durationInTrafficMinutes,
+            capturedAt: DateTime.now(),
+          ),
+        );
+        _commuteSampleDao.deleteOlderThan(
+          DateTime.now().subtract(kCommuteHistoryWindow),
+        );
+      }
     } catch (e) {
       debugPrint('Failed to fetch commute estimate: $e');
       // Offline / API failure: fall back to the cached lastCommuteMinutes,
@@ -141,28 +166,54 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     );
 
     final now = DateTime.now();
-
-    String weatherPhrase;
-    try {
-      final weatherCode = await _weatherClient.fetchWeatherCode(settings.work!);
-      weatherPhrase = weatherHeadline(weatherCode);
-    } catch (_) {
-      weatherPhrase = '';
-    }
-
-    final trafficPhrase = estimate != null ? trafficHeadline(estimate) : null;
     final leaveTimeText = _formatTime(leaveTime);
 
-    final headline = [
-      ?trafficPhrase,
-      weatherPhrase,
-    ].where((s) => s.isNotEmpty).join(', ');
+    WeatherSnapshot? weatherSnapshot;
+    try {
+      weatherSnapshot = await _weatherClient.fetchWeatherSnapshot(
+        settings.work!,
+      );
+    } catch (e) {
+      debugPrint('Failed to fetch weather snapshot: $e');
+      weatherSnapshot = null;
+    }
+
+    final lines = <String>[
+      estimate != null
+          ? '🚦 ${trafficHeadline(estimate)} — leave at $leaveTimeText to arrive on time.'
+          : '🚗 Leave at $leaveTimeText to arrive on time.',
+    ];
+
+    if (weatherSnapshot != null) {
+      lines.add(
+        '${weatherHeadline(weatherSnapshot.currentWeatherCode)}, '
+        '${weatherSnapshot.currentTemperature.round()}°C right now.',
+      );
+
+      if (schedule.lunchMinutes > 0) {
+        final lunchTime = _todayAt(schedule.lunchStartMinuteOfDay);
+        final reading = weatherReadingAt(weatherSnapshot, lunchTime);
+        if (reading != null) {
+          lines.add(
+            '🍽️ ${weatherEmoji(reading.weatherCode)} '
+            '${reading.temperature.round()}°C expected at break time.',
+          );
+        }
+      }
+
+      final leaveReading = weatherReadingAt(weatherSnapshot, leaveTime);
+      if (leaveReading != null) {
+        lines.add(
+          '${weatherEmoji(leaveReading.weatherCode)} ${leaveReading.temperature.round()}°C expected when you leave.',
+        );
+      }
+    }
 
     if (headsUpTime.isAfter(now)) {
       await _notificationService.scheduleAt(
         id: kHeadsUpNotificationId,
         title: '🌅 Time to plan your commute',
-        body: '$headline. Leave at $leaveTimeText to arrive on time.',
+        body: lines.join('\n'),
         scheduledDate: headsUpTime,
       );
     } else {
@@ -179,6 +230,16 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     } else {
       await _notificationService.cancel(kLeaveNowNotificationId);
     }
+  }
+
+  @override
+  Future<int?> getAverageCommuteMinutes() async {
+    final since = DateTime.now().subtract(kCommuteHistoryWindow);
+    final samples = _commuteSampleDao.getSince(since);
+    if (samples.length < 2) return null; // no average until 2+ samples
+    final avg =
+        samples.map((s) => s.minutes).reduce((a, b) => a + b) / samples.length;
+    return avg.round();
   }
 
   @override

@@ -23,23 +23,23 @@ class MonthSummaryRow extends StatelessWidget {
           children: [
             Expanded(
               child: _SummaryItem(
-                label: 'Late',
-                count: summary.lateCount,
+                label: 'Late time',
+                totalMinutes: summary.totalLateMinutes,
                 color: colors.warning,
               ),
             ),
             Expanded(
               child: _SummaryItem(
-                label: 'Soon',
-                count: summary.soonCount,
-                color: colors.secondary,
+                label: 'Late days',
+                fixedValue: '${summary.lateDayCount}',
+                color: colors.warning,
               ),
             ),
             Expanded(
               child: _SummaryItem(
-                label: 'In time',
-                count: summary.onTimeCount,
-                color: colors.primary,
+                label: 'Overtime',
+                totalMinutes: summary.totalOvertimeMinutes,
+                color: colors.tertiary,
               ),
             ),
           ],
@@ -49,20 +49,49 @@ class MonthSummaryRow extends StatelessWidget {
   }
 }
 
-class _SummaryItem extends StatelessWidget {
+/// A single stat tile. If [totalMinutes] is given, the tile is tappable and
+/// toggles its own display between [TimeFormat.hMm] and
+/// [TimeFormat.totalMinutesLabel] — purely a display-formatting choice, not
+/// business state, so it lives here rather than in `CalendarState`.
+/// Otherwise [fixedValue] is shown as a plain, non-tappable value (e.g.
+/// "Late days").
+class _SummaryItem extends StatefulWidget {
   final String label;
-  final int count;
+  final int? totalMinutes;
+  final String? fixedValue;
   final Color color;
 
   const _SummaryItem({
     required this.label,
-    required this.count,
+    this.totalMinutes,
+    this.fixedValue,
     required this.color,
-  });
+  }) : assert(
+         (totalMinutes != null) != (fixedValue != null),
+         'Provide exactly one of totalMinutes or fixedValue.',
+       );
+
+  @override
+  State<_SummaryItem> createState() => _SummaryItemState();
+}
+
+class _SummaryItemState extends State<_SummaryItem> {
+  bool _showTotalMinutes = false;
+
+  void _toggleFormat() {
+    setState(() => _showTotalMinutes = !_showTotalMinutes);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final isTappable = widget.totalMinutes != null;
+    final value = isTappable
+        ? (_showTotalMinutes
+              ? TimeFormat.totalMinutesLabel(widget.totalMinutes!)
+              : TimeFormat.hMm(widget.totalMinutes!))
+        : widget.fixedValue!;
+
+    final content = Column(
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -70,25 +99,41 @@ class _SummaryItem extends StatelessWidget {
             Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: widget.color,
+                shape: BoxShape.circle,
+              ),
             ),
             const SizedBox(width: AppSpacing.space4),
-            Text(
-              '$count',
-              style: AppTypography.title(
-                context,
-              )?.copyWith(fontWeight: FontWeight.w700),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.title(
+                    context,
+                  )?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.space4),
         Text(
-          label,
+          widget.label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: AppTypography.caption(
             context,
           )?.copyWith(color: context.colors.textSecondary),
         ),
       ],
     );
+
+    return isTappable
+        ? InkWell(onTap: _toggleFormat, child: content)
+        : content;
   }
 }

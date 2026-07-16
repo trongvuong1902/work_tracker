@@ -24,6 +24,7 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
     emit(state.copyWith(isLoading: true));
     final settings = await _repository.getSettings();
     final schedule = await _workScheduleRepository.getCurrentActiveSchedule();
+    final averageCommuteMinutes = await _repository.getAverageCommuteMinutes();
     emit(
       state.copyWith(
         isLoading: false,
@@ -32,6 +33,7 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
         work: settings.work,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        averageCommuteMinutes: averageCommuteMinutes,
         headsUpLeadMinutes: settings.headsUpLeadMinutes,
         schedule: schedule,
       ),
@@ -44,6 +46,16 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
     switch (result) {
       case EnableLeaveReminderResult.success:
         emit(state.copyWith(isTogglingEnabled: false, enabled: value));
+        final settings = await _repository.getSettings();
+        final averageCommuteMinutes = await _repository
+            .getAverageCommuteMinutes();
+        emit(
+          state.copyWith(
+            lastCommuteMinutes: settings.lastCommuteMinutes,
+            lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+            averageCommuteMinutes: averageCommuteMinutes,
+          ),
+        );
       case EnableLeaveReminderResult.notificationPermissionDenied:
         emit(
           state.copyWith(
@@ -59,12 +71,14 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
   Future<void> setHome(GeoPoint point) async {
     emit(state.copyWith(isSettingHome: true, errorMessage: null));
     final settings = await _repository.setHomeLocation(point);
+    final averageCommuteMinutes = await _repository.getAverageCommuteMinutes();
     emit(
       state.copyWith(
         isSettingHome: false,
         home: settings.home,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        averageCommuteMinutes: averageCommuteMinutes,
       ),
     );
     if (state.hasBothLocations) refreshCommute();
@@ -73,12 +87,14 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
   Future<void> setWork(GeoPoint point) async {
     emit(state.copyWith(isSettingWork: true, errorMessage: null));
     final settings = await _repository.setWorkLocation(point);
+    final averageCommuteMinutes = await _repository.getAverageCommuteMinutes();
     emit(
       state.copyWith(
         isSettingWork: false,
         work: settings.work,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        averageCommuteMinutes: averageCommuteMinutes,
       ),
     );
     if (state.hasBothLocations) refreshCommute();
@@ -107,11 +123,13 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
     emit(state.copyWith(isRefreshingCommute: true, errorMessage: null));
     await _repository.scheduleTodayReminders();
     final settings = await _repository.getSettings();
+    final averageCommuteMinutes = await _repository.getAverageCommuteMinutes();
     emit(
       state.copyWith(
         isRefreshingCommute: false,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        averageCommuteMinutes: averageCommuteMinutes,
       ),
     );
   }

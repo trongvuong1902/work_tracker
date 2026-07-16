@@ -8,9 +8,14 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:work_tracker/app/cubit/app_cubit.dart';
 import 'package:work_tracker/app/router/app_navigator.dart';
+import 'package:work_tracker/app/theme/app_colors.dart';
 import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
+import 'package:work_tracker/di/injection.dart';
+import 'package:work_tracker/features/checkout_reminder/presentation/widgets/checkout_reminder_setup_sheet.dart';
+import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
+import 'package:work_tracker/features/leave_reminder/domain/models/leave_reminder_settings.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/widgets/leave_reminder_setup_sheet.dart';
 
 class SettingPage extends StatefulWidget {
@@ -23,12 +28,14 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   String? _databasePath;
   PackageInfo? _packageInfo;
+  LeaveReminderSettings? _leaveReminderSettings;
 
   @override
   void initState() {
     super.initState();
     _loadDatabasePath();
     _loadPackageInfo();
+    _loadLeaveReminderStatus();
   }
 
   Future<void> _loadDatabasePath() async {
@@ -42,8 +49,29 @@ class _SettingPageState extends State<SettingPage> {
     if (mounted) setState(() => _packageInfo = info);
   }
 
+  Future<void> _loadLeaveReminderStatus() async {
+    final settings = await getIt<LeaveReminderRepository>().getSettings();
+    if (mounted) setState(() => _leaveReminderSettings = settings);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final settings = _leaveReminderSettings;
+    final setCount =
+        (settings?.home != null ? 1 : 0) + (settings?.work != null ? 1 : 0);
+    String? statusText;
+    var isActive = false;
+    if (settings != null) {
+      if (!settings.enabled) {
+        statusText = 'Off';
+      } else if (setCount < 2) {
+        statusText = '$setCount of 2 locations set';
+      } else {
+        statusText = 'Active';
+        isActive = true;
+      }
+    }
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.space16),
@@ -60,7 +88,10 @@ class _SettingPageState extends State<SettingPage> {
             ShadowCard(
               margin: EdgeInsets.zero,
               child: InkWell(
-                onTap: () => showLeaveReminderSetupSheet(context),
+                onTap: () async {
+                  await showLeaveReminderSetupSheet(context);
+                  _loadLeaveReminderStatus();
+                },
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.space16),
                   child: Row(
@@ -68,6 +99,65 @@ class _SettingPageState extends State<SettingPage> {
                     children: [
                       Text(
                         'Leave reminders',
+                        style: AppTypography.label(context),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (statusText != null) ...[
+                            Text(
+                              statusText,
+                              style: AppTypography.body(context)?.copyWith(
+                                color: isActive
+                                    ? context.colors.primary
+                                    : context.colors.textSecondary,
+                                fontWeight: isActive
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.space8),
+                          ],
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            ShadowCard(
+              margin: EdgeInsets.zero,
+              child: InkWell(
+                onTap: () => AppNavigator.pushWorkScheduleSettings(context),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.space16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Work schedule',
+                        style: AppTypography.label(context),
+                      ),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            ShadowCard(
+              margin: EdgeInsets.zero,
+              child: InkWell(
+                onTap: () => showCheckoutReminderSetupSheet(context),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.space16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Checkout reminder',
                         style: AppTypography.label(context),
                       ),
                       const Icon(Icons.chevron_right),

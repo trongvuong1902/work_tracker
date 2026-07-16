@@ -70,7 +70,13 @@ class CalendarPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.space16),
-                      DaySummaryView(day: selectedDay),
+                      DaySummaryView(
+                        day: selectedDay,
+                        schedule: state.schedule,
+                        isWorkingDay: state.isSelectedDateWorkingDay,
+                        displayState: state.displayState,
+                        errorMessage: state.editErrorMessage,
+                      ),
                     ],
                   ),
                 );

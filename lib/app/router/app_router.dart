@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:work_tracker/app/router/app_routes.dart';
 import 'package:work_tracker/app/router/app_shell.dart';
 import 'package:work_tracker/app/router/calendar_branch.dart';
@@ -11,6 +10,7 @@ import 'package:work_tracker/app/router/setting_branch.dart';
 import 'package:work_tracker/debug/components_showcase_page.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/app/cubit/app_cubit.dart';
+import 'package:work_tracker/features/leave_reminder/domain/models/geo_point.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/pages/location_picker_page.dart';
 import 'package:work_tracker/features/onboard/presentation/pages/onboard_page.dart';
 import 'package:work_tracker/features/schedule/presentation/pages/setting_schedule_page.dart';
@@ -24,7 +24,7 @@ class LocationPickerArgs {
   const LocationPickerArgs({required this.title, this.initial});
 
   final String title;
-  final LatLng? initial;
+  final GeoPoint? initial;
 }
 
 final appRouter = GoRouter(

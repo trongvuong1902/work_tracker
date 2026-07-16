@@ -1,23 +1,18 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
 import 'package:work_tracker/app/router/app_navigator.dart';
 import 'package:work_tracker/app/theme/app_colors.dart';
 import 'package:work_tracker/components/components.dart';
+import 'package:work_tracker/core/notifications/notification_service.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/time/time_format.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
-import 'package:work_tracker/features/leave_reminder/domain/models/geo_point.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/leave_reminder_prompt_trigger.dart';
 import 'package:work_tracker/features/leave_reminder/leave_reminder_constants.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/cubit/leave_reminder_setup_cubit.dart';
 import 'package:work_tracker/features/schedule/domain/work_schedule_constants.dart';
-
-extension _GeoPointToLatLng on GeoPoint {
-  LatLng toLatLng() => LatLng(latitude, longitude);
-}
 
 /// Shows the leave-reminder setup sheet — the single reused UI surface for
 /// both the post-check-in discovery prompt ([trigger] non-null) and manual
@@ -30,6 +25,7 @@ Future<void> showLeaveReminderSetupSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    showDragHandle: true,
     builder: (_) => BlocProvider(
       create: (_) => getIt<LeaveReminderSetupCubit>(),
       child: _LeaveReminderSetupSheet(trigger: trigger),
@@ -72,9 +68,7 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                 ],
                 if (state.isLoading)
                   const Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: AppSpacing.space32,
-                    ),
+                    padding: EdgeInsets.symmetric(vertical: AppSpacing.space32),
                     child: Center(child: CircularProgressIndicator()),
                   )
                 else ...[
@@ -109,54 +103,45 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (state.enabled) ...[
-                    const SizedBox(height: AppSpacing.space16),
-                    _LocationRow(
-                      label: 'Set Home',
-                      isSet: state.home != null,
-                      isLoading: state.isSettingHome,
-                      onTap: () async {
-                        final picked = await AppNavigator.pushLocationPicker(
-                          context,
-                          title: 'Set Home',
-                          initial: state.home?.toLatLng(),
-                        );
-                        if (picked != null) {
-                          cubit.setHome(
-                            GeoPoint(
-                              latitude: picked.latitude,
-                              longitude: picked.longitude,
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.space8),
-                    _LocationRow(
-                      label: 'Set Work',
-                      isSet: state.work != null,
-                      isLoading: state.isSettingWork,
-                      onTap: () async {
-                        final picked = await AppNavigator.pushLocationPicker(
-                          context,
-                          title: 'Set Work',
-                          initial: state.work?.toLatLng(),
-                        );
-                        if (picked != null) {
-                          cubit.setWork(
-                            GeoPoint(
-                              latitude: picked.latitude,
-                              longitude: picked.longitude,
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                  const SizedBox(height: AppSpacing.space16),
+                  _LocationsHeader(
+                    setCount:
+                        (state.home != null ? 1 : 0) +
+                        (state.work != null ? 1 : 0),
+                  ),
+                  const SizedBox(height: AppSpacing.space8),
+                  _LocationRow(
+                    label: 'Set Home',
+                    isSet: state.home != null,
+                    isLoading: state.isSettingHome,
+                    onTap: () async {
+                      final picked = await AppNavigator.pushLocationPicker(
+                        context,
+                        title: 'Set Home',
+                        initial: state.home,
+                      );
+                      if (picked != null) cubit.setHome(picked);
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.space8),
+                  _LocationRow(
+                    label: 'Set Work',
+                    isSet: state.work != null,
+                    isLoading: state.isSettingWork,
+                    onTap: () async {
+                      final picked = await AppNavigator.pushLocationPicker(
+                        context,
+                        title: 'Set Work',
+                        initial: state.work,
+                      );
+                      if (picked != null) cubit.setWork(picked);
+                    },
+                  ),
                   if (state.hasBothLocations) ...[
                     const SizedBox(height: AppSpacing.space16),
                     _CommuteReadoutCard(
                       minutes: state.lastCommuteMinutes,
+                      averageMinutes: state.averageCommuteMinutes,
                       updatedAt: state.lastCommuteUpdatedAt,
                       isRefreshing: state.isRefreshingCommute,
                       onRefresh: cubit.refreshCommute,
@@ -164,7 +149,7 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                   ],
                   const SizedBox(height: AppSpacing.space16),
                   MinutePickerRow(
-                    label: 'Arrive early by',
+                    label: 'Expected arrival',
                     minutes: state.schedule?.reminderMinutes,
                     options: kReminderBufferOptions,
                     enabled: state.schedule != null,
@@ -178,28 +163,16 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.space16),
                   MinutePickerRow(
-                    label: 'Notify before leaving',
+                    label: 'Prepare duration',
                     minutes: state.headsUpLeadMinutes,
                     options: kHeadsUpLeadOptions,
-                    valueBuilder: (minutes) => '$minutes min',
                     onChanged: cubit.updateHeadsUpLeadMinutes,
-                  ),
-                  const SizedBox(height: AppSpacing.space16),
-                  _ScheduleReadoutCard(
-                    expectedArriveMinuteOfDay: state.expectedArriveMinuteOfDay,
-                    alertMinuteOfDay: state.alertMinuteOfDay,
                   ),
                   if (kDebugMode) ...[
                     const SizedBox(height: AppSpacing.space16),
-                    _DebugNotificationTimesCard(
+                    _DebugPendingNotificationsCard(
                       alertMinuteOfDay: state.alertMinuteOfDay,
                       headsUpLeadMinutes: state.headsUpLeadMinutes,
-                      unavailableReason: state.schedule == null
-                          ? 'No work schedule set'
-                          : state.lastCommuteMinutes == null
-                          ? 'No commute estimate yet — set Home & Work '
-                                'locations above'
-                          : null,
                     ),
                   ],
                   if (state.errorMessage != null) ...[
@@ -245,6 +218,52 @@ class _TriggerBanner extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.space16),
         child: Text(message, style: AppTypography.body(context)),
       ),
+    );
+  }
+}
+
+/// "Locations" requirement header — sits above the "Set Home"/"Set Work"
+/// rows, always visible regardless of `state.enabled`. Shows a running
+/// count of how many of the two are set, plus a short explanatory caption
+/// until both are set.
+class _LocationsHeader extends StatelessWidget {
+  const _LocationsHeader({required this.setCount});
+
+  final int setCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final isComplete = setCount >= 2;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Locations', style: AppTypography.label(context)),
+            Text(
+              '$setCount of 2 set',
+              style: AppTypography.body(context)?.copyWith(
+                color: isComplete
+                    ? context.colors.primary
+                    : context.colors.textSecondary,
+                fontWeight: isComplete ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+        if (!isComplete) ...[
+          const SizedBox(height: AppSpacing.space8),
+          Text(
+            'Both are needed to estimate your commute time and know when to '
+            'remind you to leave.',
+            style: AppTypography.caption(
+              context,
+            )?.copyWith(color: context.colors.textSecondary),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -298,87 +317,57 @@ class _LocationRow extends StatelessWidget {
   }
 }
 
-class _ScheduleReadoutCard extends StatelessWidget {
-  const _ScheduleReadoutCard({
-    required this.expectedArriveMinuteOfDay,
-    required this.alertMinuteOfDay,
-  });
-
-  final int? expectedArriveMinuteOfDay;
-  final int? alertMinuteOfDay;
-
-  @override
-  Widget build(BuildContext context) {
-    return ShadowCard(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.space16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ReadoutRow(
-              label: 'Expected arrival',
-              value: expectedArriveMinuteOfDay != null
-                  ? TimeFormat.hhMm(expectedArriveMinuteOfDay!)
-                  : 'Set a work schedule',
-            ),
-            const SizedBox(height: AppSpacing.space8),
-            _ReadoutRow(
-              label: 'Leave reminder alert',
-              value: alertMinuteOfDay != null
-                  ? TimeFormat.hhMm(alertMinuteOfDay!)
-                  : 'Needs a commute estimate',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ReadoutRow extends StatelessWidget {
-  const _ReadoutRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: AppTypography.label(context)),
-        Text(value, style: AppTypography.body(context)),
-      ],
-    );
-  }
-}
-
-/// Debug-only readout of when the two local notifications actually get
-/// scheduled to fire — the same [alertMinuteOfDay] value passed to
-/// `scheduleAt` for the "leave now" alert, and that minus
-/// [headsUpLeadMinutes] for the earlier heads-up. Not shown in release
-/// builds.
-class _DebugNotificationTimesCard extends StatelessWidget {
-  const _DebugNotificationTimesCard({
+/// Debug-only readout of what's actually scheduled with the OS right now —
+/// ground truth from the notifications plugin (id + content), joined with
+/// the fire time computed from [alertMinuteOfDay] (the "leave now" time)
+/// and [headsUpLeadMinutes] (subtracted from it for the earlier heads-up),
+/// keyed by the known [kLeaveNowNotificationId]/[kHeadsUpNotificationId]
+/// constants since the plugin itself doesn't report scheduled times. An
+/// empty list here at a time you expected a notification means it was
+/// silently skipped (e.g. the heads-up/leave-now time had already passed
+/// when `scheduleTodayReminders` last ran).
+class _DebugPendingNotificationsCard extends StatefulWidget {
+  const _DebugPendingNotificationsCard({
     required this.alertMinuteOfDay,
     required this.headsUpLeadMinutes,
-    this.unavailableReason,
   });
 
   final int? alertMinuteOfDay;
   final int headsUpLeadMinutes;
 
-  /// Why [alertMinuteOfDay] is null, shown instead of the readout rows so
-  /// it's clear this isn't a rendering bug — the times just aren't
-  /// computable yet.
-  final String? unavailableReason;
+  @override
+  State<_DebugPendingNotificationsCard> createState() =>
+      _DebugPendingNotificationsCardState();
+}
+
+class _DebugPendingNotificationsCardState
+    extends State<_DebugPendingNotificationsCard> {
+  late Future<List<ScheduledNotificationInfo>> _pending;
+
+  @override
+  void initState() {
+    super.initState();
+    _pending = getIt<NotificationService>().pendingNotifications();
+  }
+
+  void _refresh() {
+    setState(() {
+      _pending = getIt<NotificationService>().pendingNotifications();
+    });
+  }
+
+  String? _fireTimeFor(int id) {
+    final alert = widget.alertMinuteOfDay;
+    if (alert == null) return null;
+    if (id == kLeaveNowNotificationId) return TimeFormat.hhMm(alert);
+    if (id == kHeadsUpNotificationId) {
+      return TimeFormat.hhMm(alert - widget.headsUpLeadMinutes);
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final alert = alertMinuteOfDay;
-    final headsUp = alert != null ? alert - headsUpLeadMinutes : null;
-
     return ShadowCard(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -386,29 +375,74 @@ class _DebugNotificationTimesCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '🐛 Notification schedule (debug)',
-              style: AppTypography.label(context),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '🐛 Scheduled notifications (debug)',
+                  style: AppTypography.label(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Refresh',
+                  onPressed: _refresh,
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.space8),
-            if (alert == null)
-              Text(
-                unavailableReason ?? 'Not scheduled yet',
-                style: AppTypography.body(
-                  context,
-                )?.copyWith(color: context.colors.textSecondary),
-              )
-            else ...[
-              _ReadoutRow(
-                label: 'Heads-up fires at',
-                value: TimeFormat.hhMm(headsUp!),
-              ),
-              const SizedBox(height: AppSpacing.space8),
-              _ReadoutRow(
-                label: 'Leave-now fires at',
-                value: TimeFormat.hhMm(alert),
-              ),
-            ],
+            FutureBuilder<List<ScheduledNotificationInfo>>(
+              future: _pending,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppSpacing.space8,
+                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+
+                final pending = snapshot.data!;
+                if (pending.isEmpty) {
+                  return Text(
+                    'None currently scheduled',
+                    style: AppTypography.body(
+                      context,
+                    )?.copyWith(color: context.colors.textSecondary),
+                  );
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final notification in pending) ...[
+                      Text(
+                        '#${notification.id} — '
+                        '${notification.title ?? '(no title)'}',
+                        style: AppTypography.body(
+                          context,
+                        )?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        'Fires at '
+                        '${_fireTimeFor(notification.id) ?? 'unknown'}',
+                        style: AppTypography.body(
+                          context,
+                        )?.copyWith(color: context.colors.textSecondary),
+                      ),
+                      Text(
+                        notification.body ?? '(no body)',
+                        style: AppTypography.body(context),
+                      ),
+                      if (notification != pending.last)
+                        const SizedBox(height: AppSpacing.space8),
+                    ],
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -419,22 +453,39 @@ class _DebugNotificationTimesCard extends StatelessWidget {
 class _CommuteReadoutCard extends StatelessWidget {
   const _CommuteReadoutCard({
     required this.minutes,
+    required this.averageMinutes,
     required this.updatedAt,
     required this.isRefreshing,
     required this.onRefresh,
   });
 
   final int? minutes;
+  final int? averageMinutes;
   final DateTime? updatedAt;
   final bool isRefreshing;
   final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
-    final text = minutes == null
-        ? 'No commute estimate yet'
-        : '$minutes min drive'
-              '${updatedAt != null ? ' · updated ${TimeFormat.hhMmFromDateTime(updatedAt!)}' : ''}';
+    final updatedText = updatedAt != null
+        ? 'updated ${TimeFormat.hhMmFromDateTime(updatedAt!)}'
+        : null;
+
+    String line1;
+    String? line2;
+    if (minutes == null) {
+      line1 = 'No commute estimate yet';
+    } else if (averageMinutes == null) {
+      // Exactly one sample — an "average" identical to the latest reading
+      // would read as a copy bug, so it's omitted until there's a real one.
+      line1 = '$minutes min drive';
+      line2 =
+          'Average appears after a few more refreshes'
+          '${updatedText != null ? ' · $updatedText' : ''}';
+    } else {
+      line1 = '$minutes min drive · avg $averageMinutes min';
+      line2 = updatedText;
+    }
 
     return ShadowCard(
       margin: EdgeInsets.zero,
@@ -444,7 +495,21 @@ class _CommuteReadoutCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(text, style: AppTypography.body(context)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(line1, style: AppTypography.body(context)),
+                  if (line2 != null) ...[
+                    const SizedBox(height: AppSpacing.space4),
+                    Text(
+                      line2,
+                      style: AppTypography.caption(
+                        context,
+                      )?.copyWith(color: context.colors.textSecondary),
+                    ),
+                  ],
+                ],
+              ),
             ),
             isRefreshing
                 ? const SizedBox(

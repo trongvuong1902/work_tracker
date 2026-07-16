@@ -61,6 +61,27 @@ Once the build succeeds, the lane uploads the resulting `.ipa` from
 `build/ios/ipa/` to TestFlight via the API key and returns without waiting
 for Apple's build-processing step to finish (`skip_waiting_for_build_processing: true`).
 
+## Adding external testers in bulk
+
+Testers are listed in `ios/fastlane/testers.csv` (gitignored — it holds real
+people's personal email addresses, not something to commit to a shared repo).
+Each row is `first_name,last_name,email` (first/last may be left blank):
+
+```bash
+cp ios/fastlane/testers.csv.example ios/fastlane/testers.csv
+```
+
+Then run:
+
+```bash
+./scripts/add_testflight_testers.sh
+```
+
+This adds/updates every tester in the CSV into the app's "External Testers"
+TestFlight group, authenticating with the same App Store Connect API key as
+the `beta`/`distribute_beta` lanes. It's safe to re-run — existing testers
+are just updated, not duplicated.
+
 ## Manual steps that still require the App Store Connect web UI
 
 - Generating the API key itself — Apple only allows downloading the `.p8`

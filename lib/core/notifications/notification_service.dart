@@ -25,4 +25,18 @@ abstract class NotificationService {
   });
 
   Future<void> cancel(int id);
+
+  /// Currently pending (OS-scheduled) local notifications — for debug
+  /// inspection of what will actually fire, as opposed to what the app
+  /// intended to schedule.
+  Future<List<ScheduledNotificationInfo>> pendingNotifications();
+}
+
+/// Snapshot of one notification the OS currently has scheduled.
+class ScheduledNotificationInfo {
+  const ScheduledNotificationInfo({required this.id, this.title, this.body});
+
+  final int id;
+  final String? title;
+  final String? body;
 }

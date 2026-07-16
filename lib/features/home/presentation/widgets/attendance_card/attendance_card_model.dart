@@ -69,6 +69,9 @@ class AttendanceCardModel with _$AttendanceCardModel {
       final actualCheckOutTime = TimeFormat.hhMmFromDateTime(
         attendance.checkOut!,
       );
+      // Compared against the raw work-schedule end time (not shifted for a
+      // late check-in) — this is "how late did they leave vs. schedule",
+      // distinct from the check-in-adjusted `overtime` figure above.
       final plannedCheckOutTime = TimeFormat.hhMm(attendance.expectedEndMinute);
       final checkOutDiff =
           _minuteOfDay(attendance.checkOut!) - attendance.expectedEndMinute;

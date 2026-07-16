@@ -1,0 +1,77 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build the release APK (via repo build script) and distribute it via Firebase App Distribution"
+  lane :beta do
+    repo_root = File.expand_path("../..", __dir__)
+
+    sh("#{repo_root}/scripts/build_release_apk.sh")
+
+    apk_path = Dir.glob("#{repo_root}/build/app/outputs/flutter-apk/*-release.apk").max_by { |f| File.mtime(f) }
+    UI.user_error!("No release .apk found in build/app/outputs/flutter-apk after build_release_apk.sh") unless apk_path
+
+    firebase_app_distribution(
+      app: ENV.fetch("FIREBASE_APP_ID"),
+      service_credentials_file: File.expand_path(ENV.fetch("FIREBASE_SERVICE_ACCOUNT_FILEPATH"), __dir__),
+      apk_path: apk_path,
+      groups: ENV.fetch("FIREBASE_GROUP", "beta-testers"),
+      release_notes: ENV.fetch("FIREBASE_RELEASE_NOTES", "Bug fixes and improvements.")
+    )
+  end
+
+  desc "Add/update testers from android/fastlane/internal_testers.txt into the Firebase 'internal' testers group"
+  lane :add_internal_testers do
+    add_testers_from_file(file: "internal_testers.txt", group: "internal")
+  end
+
+  desc "Add/update testers from android/fastlane/nexsoft_testers.txt into the Firebase 'Nexsoft' testers group"
+  lane :add_nexsoft_testers do
+    add_testers_from_file(file: "nexsoft_testers.txt", group: "Nexsoft")
+  end
+
+  desc "Build the release AAB (via repo build script) and upload it to the Play Store Internal testing track"
+  lane :internal do
+    repo_root = File.expand_path("../..", __dir__)
+    package_name = ENV.fetch("PLAY_STORE_PACKAGE_NAME")
+    json_key = File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__)
+    track = ENV.fetch("PLAY_STORE_TRACK", "internal")
+
+    existing_codes = google_play_track_version_codes(
+      package_name: package_name,
+      track: track,
+      json_key: json_key
+    )
+    ENV["BUILD_NUMBER"] = ((existing_codes.max || 0) + 1).to_s
+
+    sh("#{repo_root}/scripts/build_release_aab.sh")
+
+    aab_path = Dir.glob("#{repo_root}/build/app/outputs/bundle/prodRelease/*.aab").max_by { |f| File.mtime(f) }
+    UI.user_error!("No release .aab found in build/app/outputs/bundle/prodRelease after build_release_aab.sh") unless aab_path
+
+    upload_to_play_store(
+      package_name: package_name,
+      json_key: json_key,
+      aab: aab_path,
+      track: track,
+      release_status: "completed",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  private_lane :add_testers_from_file do |options|
+    # firebase_app_distribution_add_testers takes the Firebase *project number*,
+    # not the app id — parse it out of FIREBASE_APP_ID (format "1:PROJECT_NUMBER:android:HASH")
+    # rather than requiring a separate env var.
+    project_number = ENV.fetch("FIREBASE_APP_ID").split(":")[1]
+    UI.user_error!("Could not parse Firebase project number from FIREBASE_APP_ID (expected format '1:PROJECT_NUMBER:android:HASH')") unless project_number
+
+    firebase_app_distribution_add_testers(
+      project_number: project_number,
+      service_credentials_file: File.expand_path(ENV.fetch("FIREBASE_SERVICE_ACCOUNT_FILEPATH"), __dir__),
+      file: File.expand_path(options[:file], __dir__),
+      group_alias: options[:group]
+    )
+  end
+end

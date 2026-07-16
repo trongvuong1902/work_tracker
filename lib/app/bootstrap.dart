@@ -7,7 +7,11 @@
 // * Handle global errors
 
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:workmanager/workmanager.dart';
@@ -19,10 +23,54 @@ import 'package:work_tracker/features/leave_reminder/data/leave_reminder_backgro
 import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
 
 Future<void> bootstrap() async {
-  await configureDependencies();
+  // Crashlytics needs `android/app/google-services.json` (downloaded from the
+  // Firebase console); no iOS config exists yet, so this is Android-only.
+  // Firebase/Crashlytics is not essential to core app function (attendance/
+  // task tracking works without it), so a failure here must never block
+  // startup.
+  if (Platform.isAndroid) {
+    try {
+      await Firebase.initializeApp();
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    } catch (error, stack) {
+      debugPrint('bootstrap: Firebase.initializeApp() failed: $error\n$stack');
+    }
+  }
 
-  await getIt<NotificationService>().initialize();
-  Workmanager().initialize(leaveReminderCallbackDispatcher);
+  // ObjectBox/DI underpins the whole app, so a failure here is fatal: report
+  // it (best-effort) and show a minimal fallback screen instead of hanging
+  // on the native splash forever.
+  try {
+    await configureDependencies();
+  } catch (error, stack) {
+    debugPrint('bootstrap: configureDependencies() failed: $error\n$stack');
+    if (Platform.isAndroid) {
+      try {
+        await FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      } catch (_) {
+        // Best-effort only; Firebase itself may have failed to init above.
+      }
+    }
+    runApp(const BootstrapFailedApp());
+    return;
+  }
+
+  try {
+    await getIt<NotificationService>().initialize();
+  } catch (error, stack) {
+    debugPrint('bootstrap: NotificationService.initialize() failed: $error\n$stack');
+  }
+
+  try {
+    Workmanager().initialize(leaveReminderCallbackDispatcher);
+  } catch (error, stack) {
+    debugPrint('bootstrap: Workmanager().initialize() failed: $error\n$stack');
+  }
+
   unawaited(getIt<LeaveReminderRepository>().scheduleTodayReminders().catchError((_) {}));
   // Force-construct so its constructor subscribes to the attendance stream
   // before any check-in/check-out can happen.
@@ -31,6 +79,29 @@ Future<void> bootstrap() async {
   Bloc.observer = AppBlocObserver();
 
   runApp(const MyApp());
+}
+
+/// Minimal last-resort fallback shown when [configureDependencies] fails,
+/// so the native splash screen always resolves to something visible.
+class BootstrapFailedApp extends StatelessWidget {
+  const BootstrapFailedApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'WorkTracker failed to start. Please restart the app.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class AppBlocObserver extends BlocObserver {

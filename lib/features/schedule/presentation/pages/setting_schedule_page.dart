@@ -54,7 +54,10 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                           Expanded(
                             child: ListView(
                               children: [
-                                _PurposeBanner(appStatus: appStatus),
+                                _PurposeBanner(
+                                  appStatus: appStatus,
+                                  isEditing: state.isEditing,
+                                ),
                                 const SizedBox(height: AppSpacing.space16),
                                 _TimeRow(
                                   label: 'Start time',
@@ -237,9 +240,10 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
 }
 
 class _PurposeBanner extends StatelessWidget {
-  const _PurposeBanner({required this.appStatus});
+  const _PurposeBanner({required this.appStatus, required this.isEditing});
 
   final AppStatus appStatus;
+  final bool isEditing;
 
   @override
   Widget build(BuildContext context) {
@@ -248,6 +252,11 @@ class _PurposeBanner extends StatelessWidget {
             'One last step',
             'Set your work hours so we can track your check-ins and '
                 'automatically calculate hours, lateness, and overtime.',
+          )
+        : isEditing
+        ? (
+            'Work schedule',
+            'Update your work hours, lunch break, and working days.',
           )
         : (
             'Schedule required to check in',

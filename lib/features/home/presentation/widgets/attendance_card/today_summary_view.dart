@@ -42,7 +42,11 @@ class TodaySummaryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final arrivedLate = checkInStatus == CheckInStatus.late;
-    final leftOvertime = checkOutStatus == CheckOutStatus.overtime;
+    // checkOutStatus/checkOutExtra compare the actual check-out time against
+    // the raw work-schedule end time (not the check-in-adjusted one used by
+    // the "Overtime" tile above) — label it "late" to avoid implying it's
+    // the same figure as overtime.
+    final leftLate = checkOutStatus == CheckOutStatus.overtime;
 
     return ShadowCard(
       child: Padding(
@@ -127,8 +131,7 @@ class TodaySummaryView extends StatelessWidget {
                     icon: Icons.logout,
                     color: context.colors.success,
                     label: 'Left',
-                    value:
-                        '$checkOutExtra ${leftOvertime ? 'overtime' : 'soon'}',
+                    value: '$checkOutExtra ${leftLate ? 'late' : 'on time'}',
                     subtitle: '$actualCheckOutTime vs $plannedCheckOutTime',
                     onTap: () => _handleEditCheckOut(context),
                   ),

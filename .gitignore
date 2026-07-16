@@ -54,6 +54,27 @@ app.*.map.json
 # Fastlane / App Store Connect secrets
 /ios/fastlane/.env
 /ios/fastlane/*.p8
+# External testers' personal email addresses — not a security secret, but not
+# meant for a shared/public repo either. See ios/fastlane/testers.csv.example.
+/ios/fastlane/testers.csv
+
+# Fastlane / Firebase App Distribution secrets
+/android/fastlane/.env
+/android/fastlane/*.json
+
+# Play Store upload keystore — never commit
+/android/fastlane/*.jks
+/android/fastlane/*.keystore
+
+# Firebase config (project-specific, downloaded manually from the Firebase
+# console for project work-tracker-69e9f / app io.fury.workTracker — never
+# committed to a shared repo).
+/android/app/google-services.json
+# External testers' personal email addresses — not a security secret, but not
+# meant for a shared/public repo either. See android/fastlane/internal_testers.txt.example
+# and android/fastlane/nexsoft_testers.txt.example.
+/android/fastlane/internal_testers.txt
+/android/fastlane/nexsoft_testers.txt
 
 # AI assistant files
 CLAUDE.md
@@ -67,3 +88,6 @@ AGENTS.md
 .clinerules/
 .aider*
 /PROJECT_CONTEXT.md
+
+ios/fastlane/.env
+android/fastlane/.env

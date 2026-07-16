@@ -2,6 +2,8 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -18,19 +20,47 @@ val localProperties =
     }
 val googleMapsApiKey: String = localProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
 
+// The `dev` flavor ships under a different applicationId
+// (`io.fury.workTracker.dev`), so a prod key restricted by Android
+// application restrictions (package name + SHA-1) won't authorize it.
+// Falls back to the prod key when unset, so dev builds keep working until a
+// real, separately-restricted dev key is provisioned.
+val googleMapsApiKeyDev: String =
+    localProperties.getProperty("GOOGLE_MAPS_API_KEY_DEV", "").ifBlank { googleMapsApiKey }
+
+// Release signing config, read from env vars (see docs/play_store_setup.md).
+// Falls back to the debug keystore when unset, so `flutter run --release`
+// keeps working locally with no keystore provisioned.
+val androidKeystoreFilepath: String? = System.getenv("ANDROID_KEYSTORE_FILEPATH")
+val androidKeystorePassword: String? = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+val androidKeyAlias: String? = System.getenv("ANDROID_KEY_ALIAS")
+val androidKeyPassword: String? = System.getenv("ANDROID_KEY_PASSWORD")
+val hasReleaseSigningConfig =
+    !androidKeystoreFilepath.isNullOrBlank() &&
+        !androidKeystorePassword.isNullOrBlank() &&
+        !androidKeyAlias.isNullOrBlank() &&
+        !androidKeyPassword.isNullOrBlank()
+
 android {
-    namespace = "com.example.work_tracker"
+    namespace = "io.fury.workTracker"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required by flutter_local_notifications for scheduled notifications.
+        isCoreLibraryDesugaringEnabled = true
+    }
+
+    // Required for the `resValue("string", "app_name", ...)` calls in the
+    // dev/prod product flavors below - AGP disables resValues by default.
+    buildFeatures {
+        resValues = true
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.work_tracker"
+        applicationId = "io.fury.workTracker"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -41,11 +71,41 @@ android {
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
     }
 
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("prod") {
+            dimension = "environment"
+            applicationId = "io.fury.workTracker"
+            resValue("string", "app_name", "WorkTracker")
+        }
+        create("dev") {
+            dimension = "environment"
+            applicationId = "io.fury.workTracker.dev"
+            resValue("string", "app_name", "WorkTracker Dev")
+            manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKeyDev
+        }
+    }
+
+    signingConfigs {
+        if (hasReleaseSigningConfig) {
+            create("release") {
+                storeFile = file(androidKeystoreFilepath!!)
+                storePassword = androidKeystorePassword
+                keyAlias = androidKeyAlias
+                keyPassword = androidKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig =
+                if (hasReleaseSigningConfig) {
+                    signingConfigs.getByName("release")
+                } else {
+                    signingConfigs.getByName("debug")
+                }
         }
     }
 }
@@ -58,4 +118,8 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

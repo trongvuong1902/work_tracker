@@ -74,13 +74,8 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
       return;
     }
 
-    final shiftedExpectedEndMinute =
-        attendance.expectedEndMinute + attendance.lateMinutes;
-    final fireAt = attendance.workDate
-        .add(Duration(minutes: shiftedExpectedEndMinute))
-        .subtract(Duration(minutes: settings.leadMinutes));
-
-    if (fireAt.isAfter(DateTime.now())) {
+    final fireAt = _computeFireAt(attendance, settings);
+    if (fireAt != null && fireAt.isAfter(DateTime.now())) {
       await _notificationService.scheduleAt(
         id: kCheckoutReminderNotificationId,
         title: '⏰ Time to check out',
@@ -90,5 +85,45 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
     } else {
       await _notificationService.cancel(kCheckoutReminderNotificationId);
     }
+  }
+
+  @override
+  Future<DateTime?> getScheduledFireTime() async {
+    final attendance = await _attendanceRepository.getTodayAttendance();
+    if (attendance == null || attendance.checkOut != null) return null;
+    if (attendance.checkIn == null) return null;
+
+    final settings = await getSettings();
+    if (!settings.enabled) return null;
+
+    if (attendance.expectedEndMinute <= attendance.expectedStartMinute) {
+      return null;
+    }
+
+    return _computeFireAt(attendance, settings);
+  }
+
+  /// Pure computation of the checkout-reminder fire time from [attendance]
+  /// + [settings], returning `null` only if an input is missing. Does not
+  /// check whether the time has already passed — callers deciding whether
+  /// to actually schedule/keep a notification (`_evaluate`) must check
+  /// `isAfter(DateTime.now())` themselves; callers just inspecting/
+  /// displaying the computed time (e.g. the debug card via
+  /// [getScheduledFireTime]) want the raw value even once it's elapsed,
+  /// rather than a misleading "nothing computed" result. Does not perform
+  /// any of the validity checks that gate whether this should even be
+  /// computed (no attendance/checkout/check-in/disabled/invalid schedule)
+  /// — callers are responsible for those.
+  DateTime? _computeFireAt(
+    Attendance? attendance,
+    CheckoutReminderSettings? settings,
+  ) {
+    if (attendance == null || settings == null) return null;
+
+    final shiftedExpectedEndMinute =
+        attendance.expectedEndMinute + attendance.lateMinutes;
+    return attendance.workDate
+        .add(Duration(minutes: shiftedExpectedEndMinute))
+        .subtract(Duration(minutes: settings.leadMinutes));
   }
 }

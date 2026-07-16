@@ -1,0 +1,9 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.profile-dev.xcconfig"
+#include "Generated.xcconfig"
+#include? "Secrets.xcconfig"
+
+APP_DISPLAY_NAME = WorkTracker Dev
+
+// Dev flavor uses its own Google Maps API key (see Secrets.xcconfig) since
+// its bundle id differs from prod.
+GOOGLE_MAPS_API_KEY = $(GOOGLE_MAPS_API_KEY_DEV)

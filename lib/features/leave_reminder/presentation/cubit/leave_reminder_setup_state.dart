@@ -9,6 +9,7 @@ abstract class LeaveReminderSetupState with _$LeaveReminderSetupState {
     GeoPoint? work,
     int? lastCommuteMinutes,
     DateTime? lastCommuteUpdatedAt,
+    int? averageCommuteMinutes,
     @Default(false) bool isSettingHome,
     @Default(false) bool isSettingWork,
     @Default(false) bool isRefreshingCommute,

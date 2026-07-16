@@ -30,4 +30,9 @@ if [[ ! -f "$DART_DEFINES_FILE" ]]; then
   exit 1
 fi
 
-fvm flutter build ipa --release --dart-define-from-file="$DART_DEFINES_FILE"
+BUILD_NUMBER_ARGS=()
+if [[ -n "${BUILD_NUMBER:-}" ]]; then
+  BUILD_NUMBER_ARGS=(--build-number="$BUILD_NUMBER")
+fi
+
+fvm flutter build ipa --release --dart-define-from-file="$DART_DEFINES_FILE" "${BUILD_NUMBER_ARGS[@]}"

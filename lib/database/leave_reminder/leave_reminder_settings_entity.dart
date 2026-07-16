@@ -9,9 +9,11 @@ class LeaveReminderSettingsEntity {
 
   double? homeLat;
   double? homeLng;
+  String? homeAddress;
 
   double? workLat;
   double? workLng;
+  String? workAddress;
 
   int? lastCommuteMinutes;
 
@@ -24,8 +26,10 @@ class LeaveReminderSettingsEntity {
     this.enabled = false,
     this.homeLat,
     this.homeLng,
+    this.homeAddress,
     this.workLat,
     this.workLng,
+    this.workAddress,
     this.lastCommuteMinutes,
     this.lastCommuteUpdatedAt,
     this.headsUpLeadMinutes = 15,

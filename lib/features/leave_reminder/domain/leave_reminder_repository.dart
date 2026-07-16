@@ -12,6 +12,10 @@ abstract class LeaveReminderRepository {
   Future<LeaveReminderSettings> setHeadsUpLeadMinutes(int minutes);
   Future<void> scheduleTodayReminders();
 
+  /// Rolling average commute duration (minutes) over the recent sample
+  /// history, or `null` until at least two samples have been recorded.
+  Future<int?> getAverageCommuteMinutes();
+
   /// Evaluates the discovery-prompt condition and, if it fires, marks the
   /// one-time "shown" flag right away (not after the user acts on it) so a
   /// crash or dismiss mid-flow can never cause a repeat.

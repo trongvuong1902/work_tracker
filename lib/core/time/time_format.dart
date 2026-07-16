@@ -43,4 +43,9 @@ abstract final class TimeFormat {
   static String monthYearLabel(DateTime date) {
     return '${monthNames[date.month - 1]} ${date.year}';
   }
+
+  /// Formats [totalMinutes] as a plain total-minutes label (e.g. "245m"),
+  /// used as the alternate display format for hour/minute durations like
+  /// [hMm].
+  static String totalMinutesLabel(int totalMinutes) => '${totalMinutes}m';
 }

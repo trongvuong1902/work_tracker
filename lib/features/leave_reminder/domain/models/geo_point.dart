@@ -7,5 +7,6 @@ abstract class GeoPoint with _$GeoPoint {
   const factory GeoPoint({
     required double latitude,
     required double longitude,
+    String? address,
   }) = _GeoPoint;
 }

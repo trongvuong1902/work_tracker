@@ -27,14 +27,14 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
 
   @override
   Future<Attendance> checkIn(DateTime time) async {
-    final dayKey = _todayDayKey();
+    final dayKey = _dayKeyOf(time);
     final existing = _dao.getByDayKey(dayKey);
 
     if (existing == null) {
       final schedule = _workdScheduleDao.get();
       final expectedStartMinute = schedule?.startMinute ?? 0;
       final entity = AttendanceEntity(
-        workDate: _todayWorkDate(),
+        workDate: _workDateOf(time),
         dayKey: dayKey,
         checkIn: time,
         checkOut: null,
@@ -58,6 +58,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     existing.lateMinutes = _lateMinutes(time, existing.expectedStartMinute);
     existing.isEdited = true;
     existing.editedAt = DateTime.now();
+    _recalculateDerivedFields(existing);
     _dao.save(existing);
     _attendanceChangesController.add(_toModel(existing));
     return _toModel(existing);
@@ -65,7 +66,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
 
   @override
   Future<Attendance> checkOut(DateTime time) async {
-    final existing = _dao.getByDayKey(_todayDayKey());
+    final existing = _dao.getByDayKey(_dayKeyOf(time));
 
     if (existing == null || existing.checkIn == null) {
       throw StateError('Cannot check out before checking in');
@@ -83,21 +84,40 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     }
     existing.checkOut = time;
 
-    final workedMinutes =
-        time.difference(existing.checkIn!).inMinutes - existing.lunchMinutes;
-    existing.workedMinutes = workedMinutes > 0 ? workedMinutes : 0;
-
-    final checkOutMinute = _minuteOfDay(time);
-    existing.overtimeMinutes = checkOutMinute > existing.expectedEndMinute
-        ? checkOutMinute - existing.expectedEndMinute
-        : 0;
-    existing.earlyLeaveMinutes = checkOutMinute < existing.expectedEndMinute
-        ? existing.expectedEndMinute - checkOutMinute
-        : 0;
+    _recalculateDerivedFields(existing);
 
     _dao.save(existing);
     _attendanceChangesController.add(_toModel(existing));
     return _toModel(existing);
+  }
+
+  /// Recomputes [AttendanceEntity.workedMinutes],
+  /// [AttendanceEntity.overtimeMinutes] and [AttendanceEntity.earlyLeaveMinutes]
+  /// from [entity]'s current `checkIn`/`checkOut`/`lunchMinutes`/
+  /// `expectedEndMinute`/`lateMinutes`. No-op if there's no check-out yet,
+  /// since there's nothing to derive. Must be called after any change to
+  /// `checkIn`, `checkOut` or `lateMinutes` so these derived fields never go
+  /// stale (e.g. editing check-in after check-out is already set).
+  void _recalculateDerivedFields(AttendanceEntity entity) {
+    if (entity.checkOut == null) return;
+
+    final workedMinutes =
+        entity.checkOut!.difference(entity.checkIn!).inMinutes -
+        entity.lunchMinutes;
+    entity.workedMinutes = workedMinutes > 0 ? workedMinutes : 0;
+
+    final checkOutMinute = _minuteOfDay(entity.checkOut!);
+    // A late check-in pushes the expected leave time back by the same
+    // amount, so overtime/early-leave are measured against that shifted
+    // expected end time rather than the originally scheduled one.
+    final shiftedExpectedEndMinute =
+        entity.expectedEndMinute + entity.lateMinutes;
+    entity.overtimeMinutes = checkOutMinute > shiftedExpectedEndMinute
+        ? checkOutMinute - shiftedExpectedEndMinute
+        : 0;
+    entity.earlyLeaveMinutes = checkOutMinute < shiftedExpectedEndMinute
+        ? shiftedExpectedEndMinute - checkOutMinute
+        : 0;
   }
 
   int _lateMinutes(DateTime checkInTime, int expectedStartMinute) {
@@ -108,6 +128,20 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   int _minuteOfDay(DateTime dateTime) => dateTime.hour * 60 + dateTime.minute;
+
+  /// The date component of [time], with the time-of-day stripped off. Used
+  /// to determine which day's record a [checkIn]/[checkOut] call affects —
+  /// derived from the given [time], never from the clock.
+  DateTime _workDateOf(DateTime time) =>
+      DateTime(time.year, time.month, time.day);
+
+  /// The `yyyyMMdd`-style day key for [time]'s date component. Used to
+  /// determine which day's record a [checkIn]/[checkOut] call affects —
+  /// derived from the given [time], never from the clock.
+  int _dayKeyOf(DateTime time) {
+    final workDate = _workDateOf(time);
+    return workDate.year * 10000 + workDate.month * 100 + workDate.day;
+  }
 
   DateTime _todayWorkDate() {
     final now = DateTime.now();
@@ -162,6 +196,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   void clearTodayAttendance() {
     final dayKey = _todayDayKey();
     _dao.deleteByDayKey(dayKey);
+    _attendanceChangesController.add(null);
   }
 
   @override

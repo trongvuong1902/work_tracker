@@ -143,7 +143,7 @@
     },
     {
       "id": "3:6679202978330319836",
-      "lastPropertyId": "9:2573635761723676714",
+      "lastPropertyId": "11:5581931614869045293",
       "name": "LeaveReminderSettingsEntity",
       "properties": [
         {
@@ -191,6 +191,16 @@
           "id": "9:2573635761723676714",
           "name": "headsUpLeadMinutes",
           "type": 6
+        },
+        {
+          "id": "10:7888588477064653157",
+          "name": "homeAddress",
+          "type": 9
+        },
+        {
+          "id": "11:5581931614869045293",
+          "name": "workAddress",
+          "type": 9
         }
       ],
       "relations": []
@@ -218,9 +228,33 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "5:7143482092043233428",
+      "lastPropertyId": "3:9115101797300401571",
+      "name": "CommuteSampleEntity",
+      "properties": [
+        {
+          "id": "1:6200563535257375930",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7717060570291755860",
+          "name": "minutes",
+          "type": 6
+        },
+        {
+          "id": "3:9115101797300401571",
+          "name": "capturedAt",
+          "type": 10
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "4:5221361258848994198",
+  "lastEntityId": "5:7143482092043233428",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

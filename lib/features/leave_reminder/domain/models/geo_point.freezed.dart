@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$GeoPoint {
 
- double get latitude; double get longitude;
+ double get latitude; double get longitude; String? get address;
 /// Create a copy of GeoPoint
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $GeoPointCopyWith<GeoPoint> get copyWith => _$GeoPointCopyWithImpl<GeoPoint>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GeoPoint&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GeoPoint&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.address, address) || other.address == address));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,latitude,longitude);
+int get hashCode => Object.hash(runtimeType,latitude,longitude,address);
 
 @override
 String toString() {
-  return 'GeoPoint(latitude: $latitude, longitude: $longitude)';
+  return 'GeoPoint(latitude: $latitude, longitude: $longitude, address: $address)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $GeoPointCopyWith<$Res>  {
   factory $GeoPointCopyWith(GeoPoint value, $Res Function(GeoPoint) _then) = _$GeoPointCopyWithImpl;
 @useResult
 $Res call({
- double latitude, double longitude
+ double latitude, double longitude, String? address
 });
 
 
@@ -62,11 +62,12 @@ class _$GeoPointCopyWithImpl<$Res>
 
 /// Create a copy of GeoPoint
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? latitude = null,Object? longitude = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? latitude = null,Object? longitude = null,Object? address = freezed,}) {
   return _then(_self.copyWith(
 latitude: null == latitude ? _self.latitude : latitude // ignore: cast_nullable_to_non_nullable
 as double,longitude: null == longitude ? _self.longitude : longitude // ignore: cast_nullable_to_non_nullable
-as double,
+as double,address: freezed == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -151,10 +152,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double latitude,  double longitude)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double latitude,  double longitude,  String? address)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GeoPoint() when $default != null:
-return $default(_that.latitude,_that.longitude);case _:
+return $default(_that.latitude,_that.longitude,_that.address);case _:
   return orElse();
 
 }
@@ -172,10 +173,10 @@ return $default(_that.latitude,_that.longitude);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double latitude,  double longitude)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double latitude,  double longitude,  String? address)  $default,) {final _that = this;
 switch (_that) {
 case _GeoPoint():
-return $default(_that.latitude,_that.longitude);case _:
+return $default(_that.latitude,_that.longitude,_that.address);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -192,10 +193,10 @@ return $default(_that.latitude,_that.longitude);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double latitude,  double longitude)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double latitude,  double longitude,  String? address)?  $default,) {final _that = this;
 switch (_that) {
 case _GeoPoint() when $default != null:
-return $default(_that.latitude,_that.longitude);case _:
+return $default(_that.latitude,_that.longitude,_that.address);case _:
   return null;
 
 }
@@ -207,11 +208,12 @@ return $default(_that.latitude,_that.longitude);case _:
 
 
 class _GeoPoint implements GeoPoint {
-  const _GeoPoint({required this.latitude, required this.longitude});
+  const _GeoPoint({required this.latitude, required this.longitude, this.address});
   
 
 @override final  double latitude;
 @override final  double longitude;
+@override final  String? address;
 
 /// Create a copy of GeoPoint
 /// with the given fields replaced by the non-null parameter values.
@@ -223,16 +225,16 @@ _$GeoPointCopyWith<_GeoPoint> get copyWith => __$GeoPointCopyWithImpl<_GeoPoint>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GeoPoint&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GeoPoint&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.address, address) || other.address == address));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,latitude,longitude);
+int get hashCode => Object.hash(runtimeType,latitude,longitude,address);
 
 @override
 String toString() {
-  return 'GeoPoint(latitude: $latitude, longitude: $longitude)';
+  return 'GeoPoint(latitude: $latitude, longitude: $longitude, address: $address)';
 }
 
 
@@ -243,7 +245,7 @@ abstract mixin class _$GeoPointCopyWith<$Res> implements $GeoPointCopyWith<$Res>
   factory _$GeoPointCopyWith(_GeoPoint value, $Res Function(_GeoPoint) _then) = __$GeoPointCopyWithImpl;
 @override @useResult
 $Res call({
- double latitude, double longitude
+ double latitude, double longitude, String? address
 });
 
 
@@ -260,11 +262,12 @@ class __$GeoPointCopyWithImpl<$Res>
 
 /// Create a copy of GeoPoint
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? latitude = null,Object? longitude = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? latitude = null,Object? longitude = null,Object? address = freezed,}) {
   return _then(_GeoPoint(
 latitude: null == latitude ? _self.latitude : latitude // ignore: cast_nullable_to_non_nullable
 as double,longitude: null == longitude ? _self.longitude : longitude // ignore: cast_nullable_to_non_nullable
-as double,
+as double,address: freezed == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

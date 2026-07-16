@@ -2,6 +2,7 @@
     <!-- Leave-reminder notifications: map location pickers ("center on my
          location" convenience button only), local notifications, and
          daily background rescheduling of those notifications. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>

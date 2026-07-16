@@ -25,6 +25,8 @@ import 'package:work_tracker/database/attendance/attendance_entity.dart'
     as _i602;
 import 'package:work_tracker/database/checkout_reminder/checkout_reminder_settings_entity.dart'
     as _i337;
+import 'package:work_tracker/database/leave_reminder/commute_sample_entity.dart'
+    as _i793;
 import 'package:work_tracker/database/leave_reminder/leave_reminder_settings_entity.dart'
     as _i1017;
 import 'package:work_tracker/database/objectbox.g.dart' as _i625;
@@ -62,6 +64,8 @@ import 'package:work_tracker/features/home/presentation/widgets/hero_card/cubit/
     as _i629;
 import 'package:work_tracker/features/leave_reminder/data/commute_routing_client.dart'
     as _i925;
+import 'package:work_tracker/features/leave_reminder/data/commute_sample_dao.dart'
+    as _i150;
 import 'package:work_tracker/features/leave_reminder/data/leave_reminder_dao.dart'
     as _i591;
 import 'package:work_tracker/features/leave_reminder/data/leave_reminder_datasource.dart'
@@ -70,6 +74,10 @@ import 'package:work_tracker/features/leave_reminder/data/leave_reminder_datasou
     as _i14;
 import 'package:work_tracker/features/leave_reminder/data/location_source.dart'
     as _i343;
+import 'package:work_tracker/features/leave_reminder/data/places_client.dart'
+    as _i509;
+import 'package:work_tracker/features/leave_reminder/data/reverse_geocoding_client.dart'
+    as _i883;
 import 'package:work_tracker/features/leave_reminder/data/weather_client.dart'
     as _i1043;
 import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart'
@@ -114,6 +122,10 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.distanceMatrixClient(),
     );
     gh.lazySingleton<_i343.LocationSource>(() => _i343.LocationSourceImpl());
+    gh.lazySingleton<_i509.PlacesClient>(() => _i509.GooglePlacesClient());
+    gh.lazySingleton<_i883.ReverseGeocodingClient>(
+      () => _i883.GoogleReverseGeocodingClient(),
+    );
     gh.lazySingleton<_i1043.WeatherClient>(
       () => _i1043.OpenMeteoWeatherClient(),
     );
@@ -141,11 +153,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i625.Box<_i1017.LeaveReminderSettingsEntity>>(
       () => registerModule.leaveReminderBox(gh<_i625.Store>()),
     );
+    gh.singleton<_i625.Box<_i793.CommuteSampleEntity>>(
+      () => registerModule.commuteSampleBox(gh<_i625.Store>()),
+    );
     gh.singleton<_i625.Box<_i337.CheckoutReminderSettingsEntity>>(
       () => registerModule.checkoutReminderBox(gh<_i625.Store>()),
     );
     gh.lazySingleton<_i616.AttendanceDao>(
       () => _i616.AttendanceDaoImpl(gh<_i625.Box<_i602.AttendanceEntity>>()),
+    );
+    gh.lazySingleton<_i150.CommuteSampleDao>(
+      () => _i150.CommuteSampleDaoImpl(
+        gh<_i625.Box<_i793.CommuteSampleEntity>>(),
+      ),
     );
     gh.lazySingleton<_i226.CheckoutReminderDao>(
       () => _i226.CheckoutReminderDaoImpl(
@@ -195,17 +215,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i513.WorkScheduleRepository>(),
       ),
     );
-    gh.lazySingleton<_i468.LeaveReminderRepository>(
-      () => _i347.LeaveReminderRepositoryImpl(
-        gh<_i707.LeaveReminderDatasource>(),
-        gh<_i925.CommuteRoutingClient>(),
-        gh<_i1043.WeatherClient>(),
-        gh<_i43.NotificationService>(),
-        gh<_i460.SharedPreferences>(),
-        gh<_i513.WorkScheduleRepository>(),
-        gh<_i331.AttendanceRepository>(),
-      ),
-    );
     gh.singleton<_i108.AppCubit>(
       () => _i108.AppCubit(
         gh<_i204.AppRepository>(),
@@ -230,17 +239,29 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i530.CheckoutReminderRepository>(),
       ),
     );
-    gh.factory<_i594.HomePageCubit>(
-      () => _i594.HomePageCubit(
-        workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
-        attendanceRepository: gh<_i331.AttendanceRepository>(),
-        leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
+    gh.lazySingleton<_i468.LeaveReminderRepository>(
+      () => _i347.LeaveReminderRepositoryImpl(
+        gh<_i707.LeaveReminderDatasource>(),
+        gh<_i925.CommuteRoutingClient>(),
+        gh<_i1043.WeatherClient>(),
+        gh<_i43.NotificationService>(),
+        gh<_i460.SharedPreferences>(),
+        gh<_i513.WorkScheduleRepository>(),
+        gh<_i331.AttendanceRepository>(),
+        gh<_i150.CommuteSampleDao>(),
       ),
     );
     gh.factory<_i262.LeaveReminderSetupCubit>(
       () => _i262.LeaveReminderSetupCubit(
         gh<_i468.LeaveReminderRepository>(),
         gh<_i513.WorkScheduleRepository>(),
+      ),
+    );
+    gh.factory<_i594.HomePageCubit>(
+      () => _i594.HomePageCubit(
+        workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
+        attendanceRepository: gh<_i331.AttendanceRepository>(),
+        leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
       ),
     );
     return this;

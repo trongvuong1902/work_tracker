@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MonthSummary {
 
- int get lateCount; int get soonCount; int get onTimeCount;
+ int get totalLateMinutes; int get lateDayCount; int get totalOvertimeMinutes;
 /// Create a copy of MonthSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $MonthSummaryCopyWith<MonthSummary> get copyWith => _$MonthSummaryCopyWithImpl<M
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MonthSummary&&(identical(other.lateCount, lateCount) || other.lateCount == lateCount)&&(identical(other.soonCount, soonCount) || other.soonCount == soonCount)&&(identical(other.onTimeCount, onTimeCount) || other.onTimeCount == onTimeCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MonthSummary&&(identical(other.totalLateMinutes, totalLateMinutes) || other.totalLateMinutes == totalLateMinutes)&&(identical(other.lateDayCount, lateDayCount) || other.lateDayCount == lateDayCount)&&(identical(other.totalOvertimeMinutes, totalOvertimeMinutes) || other.totalOvertimeMinutes == totalOvertimeMinutes));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,lateCount,soonCount,onTimeCount);
+int get hashCode => Object.hash(runtimeType,totalLateMinutes,lateDayCount,totalOvertimeMinutes);
 
 @override
 String toString() {
-  return 'MonthSummary(lateCount: $lateCount, soonCount: $soonCount, onTimeCount: $onTimeCount)';
+  return 'MonthSummary(totalLateMinutes: $totalLateMinutes, lateDayCount: $lateDayCount, totalOvertimeMinutes: $totalOvertimeMinutes)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $MonthSummaryCopyWith<$Res>  {
   factory $MonthSummaryCopyWith(MonthSummary value, $Res Function(MonthSummary) _then) = _$MonthSummaryCopyWithImpl;
 @useResult
 $Res call({
- int lateCount, int soonCount, int onTimeCount
+ int totalLateMinutes, int lateDayCount, int totalOvertimeMinutes
 });
 
 
@@ -62,11 +62,11 @@ class _$MonthSummaryCopyWithImpl<$Res>
 
 /// Create a copy of MonthSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? lateCount = null,Object? soonCount = null,Object? onTimeCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? totalLateMinutes = null,Object? lateDayCount = null,Object? totalOvertimeMinutes = null,}) {
   return _then(_self.copyWith(
-lateCount: null == lateCount ? _self.lateCount : lateCount // ignore: cast_nullable_to_non_nullable
-as int,soonCount: null == soonCount ? _self.soonCount : soonCount // ignore: cast_nullable_to_non_nullable
-as int,onTimeCount: null == onTimeCount ? _self.onTimeCount : onTimeCount // ignore: cast_nullable_to_non_nullable
+totalLateMinutes: null == totalLateMinutes ? _self.totalLateMinutes : totalLateMinutes // ignore: cast_nullable_to_non_nullable
+as int,lateDayCount: null == lateDayCount ? _self.lateDayCount : lateDayCount // ignore: cast_nullable_to_non_nullable
+as int,totalOvertimeMinutes: null == totalOvertimeMinutes ? _self.totalOvertimeMinutes : totalOvertimeMinutes // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -152,10 +152,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int lateCount,  int soonCount,  int onTimeCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int totalLateMinutes,  int lateDayCount,  int totalOvertimeMinutes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MonthSummary() when $default != null:
-return $default(_that.lateCount,_that.soonCount,_that.onTimeCount);case _:
+return $default(_that.totalLateMinutes,_that.lateDayCount,_that.totalOvertimeMinutes);case _:
   return orElse();
 
 }
@@ -173,10 +173,10 @@ return $default(_that.lateCount,_that.soonCount,_that.onTimeCount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int lateCount,  int soonCount,  int onTimeCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int totalLateMinutes,  int lateDayCount,  int totalOvertimeMinutes)  $default,) {final _that = this;
 switch (_that) {
 case _MonthSummary():
-return $default(_that.lateCount,_that.soonCount,_that.onTimeCount);case _:
+return $default(_that.totalLateMinutes,_that.lateDayCount,_that.totalOvertimeMinutes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +193,10 @@ return $default(_that.lateCount,_that.soonCount,_that.onTimeCount);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int lateCount,  int soonCount,  int onTimeCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int totalLateMinutes,  int lateDayCount,  int totalOvertimeMinutes)?  $default,) {final _that = this;
 switch (_that) {
 case _MonthSummary() when $default != null:
-return $default(_that.lateCount,_that.soonCount,_that.onTimeCount);case _:
+return $default(_that.totalLateMinutes,_that.lateDayCount,_that.totalOvertimeMinutes);case _:
   return null;
 
 }
@@ -208,12 +208,12 @@ return $default(_that.lateCount,_that.soonCount,_that.onTimeCount);case _:
 
 
 class _MonthSummary implements MonthSummary {
-  const _MonthSummary({this.lateCount = 0, this.soonCount = 0, this.onTimeCount = 0});
+  const _MonthSummary({this.totalLateMinutes = 0, this.lateDayCount = 0, this.totalOvertimeMinutes = 0});
   
 
-@override@JsonKey() final  int lateCount;
-@override@JsonKey() final  int soonCount;
-@override@JsonKey() final  int onTimeCount;
+@override@JsonKey() final  int totalLateMinutes;
+@override@JsonKey() final  int lateDayCount;
+@override@JsonKey() final  int totalOvertimeMinutes;
 
 /// Create a copy of MonthSummary
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +225,16 @@ _$MonthSummaryCopyWith<_MonthSummary> get copyWith => __$MonthSummaryCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MonthSummary&&(identical(other.lateCount, lateCount) || other.lateCount == lateCount)&&(identical(other.soonCount, soonCount) || other.soonCount == soonCount)&&(identical(other.onTimeCount, onTimeCount) || other.onTimeCount == onTimeCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MonthSummary&&(identical(other.totalLateMinutes, totalLateMinutes) || other.totalLateMinutes == totalLateMinutes)&&(identical(other.lateDayCount, lateDayCount) || other.lateDayCount == lateDayCount)&&(identical(other.totalOvertimeMinutes, totalOvertimeMinutes) || other.totalOvertimeMinutes == totalOvertimeMinutes));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,lateCount,soonCount,onTimeCount);
+int get hashCode => Object.hash(runtimeType,totalLateMinutes,lateDayCount,totalOvertimeMinutes);
 
 @override
 String toString() {
-  return 'MonthSummary(lateCount: $lateCount, soonCount: $soonCount, onTimeCount: $onTimeCount)';
+  return 'MonthSummary(totalLateMinutes: $totalLateMinutes, lateDayCount: $lateDayCount, totalOvertimeMinutes: $totalOvertimeMinutes)';
 }
 
 
@@ -245,7 +245,7 @@ abstract mixin class _$MonthSummaryCopyWith<$Res> implements $MonthSummaryCopyWi
   factory _$MonthSummaryCopyWith(_MonthSummary value, $Res Function(_MonthSummary) _then) = __$MonthSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- int lateCount, int soonCount, int onTimeCount
+ int totalLateMinutes, int lateDayCount, int totalOvertimeMinutes
 });
 
 
@@ -262,11 +262,11 @@ class __$MonthSummaryCopyWithImpl<$Res>
 
 /// Create a copy of MonthSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? lateCount = null,Object? soonCount = null,Object? onTimeCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? totalLateMinutes = null,Object? lateDayCount = null,Object? totalOvertimeMinutes = null,}) {
   return _then(_MonthSummary(
-lateCount: null == lateCount ? _self.lateCount : lateCount // ignore: cast_nullable_to_non_nullable
-as int,soonCount: null == soonCount ? _self.soonCount : soonCount // ignore: cast_nullable_to_non_nullable
-as int,onTimeCount: null == onTimeCount ? _self.onTimeCount : onTimeCount // ignore: cast_nullable_to_non_nullable
+totalLateMinutes: null == totalLateMinutes ? _self.totalLateMinutes : totalLateMinutes // ignore: cast_nullable_to_non_nullable
+as int,lateDayCount: null == lateDayCount ? _self.lateDayCount : lateDayCount // ignore: cast_nullable_to_non_nullable
+as int,totalOvertimeMinutes: null == totalOvertimeMinutes ? _self.totalOvertimeMinutes : totalOvertimeMinutes // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

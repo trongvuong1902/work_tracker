@@ -13,6 +13,13 @@ single API key with the following APIs enabled:
 - **Maps SDK for Android**
 - **Maps SDK for iOS**
 - **Distance Matrix API** (used for traffic-aware commute time)
+- **Places API** (used for the location picker's address-search autocomplete
+  and place-details lookup)
+- **Geocoding API** (used to reverse-geocode a picked coordinate into a
+  human-readable address in the location picker)
+
+Both `GOOGLE_MAPS_API_KEY` and `GOOGLE_MAPS_API_KEY_DEV` need all of the
+above APIs enabled the same way — the dev key isn't a reduced subset.
 
 Restrict the key per-platform (Android app + SHA-1, iOS bundle ID) once you
 have one, to avoid it being usable outside this app.
@@ -32,6 +39,26 @@ which the manifest's `<meta-data android:name="com.google.android.geo.API_KEY" .
 entry references as `${GOOGLE_MAPS_API_KEY}`. If the property is missing,
 the build still succeeds with an empty key (Maps just won't load).
 
+### Dev flavor uses a separate key
+
+The `dev` product flavor ships under a different `applicationId`
+(`io.fury.workTracker.dev`) than `prod` (`io.fury.workTracker`). If your
+Google Cloud key has Android application restrictions (package name +
+SHA-1), it's restricted to the *prod* package and won't authorize the dev
+flavor's Maps SDK calls. Add a second property for it:
+
+```properties
+GOOGLE_MAPS_API_KEY_DEV=your-dev-key-here
+```
+
+`build.gradle.kts` reads `GOOGLE_MAPS_API_KEY_DEV` and applies it only to the
+`dev` product flavor (overriding the default `GOOGLE_MAPS_API_KEY` for that
+variant); `prod` is unaffected. If `GOOGLE_MAPS_API_KEY_DEV` is left unset,
+it falls back to the same value as `GOOGLE_MAPS_API_KEY`, so dev builds keep
+working until you provision a real, separately-restricted dev key (needed if
+you want application-restricted keys per flavor; an unrestricted or
+IP-restricted key can safely be shared across both).
+
 ## iOS: populate `ios/Flutter/Secrets.xcconfig`
 
 Copy the tracked example and fill in the real key:
@@ -44,16 +71,25 @@ Then edit `ios/Flutter/Secrets.xcconfig`:
 
 ```
 GOOGLE_MAPS_API_KEY = your-real-key-here
+GOOGLE_MAPS_API_KEY_DEV = your-dev-key-here
 ```
 
 `Secrets.xcconfig` is gitignored (see root `.gitignore`) and is included
-(optionally, via `#include?`) from both `ios/Flutter/Debug.xcconfig` and
-`ios/Flutter/Release.xcconfig`. The value flows: xcconfig variable ->
+(optionally, via `#include?`) from `Debug.xcconfig`/`Release.xcconfig` (prod
+scheme) and `Debug-dev.xcconfig`/`Release-dev.xcconfig`/`Profile-dev.xcconfig`
+(dev scheme). The value flows: xcconfig variable ->
 `Info.plist`'s `GMSApiKey` key (`$(GOOGLE_MAPS_API_KEY)`) ->
 `AppDelegate.swift`, which reads it via
 `Bundle.main.object(forInfoDictionaryKey: "GMSApiKey")` and calls
 `GMSServices.provideAPIKey(...)`. If the key is missing, the app still
 builds/launches; the map view just won't render tiles.
+
+Same reasoning as Android: the `*-dev.xcconfig` files override
+`GOOGLE_MAPS_API_KEY` with `$(GOOGLE_MAPS_API_KEY_DEV)` after including
+`Secrets.xcconfig`, since the dev scheme's bundle id differs from prod and an
+iOS-application-restricted key won't authorize it. Unset
+`GOOGLE_MAPS_API_KEY_DEV` (or left equal to the prod value) keeps dev builds
+working with the same key until a real one is provisioned.
 
 This only wires up the **native** Maps SDK key used for map rendering — it
 does *not* supply the key the Dart-side Distance Matrix HTTP client needs
@@ -61,11 +97,14 @@ does *not* supply the key the Dart-side Distance Matrix HTTP client needs
 
 ## Dart side: populate `dart_defines.json`
 
-`lib/di/register_module.dart` reads the commute-routing key via
+`lib/di/register_module.dart`'s commute-routing client, plus the location
+picker's `PlacesClient`/`ReverseGeocodingClient`
+(`lib/features/leave_reminder/data/places_client.dart` and
+`reverse_geocoding_client.dart`), all read the same key via
 `String.fromEnvironment('GOOGLE_MAPS_API_KEY')`, which is a Dart
 **compile-time** define — separate from both the Android/iOS native config
 above. Without it, every build (debug, profile, *and* release) resolves the
-key to an empty string and Distance Matrix requests fail.
+key to an empty string and Distance Matrix/Places/Geocoding requests fail.
 
 Copy the tracked example and fill in the real key:
 

@@ -12,6 +12,12 @@
             "toolArgs": ["--dart-define-from-file=dart_defines.json"]
         },
         {
+            "name": "work_tracker (dev flavor)",
+            "request": "launch",
+            "type": "dart",
+            "toolArgs": ["--flavor", "dev", "--dart-define-from-file=dart_defines.json"]
+        },
+        {
             "name": "work_tracker (profile mode)",
             "request": "launch",
             "type": "dart",

@@ -16,6 +16,7 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import '../database/attendance/attendance_entity.dart';
 import '../database/checkout_reminder/checkout_reminder_settings_entity.dart';
+import '../database/leave_reminder/commute_sample_entity.dart';
 import '../database/leave_reminder/leave_reminder_settings_entity.dart';
 import '../database/work_schedule/work_schedule_entity.dart';
 
@@ -189,7 +190,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 6679202978330319836),
     name: 'LeaveReminderSettingsEntity',
-    lastPropertyId: const obx_int.IdUid(9, 2573635761723676714),
+    lastPropertyId: const obx_int.IdUid(11, 5581931614869045293),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -246,6 +247,18 @@ final _entities = <obx_int.ModelEntity>[
         type: 6,
         flags: 0,
       ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 7888588477064653157),
+        name: 'homeAddress',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 5581931614869045293),
+        name: 'workAddress',
+        type: 9,
+        flags: 0,
+      ),
     ],
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
@@ -272,6 +285,34 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(3, 7666057814368555657),
         name: 'leadMinutes',
         type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(5, 7143482092043233428),
+    name: 'CommuteSampleEntity',
+    lastPropertyId: const obx_int.IdUid(3, 9115101797300401571),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 6200563535257375930),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 7717060570291755860),
+        name: 'minutes',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 9115101797300401571),
+        name: 'capturedAt',
+        type: 10,
         flags: 0,
       ),
     ],
@@ -323,7 +364,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(4, 5221361258848994198),
+    lastEntityId: const obx_int.IdUid(5, 7143482092043233428),
     lastIndexId: const obx_int.IdUid(0, 0),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
@@ -572,7 +613,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
             object.id = id;
           },
           objectToFB: (LeaveReminderSettingsEntity object, fb.Builder fbb) {
-            fbb.startTable(10);
+            final homeAddressOffset = object.homeAddress == null
+                ? null
+                : fbb.writeString(object.homeAddress!);
+            final workAddressOffset = object.workAddress == null
+                ? null
+                : fbb.writeString(object.workAddress!);
+            fbb.startTable(12);
             fbb.addInt64(0, object.id);
             fbb.addBool(1, object.enabled);
             fbb.addFloat64(2, object.homeLat);
@@ -585,6 +632,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
               object.lastCommuteUpdatedAt?.millisecondsSinceEpoch,
             );
             fbb.addInt64(8, object.headsUpLeadMinutes);
+            fbb.addOffset(9, homeAddressOffset);
+            fbb.addOffset(10, workAddressOffset);
             fbb.finish(fbb.endTable());
             return object.id;
           },
@@ -609,6 +658,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
               rootOffset,
               10,
             );
+            final homeAddressParam = const fb.StringReader(
+              asciiOptimization: true,
+            ).vTableGetNullable(buffer, rootOffset, 22);
             final workLatParam = const fb.Float64Reader().vTableGetNullable(
               buffer,
               rootOffset,
@@ -619,6 +671,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
               rootOffset,
               14,
             );
+            final workAddressParam = const fb.StringReader(
+              asciiOptimization: true,
+            ).vTableGetNullable(buffer, rootOffset, 24);
             final lastCommuteMinutesParam = const fb.Int64Reader()
                 .vTableGetNullable(buffer, rootOffset, 16);
             final lastCommuteUpdatedAtParam = lastCommuteUpdatedAtValue == null
@@ -636,8 +691,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
               enabled: enabledParam,
               homeLat: homeLatParam,
               homeLng: homeLngParam,
+              homeAddress: homeAddressParam,
               workLat: workLatParam,
               workLng: workLngParam,
+              workAddress: workAddressParam,
               lastCommuteMinutes: lastCommuteMinutesParam,
               lastCommuteUpdatedAt: lastCommuteUpdatedAtParam,
               headsUpLeadMinutes: headsUpLeadMinutesParam,
@@ -686,6 +743,42 @@ obx_int.ModelDefinition getObjectBoxModel() {
             return object;
           },
         ),
+    CommuteSampleEntity: obx_int.EntityDefinition<CommuteSampleEntity>(
+      model: _entities[4],
+      toOneRelations: (CommuteSampleEntity object) => [],
+      toManyRelations: (CommuteSampleEntity object) => {},
+      getId: (CommuteSampleEntity object) => object.id,
+      setId: (CommuteSampleEntity object, int id) {
+        object.id = id;
+      },
+      objectToFB: (CommuteSampleEntity object, fb.Builder fbb) {
+        fbb.startTable(4);
+        fbb.addInt64(0, object.id);
+        fbb.addInt64(1, object.minutes);
+        fbb.addInt64(2, object.capturedAt.millisecondsSinceEpoch);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final minutesParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          6,
+          0,
+        );
+        final capturedAtParam = DateTime.fromMillisecondsSinceEpoch(
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0),
+        );
+        final object = CommuteSampleEntity(
+          minutes: minutesParam,
+          capturedAt: capturedAtParam,
+        )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -865,6 +958,18 @@ class LeaveReminderSettingsEntity_ {
       obx.QueryIntegerProperty<LeaveReminderSettingsEntity>(
         _entities[2].properties[8],
       );
+
+  /// See [LeaveReminderSettingsEntity.homeAddress].
+  static final homeAddress =
+      obx.QueryStringProperty<LeaveReminderSettingsEntity>(
+        _entities[2].properties[9],
+      );
+
+  /// See [LeaveReminderSettingsEntity.workAddress].
+  static final workAddress =
+      obx.QueryStringProperty<LeaveReminderSettingsEntity>(
+        _entities[2].properties[10],
+      );
 }
 
 /// [CheckoutReminderSettingsEntity] entity fields to define ObjectBox queries.
@@ -885,4 +990,22 @@ class CheckoutReminderSettingsEntity_ {
       obx.QueryIntegerProperty<CheckoutReminderSettingsEntity>(
         _entities[3].properties[2],
       );
+}
+
+/// [CommuteSampleEntity] entity fields to define ObjectBox queries.
+class CommuteSampleEntity_ {
+  /// See [CommuteSampleEntity.id].
+  static final id = obx.QueryIntegerProperty<CommuteSampleEntity>(
+    _entities[4].properties[0],
+  );
+
+  /// See [CommuteSampleEntity.minutes].
+  static final minutes = obx.QueryIntegerProperty<CommuteSampleEntity>(
+    _entities[4].properties[1],
+  );
+
+  /// See [CommuteSampleEntity.capturedAt].
+  static final capturedAt = obx.QueryDateProperty<CommuteSampleEntity>(
+    _entities[4].properties[2],
+  );
 }
