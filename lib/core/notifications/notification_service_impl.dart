@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:injectable/injectable.dart';
@@ -21,15 +23,52 @@ const _alarmChannelName = 'Alarm-style alerts';
 const _alarmChannelDescription =
     'Notifications that play through the alarm stream and bypass silent mode.';
 
-/// Some Android/iOS devices report deprecated IANA aliases (e.g. "Asia/Saigon")
-/// that are missing from the timezone package's bundled database.
-const _timezoneAliases = {'Asia/Saigon': 'Asia/Ho_Chi_Minh'};
+/// Channel for instant (non-scheduled) geofence arrival/departure event
+/// notifications — kept separate since channel audio settings are immutable
+/// after first creation.
+const _geofenceChannelId = 'geofence_events_channel';
+const _geofenceChannelName = 'Location activity';
+const _geofenceChannelDescription =
+    'Instant alerts when you arrive at or leave your work location.';
 
-tz.Location _resolveLocation(String timezoneName) {
+/// Some Android/iOS devices report deprecated IANA aliases (e.g. "Asia/Saigon")
+/// that are missing from the timezone package's bundled database, which only
+/// carries the canonical zone name. Translate the known legacy aliases to their
+/// canonical equivalents before lookup so `tz.getLocation` receives a name that
+/// exists (and so notifications schedule at the correct wall-clock time rather
+/// than falling back to UTC).
+const _timezoneAliases = {
+  'Asia/Saigon': 'Asia/Ho_Chi_Minh',
+  'Asia/Calcutta': 'Asia/Kolkata',
+  'Asia/Rangoon': 'Asia/Yangon',
+  'Asia/Katmandu': 'Asia/Kathmandu',
+  'Asia/Ulan_Bator': 'Asia/Ulaanbaatar',
+  'America/Buenos_Aires': 'America/Argentina/Buenos_Aires',
+  'Europe/Kiev': 'Europe/Kyiv',
+};
+
+@visibleForTesting
+tz.Location resolveLocation(String timezoneName) {
   final resolvedName = _timezoneAliases[timezoneName] ?? timezoneName;
   try {
     return tz.getLocation(resolvedName);
-  } catch (_) {
+  } catch (error, stack) {
+    // Unknown zone: fall back to UTC so startup never crashes, but surface it
+    // (a wrong-but-silent UTC offset would otherwise mis-time every reminder).
+    debugPrint(
+      'NotificationService: unknown timezone "$timezoneName" '
+      '(resolved "$resolvedName"); falling back to UTC.',
+    );
+    try {
+      FirebaseCrashlytics.instance.recordError(
+        error,
+        stack,
+        reason: 'Unresolved timezone "$timezoneName" -> UTC fallback',
+        fatal: false,
+      );
+    } catch (_) {
+      // Best-effort only; Firebase may not be initialized.
+    }
     return tz.UTC;
   }
 }
@@ -44,7 +83,7 @@ class NotificationServiceImpl implements NotificationService {
   Future<void> initialize() async {
     tz_data.initializeTimeZones();
     final timezoneName = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(_resolveLocation(timezoneName));
+    tz.setLocalLocation(resolveLocation(timezoneName));
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -145,6 +184,36 @@ class NotificationServiceImpl implements NotificationService {
         ),
       ),
       androidScheduleMode: scheduleMode,
+    );
+  }
+
+  @override
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      _geofenceChannelId,
+      _geofenceChannelName,
+      channelDescription: _geofenceChannelDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    await _plugin.show(
+      id,
+      title,
+      body,
+      const NotificationDetails(
+        android: androidDetails,
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+          presentList: true,
+          presentBanner: true,
+        ),
+      ),
     );
   }
 

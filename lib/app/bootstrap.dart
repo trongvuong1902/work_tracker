@@ -7,7 +7,6 @@
 // * Handle global errors
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -21,24 +20,22 @@ import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/checkout_reminder/domain/checkout_reminder_repository.dart';
 import 'package:work_tracker/features/leave_reminder/data/leave_reminder_background_dispatcher.dart';
 import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
+import 'package:work_tracker/features/location_log/domain/location_log_repository.dart';
+import 'package:work_tracker/features/location_log/domain/location_watch_orchestrator.dart';
 
 Future<void> bootstrap() async {
-  // Crashlytics needs `android/app/google-services.json` (downloaded from the
-  // Firebase console); no iOS config exists yet, so this is Android-only.
   // Firebase/Crashlytics is not essential to core app function (attendance/
   // task tracking works without it), so a failure here must never block
   // startup.
-  if (Platform.isAndroid) {
-    try {
-      await Firebase.initializeApp();
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-      PlatformDispatcher.instance.onError = (error, stack) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        return true;
-      };
-    } catch (error, stack) {
-      debugPrint('bootstrap: Firebase.initializeApp() failed: $error\n$stack');
-    }
+  try {
+    await Firebase.initializeApp();
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  } catch (error, stack) {
+    debugPrint('bootstrap: Firebase.initializeApp() failed: $error\n$stack');
   }
 
   // ObjectBox/DI underpins the whole app, so a failure here is fatal: report
@@ -48,12 +45,10 @@ Future<void> bootstrap() async {
     await configureDependencies();
   } catch (error, stack) {
     debugPrint('bootstrap: configureDependencies() failed: $error\n$stack');
-    if (Platform.isAndroid) {
-      try {
-        await FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      } catch (_) {
-        // Best-effort only; Firebase itself may have failed to init above.
-      }
+    try {
+      await FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    } catch (_) {
+      // Best-effort only; Firebase itself may have failed to init above.
     }
     runApp(const BootstrapFailedApp());
     return;
@@ -66,7 +61,7 @@ Future<void> bootstrap() async {
   }
 
   try {
-    Workmanager().initialize(leaveReminderCallbackDispatcher);
+    Workmanager().initialize(appBackgroundCallbackDispatcher);
   } catch (error, stack) {
     debugPrint('bootstrap: Workmanager().initialize() failed: $error\n$stack');
   }
@@ -75,6 +70,16 @@ Future<void> bootstrap() async {
   // Force-construct so its constructor subscribes to the attendance stream
   // before any check-in/check-out can happen.
   getIt<CheckoutReminderRepository>();
+
+  try {
+    if (await getIt<LocationLogRepository>().isEnabled()) {
+      final orchestrator = getIt<LocationWatchOrchestrator>();
+      await orchestrator.resumeIfNeeded();
+      await orchestrator.scheduleNextArrivalWatch();
+    }
+  } catch (error, stack) {
+    debugPrint('bootstrap: location watch resume/schedule failed: $error\n$stack');
+  }
 
   Bloc.observer = AppBlocObserver();
 

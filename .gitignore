@@ -70,6 +70,7 @@ app.*.map.json
 # console for project work-tracker-69e9f / app io.fury.workTracker — never
 # committed to a shared repo).
 /android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
 # External testers' personal email addresses — not a security secret, but not
 # meant for a shared/public repo either. See android/fastlane/internal_testers.txt.example
 # and android/fastlane/nexsoft_testers.txt.example.
