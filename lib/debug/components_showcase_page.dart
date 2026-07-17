@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../app/router/app_navigator.dart';
 import '../components/components.dart';
 import '../core/core.dart';
 
@@ -33,10 +32,6 @@ class ComponentsShowcasePage extends StatelessWidget {
           _SectionTitle('Shadow'),
           const SizedBox(height: AppSpacing.space12),
           const _ShadowSamples(),
-          const SizedBox(height: AppSpacing.space24),
-          _SectionTitle('Flows'),
-          const SizedBox(height: AppSpacing.space12),
-          const _FlowSamples(),
         ],
       ),
     );
@@ -235,18 +230,6 @@ class _ButtonSamples extends StatelessWidget {
   }
 
   static void _noop() {}
-}
-
-class _FlowSamples extends StatelessWidget {
-  const _FlowSamples();
-
-  @override
-  Widget build(BuildContext context) {
-    return SecondaryButton(
-      label: 'Preview Onboarding',
-      onPressed: () => AppNavigator.pushDebugOnboardingPreview(context),
-    );
-  }
 }
 
 class _ShadowSamples extends StatelessWidget {

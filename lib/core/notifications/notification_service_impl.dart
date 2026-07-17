@@ -13,6 +13,27 @@ const _androidChannelName = 'Leave reminders';
 const _androidChannelDescription =
     'Heads-up and "time to leave" reminders based on your commute.';
 
+/// Separate channel for notifications that must bypass silent mode — channel
+/// audio settings are immutable after first creation, so this can't share
+/// [_androidChannelId] with the default (ringer-respecting) notifications.
+const _alarmChannelId = 'alarm_bypass_channel';
+const _alarmChannelName = 'Alarm-style alerts';
+const _alarmChannelDescription =
+    'Notifications that play through the alarm stream and bypass silent mode.';
+
+/// Some Android/iOS devices report deprecated IANA aliases (e.g. "Asia/Saigon")
+/// that are missing from the timezone package's bundled database.
+const _timezoneAliases = {'Asia/Saigon': 'Asia/Ho_Chi_Minh'};
+
+tz.Location _resolveLocation(String timezoneName) {
+  final resolvedName = _timezoneAliases[timezoneName] ?? timezoneName;
+  try {
+    return tz.getLocation(resolvedName);
+  } catch (_) {
+    return tz.UTC;
+  }
+}
+
 @LazySingleton(as: NotificationService)
 class NotificationServiceImpl implements NotificationService {
   final FlutterLocalNotificationsPlugin _plugin;
@@ -23,7 +44,7 @@ class NotificationServiceImpl implements NotificationService {
   Future<void> initialize() async {
     tz_data.initializeTimeZones();
     final timezoneName = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timezoneName));
+    tz.setLocalLocation(_resolveLocation(timezoneName));
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -84,26 +105,44 @@ class NotificationServiceImpl implements NotificationService {
     required String body,
     required DateTime scheduledDate,
     bool exact = true,
+    bool bypassSilentMode = false,
   }) async {
     final canScheduleExact = exact && await _canScheduleExact();
     final scheduleMode = canScheduleExact
         ? AndroidScheduleMode.exactAllowWhileIdle
         : AndroidScheduleMode.inexactAllowWhileIdle;
 
+    final androidDetails = bypassSilentMode
+        ? const AndroidNotificationDetails(
+            _alarmChannelId,
+            _alarmChannelName,
+            channelDescription: _alarmChannelDescription,
+            importance: Importance.max,
+            priority: Priority.high,
+            playSound: true,
+            audioAttributesUsage: AudioAttributesUsage.alarm,
+          )
+        : const AndroidNotificationDetails(
+            _androidChannelId,
+            _androidChannelName,
+            channelDescription: _androidChannelDescription,
+            importance: Importance.high,
+            priority: Priority.high,
+          );
+
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       tz.TZDateTime.from(scheduledDate, tz.local),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          _androidChannelId,
-          _androidChannelName,
-          channelDescription: _androidChannelDescription,
-          importance: Importance.high,
-          priority: Priority.high,
+      NotificationDetails(
+        android: androidDetails,
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+          presentList: true,
+          presentBanner: true,
         ),
-        iOS: DarwinNotificationDetails(),
       ),
       androidScheduleMode: scheduleMode,
     );

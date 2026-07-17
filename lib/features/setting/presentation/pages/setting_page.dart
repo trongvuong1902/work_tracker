@@ -73,7 +73,7 @@ class _SettingPageState extends State<SettingPage> {
     }
 
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.space16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,6 +260,26 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ),
             if (kDebugMode) ...[
+              const SizedBox(height: AppSpacing.space16),
+              ShadowCard(
+                margin: EdgeInsets.zero,
+                child: InkWell(
+                  onTap: () => AppNavigator.pushDebug(context),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.space16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Debug tools',
+                          style: AppTypography.label(context),
+                        ),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: AppSpacing.space16),
               ShadowCard(
                 margin: EdgeInsets.zero,

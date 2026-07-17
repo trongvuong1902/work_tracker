@@ -5,7 +5,10 @@ part 'hero_card_model.freezed.dart';
 
 @freezed
 class HeroCardModel with _$HeroCardModel {
-  const factory HeroCardModel.beforeCheckIn() = _BeforeCheckIn;
+  const factory HeroCardModel.beforeCheckIn({
+    DateTime? leaveHomeAt,
+    DateTime? arriveAtWorkAt,
+  }) = _BeforeCheckIn;
   const factory HeroCardModel.working({
     required DateTime checkIn,
     required DateTime leaveAt,

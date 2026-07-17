@@ -8,6 +8,7 @@ abstract class CheckoutReminderSetupState with _$CheckoutReminderSetupState {
     @Default(false) bool isTogglingEnabled,
     @Default(kDefaultCheckoutReminderLeadMinutes) int leadMinutes,
     DateTime? scheduledFireTime,
+    DateTime? scheduledEndOfWorkTime,
     String? errorMessage,
   }) = _CheckoutReminderSetupState;
 }

@@ -62,6 +62,8 @@ import 'package:work_tracker/features/home/presentation/widgets/attendance_card/
     as _i726;
 import 'package:work_tracker/features/home/presentation/widgets/hero_card/cubit/hero_card_cubit.dart'
     as _i629;
+import 'package:work_tracker/features/home/presentation/widgets/tomorrow_preview/cubit/tomorrow_preview_cubit.dart'
+    as _i299;
 import 'package:work_tracker/features/leave_reminder/data/commute_routing_client.dart'
     as _i925;
 import 'package:work_tracker/features/leave_reminder/data/commute_sample_dao.dart'
@@ -204,11 +206,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i707.LeaveReminderDatasource>(
       () => _i14.LeaveReminderDatasourceImpl(gh<_i591.LeaveReminderDao>()),
     );
-    gh.factory<_i629.HeroCardCubit>(
-      () => _i629.HeroCardCubit(
-        attendanceRepository: gh<_i331.AttendanceRepository>(),
-      ),
-    );
     gh.factory<_i474.CalendarCubit>(
       () => _i474.CalendarCubit(
         gh<_i331.AttendanceRepository>(),
@@ -255,6 +252,18 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i262.LeaveReminderSetupCubit(
         gh<_i468.LeaveReminderRepository>(),
         gh<_i513.WorkScheduleRepository>(),
+      ),
+    );
+    gh.factory<_i629.HeroCardCubit>(
+      () => _i629.HeroCardCubit(
+        attendanceRepository: gh<_i331.AttendanceRepository>(),
+        leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
+      ),
+    );
+    gh.factory<_i299.TomorrowPreviewCubit>(
+      () => _i299.TomorrowPreviewCubit(
+        attendanceRepository: gh<_i331.AttendanceRepository>(),
+        leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
       ),
     );
     gh.factory<_i594.HomePageCubit>(

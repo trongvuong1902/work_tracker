@@ -40,6 +40,7 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
     }
 
     await _notificationService.cancel(kCheckoutReminderNotificationId);
+    await _notificationService.cancel(kEndOfWorkNotificationId);
     final settings = await getSettings();
     await _datasource.saveSettings(settings.copyWith(enabled: false));
     return EnableCheckoutReminderResult.success;
@@ -54,14 +55,17 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
     return updated;
   }
 
-  /// Schedules (or cancels) the checkout-reminder notification for the
-  /// day's attendance row. Fires [settings.leadMinutes] before the user's
-  /// real expected checkout time — the schedule's raw end time shifted
-  /// forward by however late they checked in — not the raw schedule end
-  /// time itself.
+  /// Schedules (or cancels) both the checkout-reminder and end-of-work
+  /// notifications for the day's attendance row. The checkout reminder
+  /// fires [settings.leadMinutes] before the user's real expected checkout
+  /// time — the schedule's raw end time shifted forward by however late
+  /// they checked in — not the raw schedule end time itself. The
+  /// end-of-work notification fires exactly at that shifted expected
+  /// checkout time, with no lead time subtracted.
   Future<void> _evaluate(Attendance? attendance) async {
     if (attendance == null || attendance.checkOut != null) {
       await _notificationService.cancel(kCheckoutReminderNotificationId);
+      await _notificationService.cancel(kEndOfWorkNotificationId);
       return;
     }
     if (attendance.checkIn == null) return;
@@ -71,6 +75,7 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
 
     if (attendance.expectedEndMinute <= attendance.expectedStartMinute) {
       await _notificationService.cancel(kCheckoutReminderNotificationId);
+      await _notificationService.cancel(kEndOfWorkNotificationId);
       return;
     }
 
@@ -84,6 +89,19 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
       );
     } else {
       await _notificationService.cancel(kCheckoutReminderNotificationId);
+    }
+
+    final endOfWorkAt = _shiftedEndOfWorkTime(attendance);
+    if (endOfWorkAt.isAfter(DateTime.now())) {
+      await _notificationService.scheduleAt(
+        id: kEndOfWorkNotificationId,
+        title: '🔔 End of work',
+        body: "Your scheduled work day is over — don't forget to check out!",
+        scheduledDate: endOfWorkAt,
+        bypassSilentMode: true,
+      );
+    } else {
+      await _notificationService.cancel(kEndOfWorkNotificationId);
     }
   }
 
@@ -103,6 +121,22 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
     return _computeFireAt(attendance, settings);
   }
 
+  @override
+  Future<DateTime?> getScheduledEndOfWorkTime() async {
+    final attendance = await _attendanceRepository.getTodayAttendance();
+    if (attendance == null || attendance.checkOut != null) return null;
+    if (attendance.checkIn == null) return null;
+
+    final settings = await getSettings();
+    if (!settings.enabled) return null;
+
+    if (attendance.expectedEndMinute <= attendance.expectedStartMinute) {
+      return null;
+    }
+
+    return _shiftedEndOfWorkTime(attendance);
+  }
+
   /// Pure computation of the checkout-reminder fire time from [attendance]
   /// + [settings], returning `null` only if an input is missing. Does not
   /// check whether the time has already passed — callers deciding whether
@@ -120,10 +154,20 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
   ) {
     if (attendance == null || settings == null) return null;
 
+    return _shiftedEndOfWorkTime(
+      attendance,
+    ).subtract(Duration(minutes: settings.leadMinutes));
+  }
+
+  /// Pure computation of the user's shifted expected checkout time — the
+  /// schedule's raw end time shifted forward by however late they checked
+  /// in, with no lead time subtracted. This is the instant the end-of-work
+  /// notification fires at exactly, and also the anchor the checkout
+  /// reminder's lead time is subtracted from. Does not check whether the
+  /// time has already passed — same contract as [_computeFireAt].
+  DateTime _shiftedEndOfWorkTime(Attendance attendance) {
     final shiftedExpectedEndMinute =
         attendance.expectedEndMinute + attendance.lateMinutes;
-    return attendance.workDate
-        .add(Duration(minutes: shiftedExpectedEndMinute))
-        .subtract(Duration(minutes: settings.leadMinutes));
+    return attendance.workDate.add(Duration(minutes: shiftedExpectedEndMinute));
   }
 }

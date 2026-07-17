@@ -16,4 +16,11 @@ abstract class CheckoutReminderRepository {
   /// has already passed — it always reports the actual computed instant,
   /// which is what debug/inspection callers want to see.
   Future<DateTime?> getScheduledFireTime();
+
+  /// Read-only recomputation of the end-of-work fire time (the user's
+  /// shifted expected checkout time, with no lead time subtracted) from
+  /// today's attendance + current settings, without scheduling or
+  /// cancelling anything. Same gating/no-"already passed" semantics as
+  /// [getScheduledFireTime].
+  Future<DateTime?> getScheduledEndOfWorkTime();
 }

@@ -6,6 +6,7 @@ import 'package:workmanager/workmanager.dart';
 import '../../../core/notifications/notification_service.dart';
 import '../../../database/leave_reminder/commute_sample_entity.dart';
 import '../../attendance/domain/attendance_repository.dart';
+import '../../schedule/domain/models/work_schedule.dart';
 import '../../schedule/domain/work_schedule_repository.dart';
 import '../data/commute_routing_client.dart';
 import '../data/commute_sample_dao.dart';
@@ -16,6 +17,7 @@ import 'models/commute_estimate.dart';
 import 'models/geo_point.dart';
 import 'models/leave_reminder_prompt_trigger.dart';
 import 'models/leave_reminder_settings.dart';
+import 'models/tomorrow_preview.dart';
 import 'models/weather_snapshot.dart';
 import 'leave_reminder_repository.dart';
 import 'traffic_copy.dart';
@@ -158,9 +160,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
       return;
     }
 
-    final leaveTime = _todayAt(
-      schedule.startMinuteOfDay,
-    ).subtract(Duration(minutes: schedule.reminderMinutes + commuteMinutes));
+    final leaveTime = _computeLeaveTime(schedule, commuteMinutes);
     final headsUpTime = leaveTime.subtract(
       Duration(minutes: settings.headsUpLeadMinutes),
     );
@@ -243,6 +243,33 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
   }
 
   @override
+  Future<DateTime?> getLeaveTime() async {
+    final settings = await getSettings();
+    if (!settings.enabled) return null;
+
+    final commuteMinutes = settings.lastCommuteMinutes;
+    if (commuteMinutes == null) return null;
+
+    final schedule = await _workScheduleRepository.getCurrentActiveSchedule();
+    if (schedule == null ||
+        !_workScheduleRepository.isWorkingDay(DateTime.now())) {
+      return null;
+    }
+
+    return _computeLeaveTime(schedule, commuteMinutes);
+  }
+
+  @override
+  Future<DateTime?> getEstimatedArrivalTime() async {
+    final settings = await getSettings();
+    final commuteMinutes = settings.lastCommuteMinutes;
+    final leaveTime = await getLeaveTime();
+    if (leaveTime == null || commuteMinutes == null) return null;
+
+    return leaveTime.add(Duration(minutes: commuteMinutes));
+  }
+
+  @override
   Future<LeaveReminderPromptTrigger?> checkIntroPromptTrigger() async {
     if (_prefs.getBool(kIntroPromptShownKey) ?? false) return null;
 
@@ -267,14 +294,81 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     return trigger;
   }
 
-  DateTime _todayAt(int minuteOfDay) {
-    final now = DateTime.now();
-    return DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ).add(Duration(minutes: minuteOfDay));
+  @override
+  Future<TomorrowPreview?> getTomorrowPreview() async {
+    final settings = await getSettings();
+    if (!settings.enabled || settings.home == null || settings.work == null) {
+      return null;
+    }
+
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    if (!_workScheduleRepository.isWorkingDay(tomorrow)) return null;
+
+    final schedule = await _workScheduleRepository.getCurrentActiveSchedule();
+    if (schedule == null) return null;
+
+    final avgCommute = await getAverageCommuteMinutes();
+    if (avgCommute == null) return null;
+
+    final leaveTime = _leaveTimeFor(tomorrow, schedule, avgCommute);
+    final leaveTimeText = _formatTime(leaveTime);
+
+    WeatherSnapshot? weatherSnapshot;
+    try {
+      weatherSnapshot = await _weatherClient.fetchWeatherSnapshot(
+        settings.work!,
+      );
+    } catch (e) {
+      debugPrint('Failed to fetch weather snapshot for tomorrow preview: $e');
+    }
+
+    final reading = weatherSnapshot != null
+        ? weatherReadingAt(weatherSnapshot, leaveTime)
+        : null;
+
+    final lines = <String>[
+      '🚗 Avg commute ~$avgCommute min — leave around $leaveTimeText to arrive on time.',
+    ];
+    if (reading != null) {
+      lines.add(
+        '${weatherEmoji(reading.weatherCode)} ${reading.temperature.round()}°C expected when you leave.',
+      );
+    }
+
+    return TomorrowPreview(
+      leaveTime: leaveTime,
+      averageCommuteMinutes: avgCommute,
+      weatherCode: reading?.weatherCode,
+      temperature: reading?.temperature,
+      bodyText: lines.join('\n'),
+    );
   }
+
+  /// Pure computation of the time to leave home on [date] for [schedule],
+  /// given [commuteMinutes] — the scheduled start time shifted back by the
+  /// schedule's reminder buffer and the commute duration. Does not check
+  /// whether the time has already passed or whether reminders are enabled
+  /// — callers are responsible for those.
+  DateTime _leaveTimeFor(
+    DateTime date,
+    WorkSchedule schedule,
+    int commuteMinutes,
+  ) => _dateTimeAt(
+    date,
+    schedule.startMinuteOfDay,
+  ).subtract(Duration(minutes: schedule.reminderMinutes + commuteMinutes));
+
+  DateTime _computeLeaveTime(WorkSchedule schedule, int commuteMinutes) =>
+      _leaveTimeFor(DateTime.now(), schedule, commuteMinutes);
+
+  DateTime _dateTimeAt(DateTime date, int minuteOfDay) => DateTime(
+    date.year,
+    date.month,
+    date.day,
+  ).add(Duration(minutes: minuteOfDay));
+
+  DateTime _todayAt(int minuteOfDay) =>
+      _dateTimeAt(DateTime.now(), minuteOfDay);
 
   String _formatTime(DateTime time) {
     final hour = time.hour.toString().padLeft(2, '0');

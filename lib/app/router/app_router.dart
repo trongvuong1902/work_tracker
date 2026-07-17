@@ -7,7 +7,9 @@ import 'package:work_tracker/app/router/app_shell.dart';
 import 'package:work_tracker/app/router/calendar_branch.dart';
 import 'package:work_tracker/app/router/home_branch.dart';
 import 'package:work_tracker/app/router/setting_branch.dart';
+import 'package:work_tracker/debug/notifications_debug_page.dart';
 import 'package:work_tracker/debug/components_showcase_page.dart';
+import 'package:work_tracker/debug/debug_tools_page.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/app/cubit/app_cubit.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/geo_point.dart';
@@ -65,11 +67,19 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.debug,
+      builder: (context, state) => const DebugToolsPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.debugComponents,
       builder: (context, state) => const ComponentsShowcasePage(),
     ),
     GoRoute(
       path: AppRoutes.debugOnboardingPreview,
       builder: (context, state) => const OnBoardPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.debugNotificationsFlow,
+      builder: (context, state) => const NotificationsDebugPage(),
     ),
     GoRoute(
       path: AppRoutes.workScheduleSettings,

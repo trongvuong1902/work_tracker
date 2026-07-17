@@ -103,6 +103,7 @@ class _CheckoutReminderSetupSheet extends StatelessWidget {
                     const SizedBox(height: AppSpacing.space16),
                     _DebugPendingNotificationsCard(
                       scheduledFireTime: state.scheduledFireTime,
+                      scheduledEndOfWorkTime: state.scheduledEndOfWorkTime,
                     ),
                   ],
                   if (state.errorMessage != null) ...[
@@ -127,17 +128,22 @@ class _CheckoutReminderSetupSheet extends StatelessWidget {
 
 /// Debug-only readout of what's actually scheduled with the OS right now —
 /// ground truth from the notifications plugin (id + content), joined with
-/// the fire time computed from today's attendance + settings via
-/// `CheckoutReminderRepository.getScheduledFireTime()` (passed down as
-/// [scheduledFireTime]), since the plugin itself doesn't report scheduled
-/// times and the checkout reminder's fire time can't be derived statically
-/// (it depends on today's check-in time). An empty list here at a time you
+/// the fire times computed from today's attendance + settings via
+/// `CheckoutReminderRepository.getScheduledFireTime()`/
+/// `getScheduledEndOfWorkTime()` (passed down as [scheduledFireTime]/
+/// [scheduledEndOfWorkTime]), since the plugin itself doesn't report
+/// scheduled times and neither fire time can be derived statically (both
+/// depend on today's check-in time). An empty list here at a time you
 /// expected a notification means it was silently skipped (e.g. the fire
 /// time had already passed when `_evaluate` last ran).
 class _DebugPendingNotificationsCard extends StatefulWidget {
-  const _DebugPendingNotificationsCard({required this.scheduledFireTime});
+  const _DebugPendingNotificationsCard({
+    required this.scheduledFireTime,
+    required this.scheduledEndOfWorkTime,
+  });
 
   final DateTime? scheduledFireTime;
+  final DateTime? scheduledEndOfWorkTime;
 
   @override
   State<_DebugPendingNotificationsCard> createState() =>
@@ -158,6 +164,20 @@ class _DebugPendingNotificationsCardState
     setState(() {
       _pending = getIt<NotificationService>().pendingNotifications();
     });
+  }
+
+  String? _fireTimeFor(int id) {
+    if (id == kCheckoutReminderNotificationId) {
+      final fireAt = widget.scheduledFireTime;
+      return fireAt != null ? TimeFormat.hhMmFromDateTime(fireAt) : null;
+    }
+    if (id == kEndOfWorkNotificationId) {
+      final endOfWorkAt = widget.scheduledEndOfWorkTime;
+      return endOfWorkAt != null
+          ? TimeFormat.hhMmFromDateTime(endOfWorkAt)
+          : null;
+    }
+    return null;
   }
 
   @override
@@ -208,10 +228,6 @@ class _DebugPendingNotificationsCardState
                   );
                 }
 
-                final fireTimeText = widget.scheduledFireTime != null
-                    ? TimeFormat.hhMmFromDateTime(widget.scheduledFireTime!)
-                    : null;
-
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -224,7 +240,8 @@ class _DebugPendingNotificationsCardState
                         )?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       Text(
-                        'Fires at ${fireTimeText ?? 'unknown'}',
+                        'Fires at '
+                        '${_fireTimeFor(notification.id) ?? 'unknown'}',
                         style: AppTypography.body(
                           context,
                         )?.copyWith(color: context.colors.textSecondary),

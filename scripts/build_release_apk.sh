@@ -16,6 +16,9 @@
 # See docs/leave_reminder_setup.md for how to provision dart_defines.json.
 #
 # Usage: ./scripts/build_release_apk.sh
+# Optional: BUILD_NAME=<x.y.z> to override the version name (used by the
+# `beta` fastlane lane to auto-increment the Firebase App Distribution
+# release's patch version), BUILD_NUMBER=<n> to override the version code.
 
 set -euo pipefail
 
@@ -57,4 +60,18 @@ fi
 
 fvm dart run build_runner build --delete-conflicting-outputs
 
-fvm flutter build apk --release --flavor "$FLAVOR" --dart-define-from-file="$DART_DEFINES_FILE"
+# Plain strings, not bash arrays: macOS ships bash 3.2 (pre-4.4), which
+# throws "unbound variable" when expanding an empty array under `set -u`.
+# These flag values never contain whitespace, so unquoted word-splitting
+# below is safe and sidesteps that bash-version footgun entirely.
+BUILD_NAME_ARG=""
+if [[ -n "${BUILD_NAME:-}" ]]; then
+  BUILD_NAME_ARG="--build-name=$BUILD_NAME"
+fi
+
+BUILD_NUMBER_ARG=""
+if [[ -n "${BUILD_NUMBER:-}" ]]; then
+  BUILD_NUMBER_ARG="--build-number=$BUILD_NUMBER"
+fi
+
+fvm flutter build apk --release --flavor "$FLAVOR" --dart-define-from-file="$DART_DEFINES_FILE" $BUILD_NAME_ARG $BUILD_NUMBER_ARG

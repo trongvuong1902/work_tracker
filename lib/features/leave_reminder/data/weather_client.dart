@@ -26,7 +26,9 @@ class OpenMeteoWeatherClient implements WeatherClient {
         'current_weather': 'true',
         'hourly': 'temperature_2m,weathercode',
         'timezone': 'auto',
-        'forecast_days': '1',
+        // Need hourly points through tomorrow's estimated leave-home time,
+        // not just today, for the tomorrow-commute preview lookup.
+        'forecast_days': '2',
       },
     );
 

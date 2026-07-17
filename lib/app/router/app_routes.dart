@@ -21,7 +21,11 @@ abstract final class AppRoutes {
 
   static const debug = '/debug';
 
+  static const debugComponents = '/debug/components';
+
   static const debugOnboardingPreview = '/debug/onboarding_preview';
+
+  static const debugNotificationsFlow = '/debug/notifications_flow';
 
   static const workScheduleSettings = '/work_schedule_settings';
 

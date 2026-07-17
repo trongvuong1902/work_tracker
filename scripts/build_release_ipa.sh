@@ -30,9 +30,13 @@ if [[ ! -f "$DART_DEFINES_FILE" ]]; then
   exit 1
 fi
 
-BUILD_NUMBER_ARGS=()
+# Plain string, not a bash array: macOS ships bash 3.2 (pre-4.4), which
+# throws "unbound variable" when expanding an empty array under `set -u`.
+# This flag value never contains whitespace, so unquoted word-splitting
+# below is safe and sidesteps that bash-version footgun entirely.
+BUILD_NUMBER_ARG=""
 if [[ -n "${BUILD_NUMBER:-}" ]]; then
-  BUILD_NUMBER_ARGS=(--build-number="$BUILD_NUMBER")
+  BUILD_NUMBER_ARG="--build-number=$BUILD_NUMBER"
 fi
 
-fvm flutter build ipa --release --dart-define-from-file="$DART_DEFINES_FILE" "${BUILD_NUMBER_ARGS[@]}"
+fvm flutter build ipa --release --dart-define-from-file="$DART_DEFINES_FILE" $BUILD_NUMBER_ARG

@@ -20,12 +20,15 @@ class CheckoutReminderSetupCubit extends Cubit<CheckoutReminderSetupState> {
     emit(state.copyWith(isLoading: true));
     final settings = await _repository.getSettings();
     final scheduledFireTime = await _repository.getScheduledFireTime();
+    final scheduledEndOfWorkTime = await _repository
+        .getScheduledEndOfWorkTime();
     emit(
       state.copyWith(
         isLoading: false,
         enabled: settings.enabled,
         leadMinutes: settings.leadMinutes,
         scheduledFireTime: scheduledFireTime,
+        scheduledEndOfWorkTime: scheduledEndOfWorkTime,
       ),
     );
   }
@@ -36,11 +39,14 @@ class CheckoutReminderSetupCubit extends Cubit<CheckoutReminderSetupState> {
     switch (result) {
       case EnableCheckoutReminderResult.success:
         final scheduledFireTime = await _repository.getScheduledFireTime();
+        final scheduledEndOfWorkTime = await _repository
+            .getScheduledEndOfWorkTime();
         emit(
           state.copyWith(
             isTogglingEnabled: false,
             enabled: value,
             scheduledFireTime: scheduledFireTime,
+            scheduledEndOfWorkTime: scheduledEndOfWorkTime,
           ),
         );
       case EnableCheckoutReminderResult.notificationPermissionDenied:
@@ -58,10 +64,13 @@ class CheckoutReminderSetupCubit extends Cubit<CheckoutReminderSetupState> {
   Future<void> updateLeadMinutes(int minutes) async {
     final settings = await _repository.setLeadMinutes(minutes);
     final scheduledFireTime = await _repository.getScheduledFireTime();
+    final scheduledEndOfWorkTime = await _repository
+        .getScheduledEndOfWorkTime();
     emit(
       state.copyWith(
         leadMinutes: settings.leadMinutes,
         scheduledFireTime: scheduledFireTime,
+        scheduledEndOfWorkTime: scheduledEndOfWorkTime,
       ),
     );
   }

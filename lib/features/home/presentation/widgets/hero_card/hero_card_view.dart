@@ -18,7 +18,10 @@ class HeroCardView extends StatelessWidget {
         builder: (context, state) {
           final model = state.heroCardModel;
           return model?.when(
-                beforeCheckIn: () => CheckInView(),
+                beforeCheckIn: (leaveHomeAt, arriveAtWorkAt) => CheckInView(
+                  leaveHomeAt: leaveHomeAt,
+                  arriveAtWorkAt: arriveAtWorkAt,
+                ),
                 working: (checkIn, leaveAt, breakStart, breakEnd) {
                   return WorkingProgressView(
                     checkIn: checkIn,

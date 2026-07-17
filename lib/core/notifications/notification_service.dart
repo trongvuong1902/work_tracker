@@ -16,12 +16,24 @@ abstract class NotificationService {
   /// Schedules a one-off notification at [scheduledDate]. Falls back to an
   /// inexact schedule when [exact] is true but the exact-alarm permission
   /// hasn't been granted.
+  ///
+  /// Callers are responsible for having already called [requestPermission]
+  /// and confirmed it returned `true` before invoking this — this method
+  /// does not request permission itself, and silently no-ops at the OS
+  /// level if authorization was never granted.
+  ///
+  /// On Android, [bypassSilentMode] routes the notification through the
+  /// alarm audio stream instead of the ringer/notification stream, so it
+  /// plays even when the device is muted. Has no effect on iOS — bypassing
+  /// the mute switch there requires Apple's Critical Alerts entitlement,
+  /// which this app does not have.
   Future<void> scheduleAt({
     required int id,
     required String title,
     required String body,
     required DateTime scheduledDate,
     bool exact = true,
+    bool bypassSilentMode = false,
   });
 
   Future<void> cancel(int id);

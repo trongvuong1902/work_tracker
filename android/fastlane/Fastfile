@@ -5,6 +5,19 @@ platform :android do
   lane :beta do
     repo_root = File.expand_path("../..", __dir__)
 
+    # Auto-increment the patch version (1.0.x -> 1.0.(x+1)) from whatever's
+    # already the latest Firebase App Distribution release, so every beta
+    # gets a distinct, ordered version name — mirrors how the iOS `beta` and
+    # Android `internal` lanes auto-increment their own build numbers.
+    latest_release = firebase_app_distribution_get_latest_release(
+      app: ENV.fetch("FIREBASE_APP_ID"),
+      service_credentials_file: File.expand_path(ENV.fetch("FIREBASE_SERVICE_ACCOUNT_FILEPATH"), __dir__)
+    )
+    latest_version = latest_release && (latest_release["displayVersion"] || latest_release[:displayVersion])
+    version_parts = (latest_version || "1.0.0").split(".").map(&:to_i)
+    version_parts[2] = (version_parts[2] || 0) + 1
+    ENV["BUILD_NAME"] = version_parts.join(".")
+
     sh("#{repo_root}/scripts/build_release_apk.sh")
 
     apk_path = Dir.glob("#{repo_root}/build/app/outputs/flutter-apk/*-release.apk").max_by { |f| File.mtime(f) }

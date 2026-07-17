@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CheckoutReminderSetupState {
 
- bool get isLoading; bool get enabled; bool get isTogglingEnabled; int get leadMinutes; DateTime? get scheduledFireTime; String? get errorMessage;
+ bool get isLoading; bool get enabled; bool get isTogglingEnabled; int get leadMinutes; DateTime? get scheduledFireTime; DateTime? get scheduledEndOfWorkTime; String? get errorMessage;
 /// Create a copy of CheckoutReminderSetupState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $CheckoutReminderSetupStateCopyWith<CheckoutReminderSetupState> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutReminderSetupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.isTogglingEnabled, isTogglingEnabled) || other.isTogglingEnabled == isTogglingEnabled)&&(identical(other.leadMinutes, leadMinutes) || other.leadMinutes == leadMinutes)&&(identical(other.scheduledFireTime, scheduledFireTime) || other.scheduledFireTime == scheduledFireTime)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutReminderSetupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.isTogglingEnabled, isTogglingEnabled) || other.isTogglingEnabled == isTogglingEnabled)&&(identical(other.leadMinutes, leadMinutes) || other.leadMinutes == leadMinutes)&&(identical(other.scheduledFireTime, scheduledFireTime) || other.scheduledFireTime == scheduledFireTime)&&(identical(other.scheduledEndOfWorkTime, scheduledEndOfWorkTime) || other.scheduledEndOfWorkTime == scheduledEndOfWorkTime)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,enabled,isTogglingEnabled,leadMinutes,scheduledFireTime,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,enabled,isTogglingEnabled,leadMinutes,scheduledFireTime,scheduledEndOfWorkTime,errorMessage);
 
 @override
 String toString() {
-  return 'CheckoutReminderSetupState(isLoading: $isLoading, enabled: $enabled, isTogglingEnabled: $isTogglingEnabled, leadMinutes: $leadMinutes, scheduledFireTime: $scheduledFireTime, errorMessage: $errorMessage)';
+  return 'CheckoutReminderSetupState(isLoading: $isLoading, enabled: $enabled, isTogglingEnabled: $isTogglingEnabled, leadMinutes: $leadMinutes, scheduledFireTime: $scheduledFireTime, scheduledEndOfWorkTime: $scheduledEndOfWorkTime, errorMessage: $errorMessage)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $CheckoutReminderSetupStateCopyWith<$Res>  {
   factory $CheckoutReminderSetupStateCopyWith(CheckoutReminderSetupState value, $Res Function(CheckoutReminderSetupState) _then) = _$CheckoutReminderSetupStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, bool enabled, bool isTogglingEnabled, int leadMinutes, DateTime? scheduledFireTime, String? errorMessage
+ bool isLoading, bool enabled, bool isTogglingEnabled, int leadMinutes, DateTime? scheduledFireTime, DateTime? scheduledEndOfWorkTime, String? errorMessage
 });
 
 
@@ -62,13 +62,14 @@ class _$CheckoutReminderSetupStateCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutReminderSetupState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? enabled = null,Object? isTogglingEnabled = null,Object? leadMinutes = null,Object? scheduledFireTime = freezed,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? enabled = null,Object? isTogglingEnabled = null,Object? leadMinutes = null,Object? scheduledFireTime = freezed,Object? scheduledEndOfWorkTime = freezed,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,isTogglingEnabled: null == isTogglingEnabled ? _self.isTogglingEnabled : isTogglingEnabled // ignore: cast_nullable_to_non_nullable
 as bool,leadMinutes: null == leadMinutes ? _self.leadMinutes : leadMinutes // ignore: cast_nullable_to_non_nullable
 as int,scheduledFireTime: freezed == scheduledFireTime ? _self.scheduledFireTime : scheduledFireTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,scheduledEndOfWorkTime: freezed == scheduledEndOfWorkTime ? _self.scheduledEndOfWorkTime : scheduledEndOfWorkTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool enabled,  bool isTogglingEnabled,  int leadMinutes,  DateTime? scheduledFireTime,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool enabled,  bool isTogglingEnabled,  int leadMinutes,  DateTime? scheduledFireTime,  DateTime? scheduledEndOfWorkTime,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CheckoutReminderSetupState() when $default != null:
-return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.leadMinutes,_that.scheduledFireTime,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.leadMinutes,_that.scheduledFireTime,_that.scheduledEndOfWorkTime,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.lead
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool enabled,  bool isTogglingEnabled,  int leadMinutes,  DateTime? scheduledFireTime,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool enabled,  bool isTogglingEnabled,  int leadMinutes,  DateTime? scheduledFireTime,  DateTime? scheduledEndOfWorkTime,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _CheckoutReminderSetupState():
-return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.leadMinutes,_that.scheduledFireTime,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.leadMinutes,_that.scheduledFireTime,_that.scheduledEndOfWorkTime,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.lead
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool enabled,  bool isTogglingEnabled,  int leadMinutes,  DateTime? scheduledFireTime,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool enabled,  bool isTogglingEnabled,  int leadMinutes,  DateTime? scheduledFireTime,  DateTime? scheduledEndOfWorkTime,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _CheckoutReminderSetupState() when $default != null:
-return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.leadMinutes,_that.scheduledFireTime,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.leadMinutes,_that.scheduledFireTime,_that.scheduledEndOfWorkTime,_that.errorMessage);case _:
   return null;
 
 }
@@ -211,7 +212,7 @@ return $default(_that.isLoading,_that.enabled,_that.isTogglingEnabled,_that.lead
 
 
 class _CheckoutReminderSetupState implements CheckoutReminderSetupState {
-  const _CheckoutReminderSetupState({this.isLoading = true, this.enabled = false, this.isTogglingEnabled = false, this.leadMinutes = kDefaultCheckoutReminderLeadMinutes, this.scheduledFireTime, this.errorMessage});
+  const _CheckoutReminderSetupState({this.isLoading = true, this.enabled = false, this.isTogglingEnabled = false, this.leadMinutes = kDefaultCheckoutReminderLeadMinutes, this.scheduledFireTime, this.scheduledEndOfWorkTime, this.errorMessage});
   
 
 @override@JsonKey() final  bool isLoading;
@@ -219,6 +220,7 @@ class _CheckoutReminderSetupState implements CheckoutReminderSetupState {
 @override@JsonKey() final  bool isTogglingEnabled;
 @override@JsonKey() final  int leadMinutes;
 @override final  DateTime? scheduledFireTime;
+@override final  DateTime? scheduledEndOfWorkTime;
 @override final  String? errorMessage;
 
 /// Create a copy of CheckoutReminderSetupState
@@ -231,16 +233,16 @@ _$CheckoutReminderSetupStateCopyWith<_CheckoutReminderSetupState> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckoutReminderSetupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.isTogglingEnabled, isTogglingEnabled) || other.isTogglingEnabled == isTogglingEnabled)&&(identical(other.leadMinutes, leadMinutes) || other.leadMinutes == leadMinutes)&&(identical(other.scheduledFireTime, scheduledFireTime) || other.scheduledFireTime == scheduledFireTime)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckoutReminderSetupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.isTogglingEnabled, isTogglingEnabled) || other.isTogglingEnabled == isTogglingEnabled)&&(identical(other.leadMinutes, leadMinutes) || other.leadMinutes == leadMinutes)&&(identical(other.scheduledFireTime, scheduledFireTime) || other.scheduledFireTime == scheduledFireTime)&&(identical(other.scheduledEndOfWorkTime, scheduledEndOfWorkTime) || other.scheduledEndOfWorkTime == scheduledEndOfWorkTime)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,enabled,isTogglingEnabled,leadMinutes,scheduledFireTime,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,enabled,isTogglingEnabled,leadMinutes,scheduledFireTime,scheduledEndOfWorkTime,errorMessage);
 
 @override
 String toString() {
-  return 'CheckoutReminderSetupState(isLoading: $isLoading, enabled: $enabled, isTogglingEnabled: $isTogglingEnabled, leadMinutes: $leadMinutes, scheduledFireTime: $scheduledFireTime, errorMessage: $errorMessage)';
+  return 'CheckoutReminderSetupState(isLoading: $isLoading, enabled: $enabled, isTogglingEnabled: $isTogglingEnabled, leadMinutes: $leadMinutes, scheduledFireTime: $scheduledFireTime, scheduledEndOfWorkTime: $scheduledEndOfWorkTime, errorMessage: $errorMessage)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$CheckoutReminderSetupStateCopyWith<$Res> implements $Chec
   factory _$CheckoutReminderSetupStateCopyWith(_CheckoutReminderSetupState value, $Res Function(_CheckoutReminderSetupState) _then) = __$CheckoutReminderSetupStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, bool enabled, bool isTogglingEnabled, int leadMinutes, DateTime? scheduledFireTime, String? errorMessage
+ bool isLoading, bool enabled, bool isTogglingEnabled, int leadMinutes, DateTime? scheduledFireTime, DateTime? scheduledEndOfWorkTime, String? errorMessage
 });
 
 
@@ -268,13 +270,14 @@ class __$CheckoutReminderSetupStateCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutReminderSetupState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? enabled = null,Object? isTogglingEnabled = null,Object? leadMinutes = null,Object? scheduledFireTime = freezed,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? enabled = null,Object? isTogglingEnabled = null,Object? leadMinutes = null,Object? scheduledFireTime = freezed,Object? scheduledEndOfWorkTime = freezed,Object? errorMessage = freezed,}) {
   return _then(_CheckoutReminderSetupState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,isTogglingEnabled: null == isTogglingEnabled ? _self.isTogglingEnabled : isTogglingEnabled // ignore: cast_nullable_to_non_nullable
 as bool,leadMinutes: null == leadMinutes ? _self.leadMinutes : leadMinutes // ignore: cast_nullable_to_non_nullable
 as int,scheduledFireTime: freezed == scheduledFireTime ? _self.scheduledFireTime : scheduledFireTime // ignore: cast_nullable_to_non_nullable
+as DateTime?,scheduledEndOfWorkTime: freezed == scheduledEndOfWorkTime ? _self.scheduledEndOfWorkTime : scheduledEndOfWorkTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
