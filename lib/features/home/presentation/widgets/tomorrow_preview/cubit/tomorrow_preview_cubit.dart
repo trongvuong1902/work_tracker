@@ -22,17 +22,22 @@ class TomorrowPreviewCubit extends Cubit<TomorrowPreviewState> {
   final LeaveReminderRepository _leaveReminderRepository;
   late final StreamSubscription<Attendance?> _attendanceSubscription;
 
-  void init() {
+  Future<void> init() async {
     _attendanceSubscription = _attendanceRepository
         .watchAttendanceChanges()
-        .listen((attendance) async {
-          if (attendance?.checkIn != null && attendance?.checkOut != null) {
-            final preview = await _leaveReminderRepository.getTomorrowPreview();
-            emit(TomorrowPreviewState(preview: preview));
-          } else {
-            emit(const TomorrowPreviewState());
-          }
-        });
+        .listen(_apply);
+    // Seed the initial state: reads no longer broadcast, so subscribing alone
+    // would leave the preview empty until the next check-in/out.
+    await _apply(await _attendanceRepository.getTodayAttendance());
+  }
+
+  Future<void> _apply(Attendance? attendance) async {
+    if (attendance?.checkIn != null && attendance?.checkOut != null) {
+      final preview = await _leaveReminderRepository.getTomorrowPreview();
+      emit(TomorrowPreviewState(preview: preview));
+    } else {
+      emit(const TomorrowPreviewState());
+    }
   }
 
   @override

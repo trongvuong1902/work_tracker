@@ -19,6 +19,11 @@ class CheckoutReminderRepositoryImpl implements CheckoutReminderRepository {
     this._notificationService,
     this._attendanceRepository,
   ) {
+    // App-lifetime singleton (never disposed), so the subscription lives for
+    // the whole app and is intentionally not retained/cancelled. Reminders are
+    // (re)scheduled by _evaluate whenever attendance actually changes — i.e. at
+    // check-in/out (which emit), and OS-scheduled notifications persist across
+    // relaunches — so no per-launch re-evaluation is needed.
     _attendanceRepository.watchAttendanceChanges().listen(_evaluate);
   }
 

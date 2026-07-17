@@ -20,8 +20,11 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
 
   @override
   Future<Attendance?> getTodayAttendance() async {
+    // A pure read: must NOT broadcast. Broadcasting here created a feedback
+    // loop — a listener (e.g. TodayActivityTimelineCubit) reads in response to
+    // an event, which emits again, ad infinitum. Only genuine mutations
+    // (checkIn/checkOut/clearTodayAttendance) emit change notifications.
     final entity = _dao.getByDayKey(_todayDayKey());
-    _attendanceChangesController.add(entity == null ? null : _toModel(entity));
     return entity == null ? null : _toModel(entity);
   }
 

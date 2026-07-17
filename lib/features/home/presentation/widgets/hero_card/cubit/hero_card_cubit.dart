@@ -21,27 +21,33 @@ class HeroCardCubit extends Cubit<HeroCardState> {
   final AttendanceRepository _attendanceRepository;
   final LeaveReminderRepository _leaveReminderRepository;
   late final StreamSubscription<Attendance?> _attendanceSubscription;
-  void init() {
+
+  Future<void> init() async {
     _attendanceSubscription = _attendanceRepository
         .watchAttendanceChanges()
-        .listen((attendance) async {
-          if (attendance != null) {
-            final heroCardModel = HeroCardModel.fromAttendance(attendance);
-            emit(HeroCardState(heroCardModel: heroCardModel));
-          } else {
-            final leaveHomeAt = await _leaveReminderRepository.getLeaveTime();
-            final arriveAtWorkAt = await _leaveReminderRepository
-                .getEstimatedArrivalTime();
-            emit(
-              HeroCardState(
-                heroCardModel: HeroCardModel.beforeCheckIn(
-                  leaveHomeAt: leaveHomeAt,
-                  arriveAtWorkAt: arriveAtWorkAt,
-                ),
-              ),
-            );
-          }
-        });
+        .listen(_apply);
+    // Seed the initial state: reads no longer broadcast, so subscribing alone
+    // would leave the card empty until the next check-in/out.
+    await _apply(await _attendanceRepository.getTodayAttendance());
+  }
+
+  Future<void> _apply(Attendance? attendance) async {
+    if (attendance != null) {
+      final heroCardModel = HeroCardModel.fromAttendance(attendance);
+      emit(HeroCardState(heroCardModel: heroCardModel));
+    } else {
+      final leaveHomeAt = await _leaveReminderRepository.getLeaveTime();
+      final arriveAtWorkAt = await _leaveReminderRepository
+          .getEstimatedArrivalTime();
+      emit(
+        HeroCardState(
+          heroCardModel: HeroCardModel.beforeCheckIn(
+            leaveHomeAt: leaveHomeAt,
+            arriveAtWorkAt: arriveAtWorkAt,
+          ),
+        ),
+      );
+    }
   }
 
   @override

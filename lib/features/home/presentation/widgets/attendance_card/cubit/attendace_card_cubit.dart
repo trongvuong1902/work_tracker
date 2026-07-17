@@ -23,36 +23,41 @@ class AttendaceCardCubit extends Cubit<AttendaceCardState> {
   final WorkScheduleRepository _workScheduleRepository;
   late final StreamSubscription<Attendance?> _attendanceSubscription;
 
-  void init() {
+  Future<void> init() async {
     _attendanceSubscription = _attendanceRepository
         .watchAttendanceChanges()
-        .listen((attendance) async {
-          if (attendance != null) {
-            final attendanceCardModel = AttendanceCardModel.fromAttendance(
-              attendance,
-            );
-            emit(AttendaceCardState(model: attendanceCardModel));
-          } else {
-            final currentSchedule = await _workScheduleRepository
-                .getCurrentActiveSchedule();
+        .listen(_apply);
+    // Seed the initial state: reads no longer broadcast, so subscribing alone
+    // would leave the card empty until the next check-in/out.
+    await _apply(await _attendanceRepository.getTodayAttendance());
+  }
 
-            if (currentSchedule == null) {
-              return;
-            }
+  Future<void> _apply(Attendance? attendance) async {
+    if (attendance != null) {
+      final attendanceCardModel = AttendanceCardModel.fromAttendance(
+        attendance,
+      );
+      emit(AttendaceCardState(model: attendanceCardModel));
+    } else {
+      final currentSchedule = await _workScheduleRepository
+          .getCurrentActiveSchedule();
 
-            final model = AttendanceCardModel.beforeCheckIn(
-              startWorkTime: TimeFormat.hhMm(currentSchedule.startMinuteOfDay),
-              endWorkTime: TimeFormat.hhMm(currentSchedule.endMinuteOfDay),
-              workingTime: TimeFormat.hMm(
-                currentSchedule.endMinuteOfDay -
-                    currentSchedule.startMinuteOfDay -
-                    currentSchedule.lunchMinutes,
-              ),
-              breakTime: TimeFormat.hMm(currentSchedule.lunchMinutes),
-            );
-            emit(AttendaceCardState(model: model));
-          }
-        });
+      if (currentSchedule == null) {
+        return;
+      }
+
+      final model = AttendanceCardModel.beforeCheckIn(
+        startWorkTime: TimeFormat.hhMm(currentSchedule.startMinuteOfDay),
+        endWorkTime: TimeFormat.hhMm(currentSchedule.endMinuteOfDay),
+        workingTime: TimeFormat.hMm(
+          currentSchedule.endMinuteOfDay -
+              currentSchedule.startMinuteOfDay -
+              currentSchedule.lunchMinutes,
+        ),
+        breakTime: TimeFormat.hMm(currentSchedule.lunchMinutes),
+      );
+      emit(AttendaceCardState(model: model));
+    }
   }
 
   @override
