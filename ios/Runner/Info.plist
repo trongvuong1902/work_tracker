@@ -33,11 +33,12 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>WorkTracker uses your location to help you pick your Home and Work spots and estimate your commute for leave-time reminders.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>WorkTracker checks your location in the background to keep your commute estimate current so it can send a timely reminder to leave for work, even when the app isn't open.</string>
+	<string>WorkTracker checks your location in the background to keep your commute estimate current and to automatically log your arrival/departure at work, so it can send a timely reminder to leave and keep your attendance up to date even when the app isn't open.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
 		<string>processing</string>
+		<string>location</string>
 	</array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>

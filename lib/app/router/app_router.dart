@@ -14,12 +14,24 @@ import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/app/cubit/app_cubit.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/geo_point.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/pages/location_picker_page.dart';
+import 'package:work_tracker/features/location_log/presentation/pages/location_activity_day_page.dart';
+import 'package:work_tracker/features/location_log/presentation/pages/location_activity_page.dart';
 import 'package:work_tracker/features/onboard/presentation/pages/onboard_page.dart';
 import 'package:work_tracker/features/schedule/presentation/pages/setting_schedule_page.dart';
 import 'package:work_tracker/features/setting/presentation/pages/privacy_policy_page.dart';
 import 'package:work_tracker/features/splash/presentation/pages/splash_page.dart';
+import 'package:work_tracker/features/task/presentation/pages/attachment_viewer_page.dart';
+import 'package:work_tracker/features/task/presentation/pages/bug_sync_products_page.dart';
+import 'package:work_tracker/features/task/presentation/pages/manual_task_form_page.dart';
+import 'package:work_tracker/features/task/presentation/pages/platform_picker_page.dart';
+import 'package:work_tracker/features/task/presentation/pages/task_detail_page.dart';
+import 'package:work_tracker/features/zentao/domain/models/zentao_bug_attachment.dart';
+import 'package:work_tracker/features/zentao/domain/models/zentao_import_kind.dart';
+import 'package:work_tracker/features/zentao/presentation/pages/zentao_connect_page.dart';
+import 'package:work_tracker/features/zentao/presentation/pages/zentao_product_picker_page.dart';
+import 'package:work_tracker/features/zentao/presentation/pages/zentao_select_option_page.dart';
 
-import 'insight_branch.dart';
+import 'task_branch.dart';
 
 /// Typed `state.extra` payload for [AppRoutes.leaveReminderLocationPicker].
 class LocationPickerArgs {
@@ -99,15 +111,62 @@ final appRouter = GoRouter(
         );
       },
     ),
+    GoRoute(
+      path: AppRoutes.attendance,
+      builder: (context, state) => const LocationActivityPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.attendanceDetail,
+      builder: (context, state) {
+        final dateParam = state.pathParameters['date']!;
+        return LocationActivityDayPage(date: DateTime.parse(dateParam));
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.taskDetail,
+      builder: (context, state) {
+        final taskId = state.extra as int;
+        return TaskDetailPage(taskId: taskId);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.taskManualForm,
+      builder: (context, state) => const ManualTaskFormPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.taskImportPlatformPicker,
+      builder: (context, state) => const PlatformPickerPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.zentaoConnect,
+      builder: (context, state) => const ZentaoConnectPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.zentaoSelectOption,
+      builder: (context, state) => const ZentaoSelectOptionPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.zentaoProductPicker,
+      builder: (context, state) {
+        final kind = state.extra as ZentaoImportKind;
+        return ZentaoProductPickerPage(kind: kind);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.bugSyncProducts,
+      builder: (context, state) => const BugSyncProductsPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.attachmentViewer,
+      builder: (context, state) {
+        final attachment = state.extra as ZentaoBugAttachment;
+        return AttachmentViewerPage(attachment: attachment);
+      },
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           AppShell(navigationShell: navigationShell),
-      branches: [
-        HomeBranch(),
-        CalendarBranch(),
-        InsightBranch(),
-        SettingBranch(),
-      ],
+      branches: [HomeBranch(), CalendarBranch(), TaskBranch(), SettingBranch()],
     ),
   ],
 );

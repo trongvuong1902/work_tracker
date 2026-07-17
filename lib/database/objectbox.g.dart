@@ -18,6 +18,10 @@ import '../database/attendance/attendance_entity.dart';
 import '../database/checkout_reminder/checkout_reminder_settings_entity.dart';
 import '../database/leave_reminder/commute_sample_entity.dart';
 import '../database/leave_reminder/leave_reminder_settings_entity.dart';
+import '../database/leave_reminder/notification_log_entity.dart';
+import '../database/location_log/location_log_entity.dart';
+import '../database/location_log/location_log_settings_entity.dart';
+import '../database/task/task_entity.dart';
 import '../database/work_schedule/work_schedule_entity.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -190,7 +194,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 6679202978330319836),
     name: 'LeaveReminderSettingsEntity',
-    lastPropertyId: const obx_int.IdUid(11, 5581931614869045293),
+    lastPropertyId: const obx_int.IdUid(13, 2119001519333355787),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -259,6 +263,18 @@ final _entities = <obx_int.ModelEntity>[
         type: 9,
         flags: 0,
       ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(12, 4560392765351613816),
+        name: 'waypointsJson',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(13, 2119001519333355787),
+        name: 'workRadiusMeters',
+        type: 6,
+        flags: 0,
+      ),
     ],
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
@@ -319,6 +335,226 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(6, 4635867025159930616),
+    name: 'NotificationLogEntity',
+    lastPropertyId: const obx_int.IdUid(5, 6911550269401460243),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 9204796880613570877),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 2121627296322521568),
+        name: 'notificationId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 1663780830057021966),
+        name: 'title',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 805734213067342852),
+        name: 'body',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 6911550269401460243),
+        name: 'scheduledAt',
+        type: 10,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(7, 2824549352060330144),
+    name: 'LocationLogEntity',
+    lastPropertyId: const obx_int.IdUid(7, 532066523535157237),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 6063035504128070621),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 4518036191976760167),
+        name: 'dayKey',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 8070911131300955897),
+        name: 'type',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 4741423178368908379),
+        name: 'timestamp',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 5530196140578984042),
+        name: 'latitude',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 2814586780108219468),
+        name: 'longitude',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 532066523535157237),
+        name: 'address',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(8, 9063259141520829508),
+    name: 'LocationLogSettingsEntity',
+    lastPropertyId: const obx_int.IdUid(2, 2934555230439234096),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 2730982632818323062),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 2934555230439234096),
+        name: 'enabled',
+        type: 1,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(9, 6191964457532316515),
+    name: 'TaskEntity',
+    lastPropertyId: const obx_int.IdUid(16, 8455426037410360777),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 2281164033161657957),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 2968911545761269172),
+        name: 'title',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 2115774712449689747),
+        name: 'description',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 4577447944555243224),
+        name: 'done',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 875205466672412041),
+        name: 'createdAt',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 1799410581777712473),
+        name: 'zentaoTaskId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 3058599899231211393),
+        name: 'zentaoStatus',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 7768630553333512898),
+        name: 'zentaoLastSyncedAt',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 4491951567801882255),
+        name: 'elapsedSeconds',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 1274764557099511359),
+        name: 'timerStartedAt',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 7311600913338381351),
+        name: 'zentaoBugId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(12, 7583442905243618321),
+        name: 'zentaoPriority',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(13, 16665288937463160),
+        name: 'zentaoSeverity',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(14, 8159886837718871165),
+        name: 'zentaoProductId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(15, 5475659252933608524),
+        name: 'zentaoProductName',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(16, 8455426037410360777),
+        name: 'zentaoProductPriority',
+        type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -364,7 +600,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(5, 7143482092043233428),
+    lastEntityId: const obx_int.IdUid(9, 6191964457532316515),
     lastIndexId: const obx_int.IdUid(0, 0),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
@@ -619,7 +855,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
             final workAddressOffset = object.workAddress == null
                 ? null
                 : fbb.writeString(object.workAddress!);
-            fbb.startTable(12);
+            final waypointsJsonOffset = object.waypointsJson == null
+                ? null
+                : fbb.writeString(object.waypointsJson!);
+            fbb.startTable(14);
             fbb.addInt64(0, object.id);
             fbb.addBool(1, object.enabled);
             fbb.addFloat64(2, object.homeLat);
@@ -634,6 +873,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
             fbb.addInt64(8, object.headsUpLeadMinutes);
             fbb.addOffset(9, homeAddressOffset);
             fbb.addOffset(10, workAddressOffset);
+            fbb.addOffset(11, waypointsJsonOffset);
+            fbb.addInt64(12, object.workRadiusMeters);
             fbb.finish(fbb.endTable());
             return object.id;
           },
@@ -687,6 +928,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
               20,
               0,
             );
+            final waypointsJsonParam = const fb.StringReader(
+              asciiOptimization: true,
+            ).vTableGetNullable(buffer, rootOffset, 26);
+            final workRadiusMetersParam = const fb.Int64Reader().vTableGet(
+              buffer,
+              rootOffset,
+              28,
+              0,
+            );
             final object = LeaveReminderSettingsEntity(
               enabled: enabledParam,
               homeLat: homeLatParam,
@@ -698,6 +948,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
               lastCommuteMinutes: lastCommuteMinutesParam,
               lastCommuteUpdatedAt: lastCommuteUpdatedAtParam,
               headsUpLeadMinutes: headsUpLeadMinutesParam,
+              waypointsJson: waypointsJsonParam,
+              workRadiusMeters: workRadiusMetersParam,
             )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
             return object;
@@ -774,6 +1026,281 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final object = CommuteSampleEntity(
           minutes: minutesParam,
           capturedAt: capturedAtParam,
+        )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+
+        return object;
+      },
+    ),
+    NotificationLogEntity: obx_int.EntityDefinition<NotificationLogEntity>(
+      model: _entities[5],
+      toOneRelations: (NotificationLogEntity object) => [],
+      toManyRelations: (NotificationLogEntity object) => {},
+      getId: (NotificationLogEntity object) => object.id,
+      setId: (NotificationLogEntity object, int id) {
+        object.id = id;
+      },
+      objectToFB: (NotificationLogEntity object, fb.Builder fbb) {
+        final titleOffset = fbb.writeString(object.title);
+        final bodyOffset = fbb.writeString(object.body);
+        fbb.startTable(6);
+        fbb.addInt64(0, object.id);
+        fbb.addInt64(1, object.notificationId);
+        fbb.addOffset(2, titleOffset);
+        fbb.addOffset(3, bodyOffset);
+        fbb.addInt64(4, object.scheduledAt.millisecondsSinceEpoch);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final notificationIdParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          6,
+          0,
+        );
+        final titleParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 8, '');
+        final bodyParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 10, '');
+        final scheduledAtParam = DateTime.fromMillisecondsSinceEpoch(
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0),
+        );
+        final object = NotificationLogEntity(
+          notificationId: notificationIdParam,
+          title: titleParam,
+          body: bodyParam,
+          scheduledAt: scheduledAtParam,
+        )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+
+        return object;
+      },
+    ),
+    LocationLogEntity: obx_int.EntityDefinition<LocationLogEntity>(
+      model: _entities[6],
+      toOneRelations: (LocationLogEntity object) => [],
+      toManyRelations: (LocationLogEntity object) => {},
+      getId: (LocationLogEntity object) => object.id,
+      setId: (LocationLogEntity object, int id) {
+        object.id = id;
+      },
+      objectToFB: (LocationLogEntity object, fb.Builder fbb) {
+        final addressOffset = object.address == null
+            ? null
+            : fbb.writeString(object.address!);
+        fbb.startTable(8);
+        fbb.addInt64(0, object.id);
+        fbb.addInt64(1, object.dayKey);
+        fbb.addInt64(2, object.type);
+        fbb.addInt64(3, object.timestamp.millisecondsSinceEpoch);
+        fbb.addFloat64(4, object.latitude);
+        fbb.addFloat64(5, object.longitude);
+        fbb.addOffset(6, addressOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final dayKeyParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          6,
+          0,
+        );
+        final typeParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          8,
+          0,
+        );
+        final timestampParam = DateTime.fromMillisecondsSinceEpoch(
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0),
+        );
+        final latitudeParam = const fb.Float64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          12,
+        );
+        final longitudeParam = const fb.Float64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          14,
+        );
+        final addressParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 16);
+        final object = LocationLogEntity(
+          dayKey: dayKeyParam,
+          type: typeParam,
+          timestamp: timestampParam,
+          latitude: latitudeParam,
+          longitude: longitudeParam,
+          address: addressParam,
+        )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+
+        return object;
+      },
+    ),
+    LocationLogSettingsEntity:
+        obx_int.EntityDefinition<LocationLogSettingsEntity>(
+          model: _entities[7],
+          toOneRelations: (LocationLogSettingsEntity object) => [],
+          toManyRelations: (LocationLogSettingsEntity object) => {},
+          getId: (LocationLogSettingsEntity object) => object.id,
+          setId: (LocationLogSettingsEntity object, int id) {
+            object.id = id;
+          },
+          objectToFB: (LocationLogSettingsEntity object, fb.Builder fbb) {
+            fbb.startTable(3);
+            fbb.addInt64(0, object.id);
+            fbb.addBool(1, object.enabled);
+            fbb.finish(fbb.endTable());
+            return object.id;
+          },
+          objectFromFB: (obx.Store store, ByteData fbData) {
+            final buffer = fb.BufferContext(fbData);
+            final rootOffset = buffer.derefObject(0);
+            final enabledParam = const fb.BoolReader().vTableGet(
+              buffer,
+              rootOffset,
+              6,
+              false,
+            );
+            final object = LocationLogSettingsEntity(enabled: enabledParam)
+              ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+
+            return object;
+          },
+        ),
+    TaskEntity: obx_int.EntityDefinition<TaskEntity>(
+      model: _entities[8],
+      toOneRelations: (TaskEntity object) => [],
+      toManyRelations: (TaskEntity object) => {},
+      getId: (TaskEntity object) => object.id,
+      setId: (TaskEntity object, int id) {
+        object.id = id;
+      },
+      objectToFB: (TaskEntity object, fb.Builder fbb) {
+        final titleOffset = fbb.writeString(object.title);
+        final descriptionOffset = object.description == null
+            ? null
+            : fbb.writeString(object.description!);
+        final zentaoStatusOffset = object.zentaoStatus == null
+            ? null
+            : fbb.writeString(object.zentaoStatus!);
+        final zentaoProductNameOffset = object.zentaoProductName == null
+            ? null
+            : fbb.writeString(object.zentaoProductName!);
+        fbb.startTable(17);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, titleOffset);
+        fbb.addOffset(2, descriptionOffset);
+        fbb.addBool(3, object.done);
+        fbb.addInt64(4, object.createdAt.millisecondsSinceEpoch);
+        fbb.addInt64(5, object.zentaoTaskId);
+        fbb.addOffset(6, zentaoStatusOffset);
+        fbb.addInt64(7, object.zentaoLastSyncedAt?.millisecondsSinceEpoch);
+        fbb.addInt64(8, object.elapsedSeconds);
+        fbb.addInt64(9, object.timerStartedAt?.millisecondsSinceEpoch);
+        fbb.addInt64(10, object.zentaoBugId);
+        fbb.addInt64(11, object.zentaoPriority);
+        fbb.addInt64(12, object.zentaoSeverity);
+        fbb.addInt64(13, object.zentaoProductId);
+        fbb.addOffset(14, zentaoProductNameOffset);
+        fbb.addInt64(15, object.zentaoProductPriority);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final zentaoLastSyncedAtValue = const fb.Int64Reader()
+            .vTableGetNullable(buffer, rootOffset, 18);
+        final timerStartedAtValue = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          22,
+        );
+        final titleParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final descriptionParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 8);
+        final doneParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          10,
+          false,
+        );
+        final createdAtParam = DateTime.fromMillisecondsSinceEpoch(
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0),
+        );
+        final zentaoTaskIdParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          14,
+        );
+        final zentaoBugIdParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          24,
+        );
+        final zentaoStatusParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 16);
+        final zentaoPriorityParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          26,
+        );
+        final zentaoSeverityParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          28,
+        );
+        final zentaoProductIdParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          30,
+        );
+        final zentaoProductNameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 32);
+        final zentaoProductPriorityParam = const fb.Int64Reader()
+            .vTableGetNullable(buffer, rootOffset, 34);
+        final zentaoLastSyncedAtParam = zentaoLastSyncedAtValue == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(zentaoLastSyncedAtValue);
+        final elapsedSecondsParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          20,
+          0,
+        );
+        final timerStartedAtParam = timerStartedAtValue == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(timerStartedAtValue);
+        final object = TaskEntity(
+          title: titleParam,
+          description: descriptionParam,
+          done: doneParam,
+          createdAt: createdAtParam,
+          zentaoTaskId: zentaoTaskIdParam,
+          zentaoBugId: zentaoBugIdParam,
+          zentaoStatus: zentaoStatusParam,
+          zentaoPriority: zentaoPriorityParam,
+          zentaoSeverity: zentaoSeverityParam,
+          zentaoProductId: zentaoProductIdParam,
+          zentaoProductName: zentaoProductNameParam,
+          zentaoProductPriority: zentaoProductPriorityParam,
+          zentaoLastSyncedAt: zentaoLastSyncedAtParam,
+          elapsedSeconds: elapsedSecondsParam,
+          timerStartedAt: timerStartedAtParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
         return object;
@@ -970,6 +1497,18 @@ class LeaveReminderSettingsEntity_ {
       obx.QueryStringProperty<LeaveReminderSettingsEntity>(
         _entities[2].properties[10],
       );
+
+  /// See [LeaveReminderSettingsEntity.waypointsJson].
+  static final waypointsJson =
+      obx.QueryStringProperty<LeaveReminderSettingsEntity>(
+        _entities[2].properties[11],
+      );
+
+  /// See [LeaveReminderSettingsEntity.workRadiusMeters].
+  static final workRadiusMeters =
+      obx.QueryIntegerProperty<LeaveReminderSettingsEntity>(
+        _entities[2].properties[12],
+      );
 }
 
 /// [CheckoutReminderSettingsEntity] entity fields to define ObjectBox queries.
@@ -1007,5 +1546,167 @@ class CommuteSampleEntity_ {
   /// See [CommuteSampleEntity.capturedAt].
   static final capturedAt = obx.QueryDateProperty<CommuteSampleEntity>(
     _entities[4].properties[2],
+  );
+}
+
+/// [NotificationLogEntity] entity fields to define ObjectBox queries.
+class NotificationLogEntity_ {
+  /// See [NotificationLogEntity.id].
+  static final id = obx.QueryIntegerProperty<NotificationLogEntity>(
+    _entities[5].properties[0],
+  );
+
+  /// See [NotificationLogEntity.notificationId].
+  static final notificationId = obx.QueryIntegerProperty<NotificationLogEntity>(
+    _entities[5].properties[1],
+  );
+
+  /// See [NotificationLogEntity.title].
+  static final title = obx.QueryStringProperty<NotificationLogEntity>(
+    _entities[5].properties[2],
+  );
+
+  /// See [NotificationLogEntity.body].
+  static final body = obx.QueryStringProperty<NotificationLogEntity>(
+    _entities[5].properties[3],
+  );
+
+  /// See [NotificationLogEntity.scheduledAt].
+  static final scheduledAt = obx.QueryDateProperty<NotificationLogEntity>(
+    _entities[5].properties[4],
+  );
+}
+
+/// [LocationLogEntity] entity fields to define ObjectBox queries.
+class LocationLogEntity_ {
+  /// See [LocationLogEntity.id].
+  static final id = obx.QueryIntegerProperty<LocationLogEntity>(
+    _entities[6].properties[0],
+  );
+
+  /// See [LocationLogEntity.dayKey].
+  static final dayKey = obx.QueryIntegerProperty<LocationLogEntity>(
+    _entities[6].properties[1],
+  );
+
+  /// See [LocationLogEntity.type].
+  static final type = obx.QueryIntegerProperty<LocationLogEntity>(
+    _entities[6].properties[2],
+  );
+
+  /// See [LocationLogEntity.timestamp].
+  static final timestamp = obx.QueryDateProperty<LocationLogEntity>(
+    _entities[6].properties[3],
+  );
+
+  /// See [LocationLogEntity.latitude].
+  static final latitude = obx.QueryDoubleProperty<LocationLogEntity>(
+    _entities[6].properties[4],
+  );
+
+  /// See [LocationLogEntity.longitude].
+  static final longitude = obx.QueryDoubleProperty<LocationLogEntity>(
+    _entities[6].properties[5],
+  );
+
+  /// See [LocationLogEntity.address].
+  static final address = obx.QueryStringProperty<LocationLogEntity>(
+    _entities[6].properties[6],
+  );
+}
+
+/// [LocationLogSettingsEntity] entity fields to define ObjectBox queries.
+class LocationLogSettingsEntity_ {
+  /// See [LocationLogSettingsEntity.id].
+  static final id = obx.QueryIntegerProperty<LocationLogSettingsEntity>(
+    _entities[7].properties[0],
+  );
+
+  /// See [LocationLogSettingsEntity.enabled].
+  static final enabled = obx.QueryBooleanProperty<LocationLogSettingsEntity>(
+    _entities[7].properties[1],
+  );
+}
+
+/// [TaskEntity] entity fields to define ObjectBox queries.
+class TaskEntity_ {
+  /// See [TaskEntity.id].
+  static final id = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[0],
+  );
+
+  /// See [TaskEntity.title].
+  static final title = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[1],
+  );
+
+  /// See [TaskEntity.description].
+  static final description = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[2],
+  );
+
+  /// See [TaskEntity.done].
+  static final done = obx.QueryBooleanProperty<TaskEntity>(
+    _entities[8].properties[3],
+  );
+
+  /// See [TaskEntity.createdAt].
+  static final createdAt = obx.QueryDateProperty<TaskEntity>(
+    _entities[8].properties[4],
+  );
+
+  /// See [TaskEntity.zentaoTaskId].
+  static final zentaoTaskId = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[5],
+  );
+
+  /// See [TaskEntity.zentaoStatus].
+  static final zentaoStatus = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[6],
+  );
+
+  /// See [TaskEntity.zentaoLastSyncedAt].
+  static final zentaoLastSyncedAt = obx.QueryDateProperty<TaskEntity>(
+    _entities[8].properties[7],
+  );
+
+  /// See [TaskEntity.elapsedSeconds].
+  static final elapsedSeconds = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[8],
+  );
+
+  /// See [TaskEntity.timerStartedAt].
+  static final timerStartedAt = obx.QueryDateProperty<TaskEntity>(
+    _entities[8].properties[9],
+  );
+
+  /// See [TaskEntity.zentaoBugId].
+  static final zentaoBugId = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[10],
+  );
+
+  /// See [TaskEntity.zentaoPriority].
+  static final zentaoPriority = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[11],
+  );
+
+  /// See [TaskEntity.zentaoSeverity].
+  static final zentaoSeverity = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[12],
+  );
+
+  /// See [TaskEntity.zentaoProductId].
+  static final zentaoProductId = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[13],
+  );
+
+  /// See [TaskEntity.zentaoProductName].
+  static final zentaoProductName = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[14],
+  );
+
+  /// See [TaskEntity.zentaoProductPriority].
+  static final zentaoProductPriority = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[15],
   );
 }

@@ -8,6 +8,7 @@ Future<int?> showAppMinutePicker({
   required BuildContext context,
   required int initialMinutes,
   required List<int> options,
+  String unitLabel = 'min',
 }) async {
   final initialIndex = options.indexOf(initialMinutes);
   var selected = initialIndex == -1 ? options.first : initialMinutes;
@@ -34,7 +35,7 @@ Future<int?> showAppMinutePicker({
               itemExtent: 32,
               onSelectedItemChanged: (index) => selected = options[index],
               children: options
-                  .map((minutes) => Center(child: Text('$minutes min')))
+                  .map((value) => Center(child: Text('$value $unitLabel')))
                   .toList(),
             ),
           ),

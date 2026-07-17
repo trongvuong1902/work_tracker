@@ -22,6 +22,15 @@ class LeaveReminderSettingsEntity {
 
   int headsUpLeadMinutes;
 
+  /// JSON-encoded list of `{lat, lng, address, enabled}` maps, one per
+  /// commute waypoint (stop), in add-order. Nullable/additive column —
+  /// existing rows have no value and are treated as an empty list.
+  String? waypointsJson;
+
+  /// Radius (meters) around [workLat]/[workLng] used by the geofence to
+  /// detect arrival/departure — absorbs GPS drift.
+  int workRadiusMeters;
+
   LeaveReminderSettingsEntity({
     this.enabled = false,
     this.homeLat,
@@ -33,5 +42,7 @@ class LeaveReminderSettingsEntity {
     this.lastCommuteMinutes,
     this.lastCommuteUpdatedAt,
     this.headsUpLeadMinutes = 15,
+    this.waypointsJson,
+    this.workRadiusMeters = 150,
   });
 }

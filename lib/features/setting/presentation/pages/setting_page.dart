@@ -17,6 +17,11 @@ import 'package:work_tracker/features/checkout_reminder/presentation/widgets/che
 import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/leave_reminder_settings.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/widgets/leave_reminder_setup_sheet.dart';
+import 'package:work_tracker/features/location_log/domain/location_log_repository.dart';
+import 'package:work_tracker/features/location_log/presentation/widgets/location_log_setup_sheet.dart';
+import 'package:work_tracker/features/zentao/domain/models/zentao_connection.dart';
+import 'package:work_tracker/features/zentao/domain/zentao_repository.dart';
+import 'package:work_tracker/features/zentao/presentation/widgets/manage_zentao_connection_sheet.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -29,6 +34,9 @@ class _SettingPageState extends State<SettingPage> {
   String? _databasePath;
   PackageInfo? _packageInfo;
   LeaveReminderSettings? _leaveReminderSettings;
+  bool? _locationLogEnabled;
+  ZentaoConnection? _zentaoConnection;
+  bool _isLoadingZentaoConnection = true;
 
   @override
   void initState() {
@@ -36,6 +44,8 @@ class _SettingPageState extends State<SettingPage> {
     _loadDatabasePath();
     _loadPackageInfo();
     _loadLeaveReminderStatus();
+    _loadLocationLogStatus();
+    _loadZentaoConnection();
   }
 
   Future<void> _loadDatabasePath() async {
@@ -52,6 +62,21 @@ class _SettingPageState extends State<SettingPage> {
   Future<void> _loadLeaveReminderStatus() async {
     final settings = await getIt<LeaveReminderRepository>().getSettings();
     if (mounted) setState(() => _leaveReminderSettings = settings);
+  }
+
+  Future<void> _loadLocationLogStatus() async {
+    final enabled = await getIt<LocationLogRepository>().isEnabled();
+    if (mounted) setState(() => _locationLogEnabled = enabled);
+  }
+
+  Future<void> _loadZentaoConnection() async {
+    final connection = await getIt<ZentaoRepository>().getConnection();
+    if (mounted) {
+      setState(() {
+        _zentaoConnection = connection;
+        _isLoadingZentaoConnection = false;
+      });
+    }
   }
 
   @override
@@ -161,6 +186,94 @@ class _SettingPageState extends State<SettingPage> {
                         style: AppTypography.label(context),
                       ),
                       const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            ShadowCard(
+              margin: EdgeInsets.zero,
+              child: InkWell(
+                onTap: () async {
+                  await showLocationLogSetupSheet(context);
+                  _loadLocationLogStatus();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.space16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Location activity',
+                        style: AppTypography.label(context),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_locationLogEnabled != null) ...[
+                            Text(
+                              _locationLogEnabled! ? 'On' : 'Off',
+                              style: AppTypography.body(context)?.copyWith(
+                                color: _locationLogEnabled!
+                                    ? context.colors.primary
+                                    : context.colors.textSecondary,
+                                fontWeight: _locationLogEnabled!
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.space8),
+                          ],
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            ShadowCard(
+              margin: EdgeInsets.zero,
+              child: InkWell(
+                onTap: () async {
+                  await showManageZentaoConnectionSheet(context);
+                  _loadZentaoConnection();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.space16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Zentao account', style: AppTypography.label(context)),
+                      Flexible(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (!_isLoadingZentaoConnection)
+                              Flexible(
+                                child: Text(
+                                  _zentaoConnection != null
+                                      ? 'Connected — ${_zentaoConnection!.domain}'
+                                      : 'Not connected',
+                                  style: AppTypography.body(context)?.copyWith(
+                                    color: _zentaoConnection != null
+                                        ? context.colors.primary
+                                        : context.colors.textSecondary,
+                                    fontWeight: _zentaoConnection != null
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            const SizedBox(width: AppSpacing.space8),
+                            const Icon(Icons.chevron_right),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

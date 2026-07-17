@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -32,7 +33,7 @@ class OpenMeteoWeatherClient implements WeatherClient {
       },
     );
 
-    final response = await http.get(uri);
+    final response = await http.get(uri).timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) {
       throw Exception(
         'Open-Meteo request failed with status ${response.statusCode}',

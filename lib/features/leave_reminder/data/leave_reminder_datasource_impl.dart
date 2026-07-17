@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:injectable/injectable.dart';
 
 import '../../../database/leave_reminder/leave_reminder_settings_entity.dart';
+import '../domain/models/commute_waypoint.dart';
 import '../domain/models/geo_point.dart';
 import '../domain/models/leave_reminder_settings.dart';
 import 'leave_reminder_dao.dart';
@@ -51,6 +54,8 @@ class LeaveReminderDatasourceImpl implements LeaveReminderDatasource {
         lastCommuteMinutes: entity.lastCommuteMinutes,
         lastCommuteUpdatedAt: entity.lastCommuteUpdatedAt,
         headsUpLeadMinutes: entity.headsUpLeadMinutes,
+        waypoints: _decodeWaypoints(entity.waypointsJson),
+        workRadiusMeters: entity.workRadiusMeters,
       );
 
   LeaveReminderSettingsEntity _toEntity(LeaveReminderSettings settings) =>
@@ -65,5 +70,41 @@ class LeaveReminderDatasourceImpl implements LeaveReminderDatasource {
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
         headsUpLeadMinutes: settings.headsUpLeadMinutes,
+        waypointsJson: _encodeWaypoints(settings.waypoints),
+        workRadiusMeters: settings.workRadiusMeters,
       );
+
+  String _encodeWaypoints(List<CommuteWaypoint> waypoints) => jsonEncode(
+    waypoints
+        .map(
+          (w) => {
+            'lat': w.location.latitude,
+            'lng': w.location.longitude,
+            'address': w.location.address,
+            'enabled': w.enabled,
+          },
+        )
+        .toList(),
+  );
+
+  List<CommuteWaypoint> _decodeWaypoints(String? json) {
+    if (json == null || json.isEmpty) return [];
+    try {
+      final decoded = jsonDecode(json) as List<dynamic>;
+      return decoded.map((raw) {
+        final map = raw as Map<String, dynamic>;
+        return CommuteWaypoint(
+          location: GeoPoint(
+            latitude: (map['lat'] as num).toDouble(),
+            longitude: (map['lng'] as num).toDouble(),
+            address: map['address'] as String?,
+          ),
+          enabled: map['enabled'] as bool? ?? true,
+        );
+      }).toList();
+    } catch (_) {
+      // Malformed data should never block loading the rest of the settings.
+      return [];
+    }
+  }
 }

@@ -9,7 +9,11 @@ import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/time/time_format.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
+import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
+import 'package:work_tracker/features/leave_reminder/domain/models/commute_waypoint.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/leave_reminder_prompt_trigger.dart';
+import 'package:work_tracker/features/leave_reminder/domain/models/notification_log_entry.dart';
+import 'package:work_tracker/features/leave_reminder/domain/models/tomorrow_preview.dart';
 import 'package:work_tracker/features/leave_reminder/leave_reminder_constants.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/cubit/leave_reminder_setup_cubit.dart';
 import 'package:work_tracker/features/schedule/domain/work_schedule_constants.dart';
@@ -107,7 +111,9 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                   _LocationsHeader(
                     setCount:
                         (state.home != null ? 1 : 0) +
-                        (state.work != null ? 1 : 0),
+                        (state.work != null ? 1 : 0) +
+                        state.waypoints.length,
+                    total: 2 + state.waypoints.length,
                   ),
                   const SizedBox(height: AppSpacing.space8),
                   _LocationRow(
@@ -124,6 +130,41 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: AppSpacing.space8),
+                  for (var i = 0; i < state.waypoints.length; i++) ...[
+                    _StopRow(
+                      position: i + 1,
+                      waypoint: state.waypoints[i],
+                      isToggling: state.togglingWaypointIndex == i,
+                      isRemoving: state.removingWaypointIndex == i,
+                      isRepicking: state.repickingWaypointIndex == i,
+                      onToggle: (enabled) =>
+                          cubit.setWaypointEnabledAt(i, enabled),
+                      onRemove: () => cubit.removeWaypointAt(i),
+                      onTap: () async {
+                        final picked = await AppNavigator.pushLocationPicker(
+                          context,
+                          title: 'Edit stop',
+                          initial: state.waypoints[i].location,
+                        );
+                        if (picked != null) {
+                          cubit.setWaypointLocationAt(i, picked);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.space8),
+                  ],
+                  _AddStopSection(
+                    stopCount: state.waypoints.length,
+                    isAdding: state.isAddingWaypoint,
+                    onAdd: () async {
+                      final picked = await AppNavigator.pushLocationPicker(
+                        context,
+                        title: 'Add a stop',
+                      );
+                      if (picked != null) cubit.addWaypoint(picked);
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.space8),
                   _LocationRow(
                     label: 'Set Work',
                     isSet: state.work != null,
@@ -137,6 +178,16 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                       if (picked != null) cubit.setWork(picked);
                     },
                   ),
+                  if (state.work != null) ...[
+                    const SizedBox(height: AppSpacing.space8),
+                    MinutePickerRow(
+                      label: 'Detection radius',
+                      minutes: state.workRadiusMeters,
+                      options: kWorkRadiusOptions,
+                      unitLabel: 'm',
+                      onChanged: cubit.updateWorkRadiusMeters,
+                    ),
+                  ],
                   if (state.hasBothLocations) ...[
                     const SizedBox(height: AppSpacing.space16),
                     _CommuteReadoutCard(
@@ -174,6 +225,12 @@ class _LeaveReminderSetupSheet extends StatelessWidget {
                       alertMinuteOfDay: state.alertMinuteOfDay,
                       headsUpLeadMinutes: state.headsUpLeadMinutes,
                     ),
+                    const SizedBox(height: AppSpacing.space16),
+                    _DebugTomorrowPreviewCard(
+                      headsUpLeadMinutes: state.headsUpLeadMinutes,
+                    ),
+                    const SizedBox(height: AppSpacing.space16),
+                    const _DebugNotificationLogCard(),
                   ],
                   if (state.errorMessage != null) ...[
                     const SizedBox(height: AppSpacing.space16),
@@ -227,13 +284,14 @@ class _TriggerBanner extends StatelessWidget {
 /// count of how many of the two are set, plus a short explanatory caption
 /// until both are set.
 class _LocationsHeader extends StatelessWidget {
-  const _LocationsHeader({required this.setCount});
+  const _LocationsHeader({required this.setCount, required this.total});
 
   final int setCount;
+  final int total;
 
   @override
   Widget build(BuildContext context) {
-    final isComplete = setCount >= 2;
+    final isComplete = setCount >= total;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +301,7 @@ class _LocationsHeader extends StatelessWidget {
           children: [
             Text('Locations', style: AppTypography.label(context)),
             Text(
-              '$setCount of 2 set',
+              '$setCount of $total set',
               style: AppTypography.body(context)?.copyWith(
                 color: isComplete
                     ? context.colors.primary
@@ -313,6 +371,168 @@ class _LocationRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// A single "stop" (commute waypoint) row, sitting between the Home and
+/// Work rows. Displays its position among stops (1-based, renumbered
+/// whenever an earlier stop is removed), its resolved address (dimmed when
+/// disabled), and trailing enable/disable + delete controls.
+class _StopRow extends StatelessWidget {
+  const _StopRow({
+    required this.position,
+    required this.waypoint,
+    required this.isToggling,
+    required this.isRemoving,
+    required this.isRepicking,
+    required this.onToggle,
+    required this.onRemove,
+    required this.onTap,
+  });
+
+  final int position;
+  final CommuteWaypoint waypoint;
+  final bool isToggling;
+  final bool isRemoving;
+  final bool isRepicking;
+  final ValueChanged<bool> onToggle;
+  final VoidCallback onRemove;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = waypoint.enabled;
+    final busy = isToggling || isRemoving || isRepicking;
+    final location = waypoint.location;
+    final addressText =
+        location.address ??
+        '${location.latitude.toStringAsFixed(5)}, '
+            '${location.longitude.toStringAsFixed(5)}';
+
+    return ShadowCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.space16),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: enabled ? context.colors.primary : null,
+                border: enabled
+                    ? null
+                    : Border.all(color: context.colors.outline),
+              ),
+              child: Text(
+                '$position',
+                style: AppTypography.label(context)?.copyWith(
+                  color: enabled ? Colors.white : context.colors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.space12),
+            Expanded(
+              child: InkWell(
+                onTap: busy ? null : onTap,
+                child: Text(
+                  addressText,
+                  style: AppTypography.label(context)?.copyWith(
+                    color: enabled
+                        ? context.colors.textPrimary
+                        : context.colors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.space8),
+            if (isRepicking)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else ...[
+              isToggling
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Checkbox(
+                      value: enabled,
+                      activeColor: context.colors.primary,
+                      onChanged: isRemoving
+                          ? null
+                          : (value) => onToggle(value ?? false),
+                    ),
+              isRemoving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      tooltip: 'Remove stop',
+                      onPressed: isToggling ? null : onRemove,
+                    ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Add a stop" button, sitting directly after the last stop row (or the
+/// Home row if there are none yet) and before the Work row. Replaced
+/// entirely by a "cap reached" caption once 3 stops exist.
+class _AddStopSection extends StatelessWidget {
+  const _AddStopSection({
+    required this.stopCount,
+    required this.isAdding,
+    required this.onAdd,
+  });
+
+  final int stopCount;
+  final bool isAdding;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    if (stopCount >= kMaxCommuteWaypoints) {
+      return Text(
+        'Maximum of 3 stops reached.',
+        style: AppTypography.caption(
+          context,
+        )?.copyWith(color: context.colors.textSecondary),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SecondaryButton(
+          label: 'Add a stop',
+          icon: Icons.add,
+          isLoading: isAdding,
+          onPressed: onAdd,
+        ),
+        if (stopCount == 0) ...[
+          const SizedBox(height: AppSpacing.space8),
+          Text(
+            'Optional — add up to 3 stops along your commute.',
+            style: AppTypography.caption(
+              context,
+            )?.copyWith(color: context.colors.textSecondary),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -446,6 +666,314 @@ class _DebugPendingNotificationsCardState
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Debug-only preview of what tomorrow's heads-up and leave-now
+/// notifications would look like, computed live from
+/// [LeaveReminderRepository.getTomorrowPreview] rather than the OS's
+/// pending-notifications list (nothing is scheduled for tomorrow yet — only
+/// today's reminders are ever scheduled). The heads-up fire time is derived
+/// here the same way [LeaveReminderRepositoryImpl.scheduleTodayReminders]
+/// derives it for today: `leaveTime` minus [headsUpLeadMinutes].
+class _DebugTomorrowPreviewCard extends StatefulWidget {
+  const _DebugTomorrowPreviewCard({required this.headsUpLeadMinutes});
+
+  final int headsUpLeadMinutes;
+
+  @override
+  State<_DebugTomorrowPreviewCard> createState() =>
+      _DebugTomorrowPreviewCardState();
+}
+
+class _DebugTomorrowPreviewCardState
+    extends State<_DebugTomorrowPreviewCard> {
+  late Future<TomorrowPreview?> _preview;
+
+  @override
+  void initState() {
+    super.initState();
+    _preview = getIt<LeaveReminderRepository>().getTomorrowPreview();
+  }
+
+  void _refresh() {
+    setState(() {
+      _preview = getIt<LeaveReminderRepository>().getTomorrowPreview();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ShadowCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.space16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "🌙 Tomorrow's reminders (debug)",
+                  style: AppTypography.label(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Refresh',
+                  onPressed: _refresh,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.space8),
+            FutureBuilder<TomorrowPreview?>(
+              future: _preview,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text(
+                    'Failed to load: ${snapshot.error}',
+                    style: AppTypography.body(
+                      context,
+                    )?.copyWith(color: context.colors.error),
+                  );
+                }
+
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppSpacing.space8,
+                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+
+                final preview = snapshot.data;
+                if (preview == null) {
+                  return Text(
+                    'No preview available — reminders off, home/work not '
+                    'set, fewer than 2 commute samples, or tomorrow isn\'t a '
+                    'working day.',
+                    style: AppTypography.body(
+                      context,
+                    )?.copyWith(color: context.colors.textSecondary),
+                  );
+                }
+
+                final headsUpTime = preview.leaveTime.subtract(
+                  Duration(minutes: widget.headsUpLeadMinutes),
+                );
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '🌅 Time to plan your commute',
+                      style: AppTypography.body(
+                        context,
+                      )?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      'Fires at ${TimeFormat.hhMmFromDateTime(headsUpTime)}',
+                      style: AppTypography.body(
+                        context,
+                      )?.copyWith(color: context.colors.textSecondary),
+                    ),
+                    Text(preview.bodyText, style: AppTypography.body(context)),
+                    const SizedBox(height: AppSpacing.space8),
+                    Text(
+                      '🚗 Time to leave',
+                      style: AppTypography.body(
+                        context,
+                      )?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      'Fires at '
+                      '${TimeFormat.hhMmFromDateTime(preview.leaveTime)}',
+                      style: AppTypography.body(
+                        context,
+                      )?.copyWith(color: context.colors.textSecondary),
+                    ),
+                    Text(
+                      'Your commute is about '
+                      '${preview.averageCommuteMinutes} min — leave now.',
+                      style: AppTypography.body(context),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Debug-only persisted log of scheduled heads-up/leave-now notifications —
+/// both already-fired history and still-upcoming entries — read from
+/// [LeaveReminderRepository.getNotificationLog]. Unlike
+/// [_DebugPendingNotificationsCard] (OS ground truth, upcoming only) this
+/// survives past fire time, so it's useful for confirming a notification
+/// was actually scheduled even after it already went off.
+class _DebugNotificationLogCard extends StatefulWidget {
+  const _DebugNotificationLogCard();
+
+  @override
+  State<_DebugNotificationLogCard> createState() =>
+      _DebugNotificationLogCardState();
+}
+
+class _DebugNotificationLogCardState extends State<_DebugNotificationLogCard> {
+  late Future<List<NotificationLogEntry>> _log;
+
+  @override
+  void initState() {
+    super.initState();
+    _log = getIt<LeaveReminderRepository>().getNotificationLog();
+  }
+
+  void _refresh() {
+    setState(() {
+      _log = getIt<LeaveReminderRepository>().getNotificationLog();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ShadowCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.space16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '📜 Notification log (debug)',
+                  style: AppTypography.label(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Refresh',
+                  onPressed: _refresh,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.space8),
+            FutureBuilder<List<NotificationLogEntry>>(
+              future: _log,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text(
+                    'Failed to load: ${snapshot.error}',
+                    style: AppTypography.body(
+                      context,
+                    )?.copyWith(color: context.colors.error),
+                  );
+                }
+
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppSpacing.space8,
+                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+
+                final entries = snapshot.data!;
+                final now = DateTime.now();
+                final upcoming =
+                    entries.where((e) => e.scheduledAt.isAfter(now)).toList()
+                      ..sort(
+                        (a, b) => a.scheduledAt.compareTo(b.scheduledAt),
+                      );
+                final history = entries
+                    .where((e) => !e.scheduledAt.isAfter(now))
+                    .toList(); // already most-recent-first from the repo
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Upcoming',
+                      style: AppTypography.body(
+                        context,
+                      )?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: AppSpacing.space8),
+                    if (upcoming.isEmpty)
+                      Text(
+                        'Nothing scheduled right now',
+                        style: AppTypography.body(
+                          context,
+                        )?.copyWith(color: context.colors.textSecondary),
+                      )
+                    else
+                      _NotificationLogEntryList(entries: upcoming),
+                    const SizedBox(height: AppSpacing.space16),
+                    Text(
+                      'History',
+                      style: AppTypography.body(
+                        context,
+                      )?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: AppSpacing.space8),
+                    if (history.isEmpty)
+                      Text(
+                        'No history yet',
+                        style: AppTypography.body(
+                          context,
+                        )?.copyWith(color: context.colors.textSecondary),
+                      )
+                    else
+                      _NotificationLogEntryList(entries: history),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificationLogEntryList extends StatelessWidget {
+  const _NotificationLogEntryList({required this.entries});
+
+  final List<NotificationLogEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final entry in entries) ...[
+          Text(
+            entry.title,
+            style: AppTypography.body(
+              context,
+            )?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          Text(
+            'Fires at ${TimeFormat.hhMmFromDateTime(entry.scheduledAt)}',
+            style: AppTypography.body(
+              context,
+            )?.copyWith(color: context.colors.textSecondary),
+          ),
+          Text(entry.body, style: AppTypography.body(context)),
+          if (entry != entries.last)
+            const SizedBox(height: AppSpacing.space8),
+        ],
+      ],
     );
   }
 }

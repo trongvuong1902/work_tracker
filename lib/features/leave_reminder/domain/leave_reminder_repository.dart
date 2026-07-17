@@ -1,6 +1,7 @@
 import 'models/geo_point.dart';
 import 'models/leave_reminder_prompt_trigger.dart';
 import 'models/leave_reminder_settings.dart';
+import 'models/notification_log_entry.dart';
 import 'models/tomorrow_preview.dart';
 
 enum EnableLeaveReminderResult { success, notificationPermissionDenied }
@@ -11,7 +12,28 @@ abstract class LeaveReminderRepository {
   Future<LeaveReminderSettings> setHomeLocation(GeoPoint point);
   Future<LeaveReminderSettings> setWorkLocation(GeoPoint point);
   Future<LeaveReminderSettings> setHeadsUpLeadMinutes(int minutes);
+  Future<LeaveReminderSettings> setWorkRadiusMeters(int meters);
   Future<void> scheduleTodayReminders();
+
+  /// Appends a new enabled waypoint (stop) to the commute route, in
+  /// add-order. No-ops (returns the unchanged settings) if there are already
+  /// 3 waypoints — the maximum supported.
+  Future<LeaveReminderSettings> addWaypoint(GeoPoint point);
+
+  /// Removes the waypoint at [index]. Remaining waypoints after it shift
+  /// down to close the gap (route order is always add-order).
+  Future<LeaveReminderSettings> removeWaypointAt(int index);
+
+  /// Toggles whether the waypoint at [index] counts toward the total
+  /// commute duration, without removing it or changing its location.
+  Future<LeaveReminderSettings> setWaypointEnabledAt(int index, bool enabled);
+
+  /// Replaces the location of the waypoint at [index] in place — its
+  /// position in the route and enabled/disabled state are unchanged.
+  Future<LeaveReminderSettings> setWaypointLocationAt(
+    int index,
+    GeoPoint point,
+  );
 
   /// Rolling average commute duration (minutes) over the recent sample
   /// history, or `null` until at least two samples have been recorded.
@@ -38,4 +60,9 @@ abstract class LeaveReminderRepository {
   /// home/work aren't set, tomorrow isn't a working day, there's no active
   /// schedule, or fewer than two commute samples exist yet.
   Future<TomorrowPreview?> getTomorrowPreview();
+
+  /// Recent scheduled-notification history — both already-fired entries and
+  /// still-upcoming ones. Callers distinguish the two via
+  /// `entry.scheduledAt.isAfter(DateTime.now())`. Debug-only.
+  Future<List<NotificationLogEntry>> getNotificationLog();
 }

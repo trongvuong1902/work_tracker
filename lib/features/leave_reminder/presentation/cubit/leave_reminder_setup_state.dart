@@ -7,6 +7,7 @@ abstract class LeaveReminderSetupState with _$LeaveReminderSetupState {
     @Default(false) bool enabled,
     GeoPoint? home,
     GeoPoint? work,
+    @Default(<CommuteWaypoint>[]) List<CommuteWaypoint> waypoints,
     int? lastCommuteMinutes,
     DateTime? lastCommuteUpdatedAt,
     int? averageCommuteMinutes,
@@ -14,8 +15,13 @@ abstract class LeaveReminderSetupState with _$LeaveReminderSetupState {
     @Default(false) bool isSettingWork,
     @Default(false) bool isRefreshingCommute,
     @Default(false) bool isTogglingEnabled,
+    @Default(false) bool isAddingWaypoint,
+    int? togglingWaypointIndex,
+    int? removingWaypointIndex,
+    int? repickingWaypointIndex,
     String? errorMessage,
     @Default(kDefaultHeadsUpLeadMinutes) int headsUpLeadMinutes,
+    @Default(150) int workRadiusMeters,
     WorkSchedule? schedule,
   }) = _LeaveReminderSetupState;
 }

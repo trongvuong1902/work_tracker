@@ -5,18 +5,22 @@ import 'package:workmanager/workmanager.dart';
 
 import '../../../core/notifications/notification_service.dart';
 import '../../../database/leave_reminder/commute_sample_entity.dart';
+import '../../../database/leave_reminder/notification_log_entity.dart';
 import '../../attendance/domain/attendance_repository.dart';
 import '../../schedule/domain/models/work_schedule.dart';
 import '../../schedule/domain/work_schedule_repository.dart';
 import '../data/commute_routing_client.dart';
 import '../data/commute_sample_dao.dart';
 import '../data/leave_reminder_datasource.dart';
+import '../data/notification_log_dao.dart';
 import '../data/weather_client.dart';
 import '../leave_reminder_constants.dart';
 import 'models/commute_estimate.dart';
+import 'models/commute_waypoint.dart';
 import 'models/geo_point.dart';
 import 'models/leave_reminder_prompt_trigger.dart';
 import 'models/leave_reminder_settings.dart';
+import 'models/notification_log_entry.dart';
 import 'models/tomorrow_preview.dart';
 import 'models/weather_snapshot.dart';
 import 'leave_reminder_repository.dart';
@@ -34,6 +38,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
   final WorkScheduleRepository _workScheduleRepository;
   final AttendanceRepository _attendanceRepository;
   final CommuteSampleDao _commuteSampleDao;
+  final NotificationLogDao _notificationLogDao;
 
   LeaveReminderRepositoryImpl(
     this._datasource,
@@ -44,6 +49,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     this._workScheduleRepository,
     this._attendanceRepository,
     this._commuteSampleDao,
+    this._notificationLogDao,
   );
 
   @override
@@ -100,9 +106,79 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
   }
 
   @override
+  Future<LeaveReminderSettings> addWaypoint(GeoPoint point) async {
+    final settings = await getSettings();
+    if (settings.waypoints.length >= kMaxCommuteWaypoints) {
+      return settings; // already at the cap — no-op.
+    }
+    final updated = settings.copyWith(
+      waypoints: [
+        ...settings.waypoints,
+        CommuteWaypoint(location: point),
+      ],
+    );
+    await _datasource.saveSettings(updated);
+    _commuteSampleDao.deleteAll();
+    return updated;
+  }
+
+  @override
+  Future<LeaveReminderSettings> removeWaypointAt(int index) async {
+    // Reload fresh (not from stale in-memory state) so rapid taps racing
+    // each other can't clobber one another's changes.
+    final settings = await getSettings();
+    if (index < 0 || index >= settings.waypoints.length) return settings;
+    final updatedWaypoints = [...settings.waypoints]..removeAt(index);
+    final updated = settings.copyWith(waypoints: updatedWaypoints);
+    await _datasource.saveSettings(updated);
+    _commuteSampleDao.deleteAll();
+    return updated;
+  }
+
+  @override
+  Future<LeaveReminderSettings> setWaypointEnabledAt(
+    int index,
+    bool enabled,
+  ) async {
+    final settings = await getSettings();
+    if (index < 0 || index >= settings.waypoints.length) return settings;
+    final updatedWaypoints = [...settings.waypoints];
+    updatedWaypoints[index] = updatedWaypoints[index].copyWith(
+      enabled: enabled,
+    );
+    final updated = settings.copyWith(waypoints: updatedWaypoints);
+    await _datasource.saveSettings(updated);
+    _commuteSampleDao.deleteAll();
+    return updated;
+  }
+
+  @override
+  Future<LeaveReminderSettings> setWaypointLocationAt(
+    int index,
+    GeoPoint point,
+  ) async {
+    final settings = await getSettings();
+    if (index < 0 || index >= settings.waypoints.length) return settings;
+    final updatedWaypoints = [...settings.waypoints];
+    updatedWaypoints[index] = updatedWaypoints[index].copyWith(location: point);
+    final updated = settings.copyWith(waypoints: updatedWaypoints);
+    await _datasource.saveSettings(updated);
+    _commuteSampleDao.deleteAll();
+    return updated;
+  }
+
+  @override
   Future<LeaveReminderSettings> setHeadsUpLeadMinutes(int minutes) async {
     final settings = await getSettings();
     final updated = settings.copyWith(headsUpLeadMinutes: minutes);
+    await _datasource.saveSettings(updated);
+    return updated;
+  }
+
+  @override
+  Future<LeaveReminderSettings> setWorkRadiusMeters(int meters) async {
+    final settings = await getSettings();
+    final updated = settings.copyWith(workRadiusMeters: meters);
     await _datasource.saveSettings(updated);
     return updated;
   }
@@ -124,10 +200,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
 
     CommuteEstimate? estimate;
     try {
-      estimate = await _routingClient.fetchCommuteEstimate(
-        from: settings.home!,
-        to: settings.work!,
-      );
+      estimate = await _fetchTotalCommuteEstimate(settings);
       await _datasource.saveCommuteCache(
         estimate.durationInTrafficMinutes,
         DateTime.now(),
@@ -210,26 +283,72 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     }
 
     if (headsUpTime.isAfter(now)) {
+      const headsUpTitle = '🌅 Time to plan your commute';
+      final headsUpBody = lines.join('\n');
       await _notificationService.scheduleAt(
         id: kHeadsUpNotificationId,
-        title: '🌅 Time to plan your commute',
-        body: lines.join('\n'),
+        title: headsUpTitle,
+        body: headsUpBody,
         scheduledDate: headsUpTime,
+      );
+      _logScheduledNotification(
+        notificationId: kHeadsUpNotificationId,
+        title: headsUpTitle,
+        body: headsUpBody,
+        scheduledAt: headsUpTime,
       );
     } else {
       await _notificationService.cancel(kHeadsUpNotificationId);
     }
 
     if (leaveTime.isAfter(now)) {
+      const leaveNowTitle = '🚗 Time to leave';
+      final leaveNowBody =
+          'Your commute is about $commuteMinutes min — leave now.';
       await _notificationService.scheduleAt(
         id: kLeaveNowNotificationId,
-        title: '🚗 Time to leave',
-        body: 'Your commute is about $commuteMinutes min — leave now.',
+        title: leaveNowTitle,
+        body: leaveNowBody,
         scheduledDate: leaveTime,
+      );
+      _logScheduledNotification(
+        notificationId: kLeaveNowNotificationId,
+        title: leaveNowTitle,
+        body: leaveNowBody,
+        scheduledAt: leaveTime,
       );
     } else {
       await _notificationService.cancel(kLeaveNowNotificationId);
     }
+
+    _notificationLogDao.deleteOlderThan(
+      DateTime.now().subtract(kNotificationLogWindow),
+    );
+  }
+
+  /// Logs that [notificationId] was just scheduled to fire at
+  /// [scheduledAt], skipping the write if the most recent log entry for
+  /// this id already reflects the identical fire time (recomputing and
+  /// rescheduling today's reminders every ~6h shouldn't spam the log with
+  /// duplicate rows when nothing actually changed).
+  void _logScheduledNotification({
+    required int notificationId,
+    required String title,
+    required String body,
+    required DateTime scheduledAt,
+  }) {
+    final latest = _notificationLogDao.mostRecentFor(notificationId);
+    if (latest != null && latest.scheduledAt.isAtSameMomentAs(scheduledAt)) {
+      return;
+    }
+    _notificationLogDao.insert(
+      NotificationLogEntity(
+        notificationId: notificationId,
+        title: title,
+        body: body,
+        scheduledAt: scheduledAt,
+      ),
+    );
   }
 
   @override
@@ -341,6 +460,54 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
       weatherCode: reading?.weatherCode,
       temperature: reading?.temperature,
       bodyText: lines.join('\n'),
+    );
+  }
+
+  @override
+  Future<List<NotificationLogEntry>> getNotificationLog() async {
+    final entities = _notificationLogDao.getSince(
+      DateTime.now().subtract(kNotificationLogWindow),
+    );
+    return entities
+        .map(
+          (e) => NotificationLogEntry(
+            notificationId: e.notificationId,
+            title: e.title,
+            body: e.body,
+            scheduledAt: e.scheduledAt,
+          ),
+        )
+        .toList();
+  }
+
+  /// Fetches the total commute estimate for the full route — Home, then
+  /// every *enabled* stop in add-order, then Work — by calling
+  /// [_routingClient] once per consecutive leg and summing durations. With
+  /// zero enabled waypoints this is exactly one call, identical to the
+  /// single-leg Home -> Work behavior from before waypoints existed.
+  Future<CommuteEstimate> _fetchTotalCommuteEstimate(
+    LeaveReminderSettings settings,
+  ) async {
+    final route = [
+      settings.home!,
+      ...settings.waypoints.where((w) => w.enabled).map((w) => w.location),
+      settings.work!,
+    ];
+
+    var totalMinutes = 0;
+    var totalMinutesInTraffic = 0;
+    for (var i = 0; i < route.length - 1; i++) {
+      final leg = await _routingClient.fetchCommuteEstimate(
+        from: route[i],
+        to: route[i + 1],
+      );
+      totalMinutes += leg.durationMinutes;
+      totalMinutesInTraffic += leg.durationInTrafficMinutes;
+    }
+
+    return CommuteEstimate(
+      durationMinutes: totalMinutes,
+      durationInTrafficMinutes: totalMinutesInTraffic,
     );
   }
 

@@ -7,6 +7,21 @@ const int kDefaultHeadsUpLeadMinutes = 15;
 /// time.
 const List<int> kHeadsUpLeadOptions = [5, 10, 15, 20, 30, 45, 60];
 
+/// Selectable values (meters) for the work-location geofence radius used by
+/// the location-activity arrival/departure watch.
+const List<int> kWorkRadiusOptions = [
+  50,
+  75,
+  100,
+  125,
+  150,
+  200,
+  250,
+  300,
+  400,
+  500,
+];
+
 /// Number of consecutive on-time check-ins required to trigger the
 /// "on-time streak" discovery prompt for leave reminders.
 const int kOnTimeStreakTarget = 3;
@@ -35,3 +50,12 @@ const Duration kCommuteHistoryWindow = Duration(days: 14);
 /// new one, so rapid manual refreshes (or frequent background runs) can't
 /// skew the average with near-duplicate readings.
 const Duration kCommuteSampleCooldown = Duration(minutes: 15);
+
+/// Maximum number of optional "stop" waypoints allowed along the commute
+/// route, in addition to the fixed Home/Work endpoints.
+const int kMaxCommuteWaypoints = 3;
+
+/// How far back scheduled-notification log entries are kept/considered —
+/// a debug-only fire/no-fire trace, not an averaging input, so a much
+/// shorter window than [kCommuteHistoryWindow] is enough.
+const Duration kNotificationLogWindow = Duration(days: 7);

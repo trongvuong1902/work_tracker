@@ -48,4 +48,16 @@ abstract final class TimeFormat {
   /// used as the alternate display format for hour/minute durations like
   /// [hMm].
   static String totalMinutesLabel(int totalMinutes) => '${totalMinutes}m';
+
+  /// Digital-clock style duration, e.g. "1:02:03" once an hour has
+  /// elapsed, otherwise "02:03" — used for the task timer's live elapsed
+  /// display.
+  static String clock(int totalSeconds) {
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    final mm = minutes.toString().padLeft(2, '0');
+    final ss = seconds.toString().padLeft(2, '0');
+    return hours > 0 ? '$hours:$mm:$ss' : '$mm:$ss';
+  }
 }

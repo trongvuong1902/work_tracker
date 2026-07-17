@@ -36,6 +36,15 @@ abstract class NotificationService {
     bool bypassSilentMode = false,
   });
 
+  /// Shows a notification immediately (no scheduling). Unlike [scheduleAt],
+  /// which is built for future-scheduled alarms (timezone conversion, exact-
+  /// alarm permission path), this fires [title]/[body] right now.
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+  });
+
   Future<void> cancel(int id);
 
   /// Currently pending (OS-scheduled) local notifications — for debug

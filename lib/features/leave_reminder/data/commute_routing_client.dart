@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:google_maps_webservice/distance.dart' as gmaps_distance;
@@ -44,7 +45,9 @@ class GoogleDistanceMatrixRoutingClient implements CommuteRoutingClient {
       departureTime: DateTime.now(),
     );
 
-    final response = await _client.httpClient.get(Uri.parse(url));
+    final response = await _client.httpClient
+        .get(Uri.parse(url))
+        .timeout(const Duration(seconds: 10));
     final body = json.decode(response.body) as Map<String, dynamic>;
 
     if (body['status'] != 'OK') {

@@ -39,20 +39,37 @@ class DaySummaryView extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  '${weekdayInitials[day.date.weekday - 1]}, ${day.date.day} '
-                  '${monthNames[day.date.month - 1]} ${day.date.year}',
-                  style: AppTypography.subtitle(
-                    context,
-                  )?.copyWith(fontWeight: FontWeight.w600),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(
+                        '${weekdayInitials[day.date.weekday - 1]}, '
+                        '${day.date.day} ${monthNames[day.date.month - 1]} '
+                        '${day.date.year}',
+                        style: AppTypography.subtitle(
+                          context,
+                        )?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      if (day.isToday)
+                        Text(
+                          ' · Today',
+                          style: AppTypography.caption(
+                            context,
+                          )?.copyWith(color: colors.textSecondary),
+                        ),
+                    ],
+                  ),
                 ),
-                if (day.isToday)
-                  Text(
-                    ' · Today',
+                GestureDetector(
+                  onTap: () =>
+                      AppNavigator.pushAttendanceDetail(context, day.date),
+                  child: Text(
+                    'Location activity',
                     style: AppTypography.caption(
                       context,
-                    )?.copyWith(color: colors.textSecondary),
+                    )?.copyWith(color: colors.primary),
                   ),
+                ),
               ],
             ),
             if (attendance?.isEdited == true) ...[

@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
+import 'package:work_tracker/features/leave_reminder/domain/models/commute_waypoint.dart';
 import 'package:work_tracker/features/leave_reminder/domain/models/geo_point.dart';
 import 'package:work_tracker/features/leave_reminder/leave_reminder_constants.dart';
 import 'package:work_tracker/features/schedule/domain/models/work_schedule.dart';
@@ -31,10 +32,12 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
         enabled: settings.enabled,
         home: settings.home,
         work: settings.work,
+        waypoints: settings.waypoints,
         lastCommuteMinutes: settings.lastCommuteMinutes,
         lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
         averageCommuteMinutes: averageCommuteMinutes,
         headsUpLeadMinutes: settings.headsUpLeadMinutes,
+        workRadiusMeters: settings.workRadiusMeters,
         schedule: schedule,
       ),
     );
@@ -100,6 +103,70 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
     if (state.hasBothLocations) refreshCommute();
   }
 
+  Future<void> addWaypoint(GeoPoint point) async {
+    emit(state.copyWith(isAddingWaypoint: true, errorMessage: null));
+    final settings = await _repository.addWaypoint(point);
+    final averageCommuteMinutes = await _repository.getAverageCommuteMinutes();
+    emit(
+      state.copyWith(
+        isAddingWaypoint: false,
+        waypoints: settings.waypoints,
+        lastCommuteMinutes: settings.lastCommuteMinutes,
+        lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        averageCommuteMinutes: averageCommuteMinutes,
+      ),
+    );
+    if (state.hasBothLocations) refreshCommute();
+  }
+
+  Future<void> removeWaypointAt(int index) async {
+    emit(state.copyWith(removingWaypointIndex: index, errorMessage: null));
+    final settings = await _repository.removeWaypointAt(index);
+    final averageCommuteMinutes = await _repository.getAverageCommuteMinutes();
+    emit(
+      state.copyWith(
+        removingWaypointIndex: null,
+        waypoints: settings.waypoints,
+        lastCommuteMinutes: settings.lastCommuteMinutes,
+        lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        averageCommuteMinutes: averageCommuteMinutes,
+      ),
+    );
+    if (state.hasBothLocations) refreshCommute();
+  }
+
+  Future<void> setWaypointEnabledAt(int index, bool enabled) async {
+    emit(state.copyWith(togglingWaypointIndex: index, errorMessage: null));
+    final settings = await _repository.setWaypointEnabledAt(index, enabled);
+    final averageCommuteMinutes = await _repository.getAverageCommuteMinutes();
+    emit(
+      state.copyWith(
+        togglingWaypointIndex: null,
+        waypoints: settings.waypoints,
+        lastCommuteMinutes: settings.lastCommuteMinutes,
+        lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        averageCommuteMinutes: averageCommuteMinutes,
+      ),
+    );
+    if (state.hasBothLocations) refreshCommute();
+  }
+
+  Future<void> setWaypointLocationAt(int index, GeoPoint point) async {
+    emit(state.copyWith(repickingWaypointIndex: index, errorMessage: null));
+    final settings = await _repository.setWaypointLocationAt(index, point);
+    final averageCommuteMinutes = await _repository.getAverageCommuteMinutes();
+    emit(
+      state.copyWith(
+        repickingWaypointIndex: null,
+        waypoints: settings.waypoints,
+        lastCommuteMinutes: settings.lastCommuteMinutes,
+        lastCommuteUpdatedAt: settings.lastCommuteUpdatedAt,
+        averageCommuteMinutes: averageCommuteMinutes,
+      ),
+    );
+    if (state.hasBothLocations) refreshCommute();
+  }
+
   Future<void> updateReminderMinutes(int minutes) async {
     final schedule = state.schedule;
     if (schedule == null) return;
@@ -116,6 +183,13 @@ class LeaveReminderSetupCubit extends Cubit<LeaveReminderSetupState> {
     );
     emit(state.copyWith(headsUpLeadMinutes: settings.headsUpLeadMinutes));
     await _repository.scheduleTodayReminders();
+  }
+
+  Future<void> updateWorkRadiusMeters(int meters) async {
+    final settings = await _repository.setWorkRadiusMeters(
+      meters.clamp(50, 500),
+    );
+    emit(state.copyWith(workRadiusMeters: settings.workRadiusMeters));
   }
 
   Future<void> refreshCommute() async {

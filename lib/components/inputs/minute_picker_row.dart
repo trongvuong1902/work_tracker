@@ -20,6 +20,7 @@ class MinutePickerRow extends StatelessWidget {
     this.enabled = true,
     this.placeholder = 'Not set',
     this.valueBuilder,
+    this.unitLabel = 'min',
   });
 
   final String label;
@@ -28,6 +29,10 @@ class MinutePickerRow extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final bool enabled;
   final String placeholder;
+
+  /// Unit suffix shown in the wheel picker and the default value text (e.g.
+  /// 'min' for a reminder buffer, 'm' for a distance radius).
+  final String unitLabel;
 
   /// Optional override for the value text, e.g. to append a derived time
   /// (`'10 min · 08:50'`) instead of the plain `'10 min'` default.
@@ -57,7 +62,7 @@ class MinutePickerRow extends StatelessWidget {
               ),
               Text(
                 minutes != null
-                    ? (valueBuilder?.call(minutes!) ?? '$minutes min')
+                    ? (valueBuilder?.call(minutes!) ?? '$minutes $unitLabel')
                     : placeholder,
                 style: minutes != null
                     ? valueStyle
@@ -75,6 +80,7 @@ class MinutePickerRow extends StatelessWidget {
       context: context,
       initialMinutes: minutes ?? options.first,
       options: options,
+      unitLabel: unitLabel,
     );
     if (result != null) onChanged(result);
   }

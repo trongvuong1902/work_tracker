@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LeaveReminderSettings {
 
- bool get enabled; GeoPoint? get home; GeoPoint? get work; int? get lastCommuteMinutes; DateTime? get lastCommuteUpdatedAt; int get headsUpLeadMinutes;
+ bool get enabled; GeoPoint? get home; GeoPoint? get work; int? get lastCommuteMinutes; DateTime? get lastCommuteUpdatedAt; int get headsUpLeadMinutes; List<CommuteWaypoint> get waypoints; int get workRadiusMeters;
 /// Create a copy of LeaveReminderSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $LeaveReminderSettingsCopyWith<LeaveReminderSettings> get copyWith => _$LeaveRem
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LeaveReminderSettings&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.home, home) || other.home == home)&&(identical(other.work, work) || other.work == work)&&(identical(other.lastCommuteMinutes, lastCommuteMinutes) || other.lastCommuteMinutes == lastCommuteMinutes)&&(identical(other.lastCommuteUpdatedAt, lastCommuteUpdatedAt) || other.lastCommuteUpdatedAt == lastCommuteUpdatedAt)&&(identical(other.headsUpLeadMinutes, headsUpLeadMinutes) || other.headsUpLeadMinutes == headsUpLeadMinutes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LeaveReminderSettings&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.home, home) || other.home == home)&&(identical(other.work, work) || other.work == work)&&(identical(other.lastCommuteMinutes, lastCommuteMinutes) || other.lastCommuteMinutes == lastCommuteMinutes)&&(identical(other.lastCommuteUpdatedAt, lastCommuteUpdatedAt) || other.lastCommuteUpdatedAt == lastCommuteUpdatedAt)&&(identical(other.headsUpLeadMinutes, headsUpLeadMinutes) || other.headsUpLeadMinutes == headsUpLeadMinutes)&&const DeepCollectionEquality().equals(other.waypoints, waypoints)&&(identical(other.workRadiusMeters, workRadiusMeters) || other.workRadiusMeters == workRadiusMeters));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,enabled,home,work,lastCommuteMinutes,lastCommuteUpdatedAt,headsUpLeadMinutes);
+int get hashCode => Object.hash(runtimeType,enabled,home,work,lastCommuteMinutes,lastCommuteUpdatedAt,headsUpLeadMinutes,const DeepCollectionEquality().hash(waypoints),workRadiusMeters);
 
 @override
 String toString() {
-  return 'LeaveReminderSettings(enabled: $enabled, home: $home, work: $work, lastCommuteMinutes: $lastCommuteMinutes, lastCommuteUpdatedAt: $lastCommuteUpdatedAt, headsUpLeadMinutes: $headsUpLeadMinutes)';
+  return 'LeaveReminderSettings(enabled: $enabled, home: $home, work: $work, lastCommuteMinutes: $lastCommuteMinutes, lastCommuteUpdatedAt: $lastCommuteUpdatedAt, headsUpLeadMinutes: $headsUpLeadMinutes, waypoints: $waypoints, workRadiusMeters: $workRadiusMeters)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $LeaveReminderSettingsCopyWith<$Res>  {
   factory $LeaveReminderSettingsCopyWith(LeaveReminderSettings value, $Res Function(LeaveReminderSettings) _then) = _$LeaveReminderSettingsCopyWithImpl;
 @useResult
 $Res call({
- bool enabled, GeoPoint? home, GeoPoint? work, int? lastCommuteMinutes, DateTime? lastCommuteUpdatedAt, int headsUpLeadMinutes
+ bool enabled, GeoPoint? home, GeoPoint? work, int? lastCommuteMinutes, DateTime? lastCommuteUpdatedAt, int headsUpLeadMinutes, List<CommuteWaypoint> waypoints, int workRadiusMeters
 });
 
 
@@ -62,7 +62,7 @@ class _$LeaveReminderSettingsCopyWithImpl<$Res>
 
 /// Create a copy of LeaveReminderSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? home = freezed,Object? work = freezed,Object? lastCommuteMinutes = freezed,Object? lastCommuteUpdatedAt = freezed,Object? headsUpLeadMinutes = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? home = freezed,Object? work = freezed,Object? lastCommuteMinutes = freezed,Object? lastCommuteUpdatedAt = freezed,Object? headsUpLeadMinutes = null,Object? waypoints = null,Object? workRadiusMeters = null,}) {
   return _then(_self.copyWith(
 enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,home: freezed == home ? _self.home : home // ignore: cast_nullable_to_non_nullable
@@ -70,6 +70,8 @@ as GeoPoint?,work: freezed == work ? _self.work : work // ignore: cast_nullable_
 as GeoPoint?,lastCommuteMinutes: freezed == lastCommuteMinutes ? _self.lastCommuteMinutes : lastCommuteMinutes // ignore: cast_nullable_to_non_nullable
 as int?,lastCommuteUpdatedAt: freezed == lastCommuteUpdatedAt ? _self.lastCommuteUpdatedAt : lastCommuteUpdatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,headsUpLeadMinutes: null == headsUpLeadMinutes ? _self.headsUpLeadMinutes : headsUpLeadMinutes // ignore: cast_nullable_to_non_nullable
+as int,waypoints: null == waypoints ? _self.waypoints : waypoints // ignore: cast_nullable_to_non_nullable
+as List<CommuteWaypoint>,workRadiusMeters: null == workRadiusMeters ? _self.workRadiusMeters : workRadiusMeters // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -179,10 +181,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  int headsUpLeadMinutes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  int headsUpLeadMinutes,  List<CommuteWaypoint> waypoints,  int workRadiusMeters)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LeaveReminderSettings() when $default != null:
-return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.headsUpLeadMinutes);case _:
+return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.headsUpLeadMinutes,_that.waypoints,_that.workRadiusMeters);case _:
   return orElse();
 
 }
@@ -200,10 +202,10 @@ return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  int headsUpLeadMinutes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  int headsUpLeadMinutes,  List<CommuteWaypoint> waypoints,  int workRadiusMeters)  $default,) {final _that = this;
 switch (_that) {
 case _LeaveReminderSettings():
-return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.headsUpLeadMinutes);case _:
+return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.headsUpLeadMinutes,_that.waypoints,_that.workRadiusMeters);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -220,10 +222,10 @@ return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  int headsUpLeadMinutes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  GeoPoint? home,  GeoPoint? work,  int? lastCommuteMinutes,  DateTime? lastCommuteUpdatedAt,  int headsUpLeadMinutes,  List<CommuteWaypoint> waypoints,  int workRadiusMeters)?  $default,) {final _that = this;
 switch (_that) {
 case _LeaveReminderSettings() when $default != null:
-return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.headsUpLeadMinutes);case _:
+return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_that.lastCommuteUpdatedAt,_that.headsUpLeadMinutes,_that.waypoints,_that.workRadiusMeters);case _:
   return null;
 
 }
@@ -235,7 +237,7 @@ return $default(_that.enabled,_that.home,_that.work,_that.lastCommuteMinutes,_th
 
 
 class _LeaveReminderSettings implements LeaveReminderSettings {
-  const _LeaveReminderSettings({this.enabled = false, this.home, this.work, this.lastCommuteMinutes, this.lastCommuteUpdatedAt, this.headsUpLeadMinutes = kDefaultHeadsUpLeadMinutes});
+  const _LeaveReminderSettings({this.enabled = false, this.home, this.work, this.lastCommuteMinutes, this.lastCommuteUpdatedAt, this.headsUpLeadMinutes = kDefaultHeadsUpLeadMinutes, final  List<CommuteWaypoint> waypoints = const <CommuteWaypoint>[], this.workRadiusMeters = 150}): _waypoints = waypoints;
   
 
 @override@JsonKey() final  bool enabled;
@@ -244,6 +246,14 @@ class _LeaveReminderSettings implements LeaveReminderSettings {
 @override final  int? lastCommuteMinutes;
 @override final  DateTime? lastCommuteUpdatedAt;
 @override@JsonKey() final  int headsUpLeadMinutes;
+ final  List<CommuteWaypoint> _waypoints;
+@override@JsonKey() List<CommuteWaypoint> get waypoints {
+  if (_waypoints is EqualUnmodifiableListView) return _waypoints;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_waypoints);
+}
+
+@override@JsonKey() final  int workRadiusMeters;
 
 /// Create a copy of LeaveReminderSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -255,16 +265,16 @@ _$LeaveReminderSettingsCopyWith<_LeaveReminderSettings> get copyWith => __$Leave
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LeaveReminderSettings&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.home, home) || other.home == home)&&(identical(other.work, work) || other.work == work)&&(identical(other.lastCommuteMinutes, lastCommuteMinutes) || other.lastCommuteMinutes == lastCommuteMinutes)&&(identical(other.lastCommuteUpdatedAt, lastCommuteUpdatedAt) || other.lastCommuteUpdatedAt == lastCommuteUpdatedAt)&&(identical(other.headsUpLeadMinutes, headsUpLeadMinutes) || other.headsUpLeadMinutes == headsUpLeadMinutes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LeaveReminderSettings&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.home, home) || other.home == home)&&(identical(other.work, work) || other.work == work)&&(identical(other.lastCommuteMinutes, lastCommuteMinutes) || other.lastCommuteMinutes == lastCommuteMinutes)&&(identical(other.lastCommuteUpdatedAt, lastCommuteUpdatedAt) || other.lastCommuteUpdatedAt == lastCommuteUpdatedAt)&&(identical(other.headsUpLeadMinutes, headsUpLeadMinutes) || other.headsUpLeadMinutes == headsUpLeadMinutes)&&const DeepCollectionEquality().equals(other._waypoints, _waypoints)&&(identical(other.workRadiusMeters, workRadiusMeters) || other.workRadiusMeters == workRadiusMeters));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,enabled,home,work,lastCommuteMinutes,lastCommuteUpdatedAt,headsUpLeadMinutes);
+int get hashCode => Object.hash(runtimeType,enabled,home,work,lastCommuteMinutes,lastCommuteUpdatedAt,headsUpLeadMinutes,const DeepCollectionEquality().hash(_waypoints),workRadiusMeters);
 
 @override
 String toString() {
-  return 'LeaveReminderSettings(enabled: $enabled, home: $home, work: $work, lastCommuteMinutes: $lastCommuteMinutes, lastCommuteUpdatedAt: $lastCommuteUpdatedAt, headsUpLeadMinutes: $headsUpLeadMinutes)';
+  return 'LeaveReminderSettings(enabled: $enabled, home: $home, work: $work, lastCommuteMinutes: $lastCommuteMinutes, lastCommuteUpdatedAt: $lastCommuteUpdatedAt, headsUpLeadMinutes: $headsUpLeadMinutes, waypoints: $waypoints, workRadiusMeters: $workRadiusMeters)';
 }
 
 
@@ -275,7 +285,7 @@ abstract mixin class _$LeaveReminderSettingsCopyWith<$Res> implements $LeaveRemi
   factory _$LeaveReminderSettingsCopyWith(_LeaveReminderSettings value, $Res Function(_LeaveReminderSettings) _then) = __$LeaveReminderSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- bool enabled, GeoPoint? home, GeoPoint? work, int? lastCommuteMinutes, DateTime? lastCommuteUpdatedAt, int headsUpLeadMinutes
+ bool enabled, GeoPoint? home, GeoPoint? work, int? lastCommuteMinutes, DateTime? lastCommuteUpdatedAt, int headsUpLeadMinutes, List<CommuteWaypoint> waypoints, int workRadiusMeters
 });
 
 
@@ -292,7 +302,7 @@ class __$LeaveReminderSettingsCopyWithImpl<$Res>
 
 /// Create a copy of LeaveReminderSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? home = freezed,Object? work = freezed,Object? lastCommuteMinutes = freezed,Object? lastCommuteUpdatedAt = freezed,Object? headsUpLeadMinutes = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? home = freezed,Object? work = freezed,Object? lastCommuteMinutes = freezed,Object? lastCommuteUpdatedAt = freezed,Object? headsUpLeadMinutes = null,Object? waypoints = null,Object? workRadiusMeters = null,}) {
   return _then(_LeaveReminderSettings(
 enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,home: freezed == home ? _self.home : home // ignore: cast_nullable_to_non_nullable
@@ -300,6 +310,8 @@ as GeoPoint?,work: freezed == work ? _self.work : work // ignore: cast_nullable_
 as GeoPoint?,lastCommuteMinutes: freezed == lastCommuteMinutes ? _self.lastCommuteMinutes : lastCommuteMinutes // ignore: cast_nullable_to_non_nullable
 as int?,lastCommuteUpdatedAt: freezed == lastCommuteUpdatedAt ? _self.lastCommuteUpdatedAt : lastCommuteUpdatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,headsUpLeadMinutes: null == headsUpLeadMinutes ? _self.headsUpLeadMinutes : headsUpLeadMinutes // ignore: cast_nullable_to_non_nullable
+as int,waypoints: null == waypoints ? _self._waypoints : waypoints // ignore: cast_nullable_to_non_nullable
+as List<CommuteWaypoint>,workRadiusMeters: null == workRadiusMeters ? _self.workRadiusMeters : workRadiusMeters // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

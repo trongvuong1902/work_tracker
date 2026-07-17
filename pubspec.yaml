@@ -55,6 +55,11 @@ dependencies:
   package_info_plus: ^9.0.0
   firebase_core: ^4.12.1
   firebase_crashlytics: ^5.2.6
+  flutter_secure_storage: ^9.2.4
+  url_launcher: ^6.3.1
+  path_provider: ^2.1.4
+  video_player: ^2.9.2
+  chewie: ^1.8.5
 
 
 dev_dependencies:

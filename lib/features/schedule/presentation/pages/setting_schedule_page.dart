@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:work_tracker/app/cubit/app_cubit.dart';
@@ -6,8 +7,10 @@ import 'package:work_tracker/app/theme/app_colors.dart';
 import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/radius/app_radius.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
+import 'package:work_tracker/core/time/time_format.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
+import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
 import 'package:work_tracker/features/schedule/domain/work_schedule_constants.dart';
 import 'package:work_tracker/features/schedule/presentation/cubit/setting_schedule_cubit.dart';
 
@@ -204,6 +207,10 @@ class _SettingSchedulePageState extends State<SettingSchedulePage> {
                                     ),
                                   ),
                                 ),
+                                if (kDebugMode) ...[
+                                  const SizedBox(height: AppSpacing.space16),
+                                  const _DebugHeadsUpInfoCard(),
+                                ],
                                 if (state.errorMessage != null) ...[
                                   const SizedBox(height: AppSpacing.space16),
                                   Text(
@@ -284,6 +291,114 @@ class _PurposeBanner extends StatelessWidget {
               style: AppTypography.body(
                 context,
               )?.copyWith(color: context.colors.textSecondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Debug-only readout of when today's commute heads-up notification would
+/// fire, based on the currently *saved* schedule/leave-reminder settings —
+/// not this page's in-progress unsaved edits. Mirrors the fire-time
+/// derivation used elsewhere (`leaveTime` minus `headsUpLeadMinutes`); see
+/// `_DebugTomorrowPreviewCard` in `leave_reminder_setup_sheet.dart` for the
+/// same pattern applied to tomorrow's preview instead of today.
+class _DebugHeadsUpInfoCard extends StatefulWidget {
+  const _DebugHeadsUpInfoCard();
+
+  @override
+  State<_DebugHeadsUpInfoCard> createState() => _DebugHeadsUpInfoCardState();
+}
+
+class _DebugHeadsUpInfoCardState extends State<_DebugHeadsUpInfoCard> {
+  late Future<DateTime?> _headsUpTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _headsUpTime = _load();
+  }
+
+  void _refresh() {
+    setState(() {
+      _headsUpTime = _load();
+    });
+  }
+
+  Future<DateTime?> _load() async {
+    final repository = getIt<LeaveReminderRepository>();
+    final leaveTime = await repository.getLeaveTime();
+    if (leaveTime == null) return null;
+
+    final settings = await repository.getSettings();
+    return leaveTime.subtract(Duration(minutes: settings.headsUpLeadMinutes));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ShadowCard(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.space16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '⏰ Heads-up fire time (debug)',
+                  style: AppTypography.label(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Refresh',
+                  onPressed: _refresh,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.space8),
+            FutureBuilder<DateTime?>(
+              future: _headsUpTime,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text(
+                    'Failed to load: ${snapshot.error}',
+                    style: AppTypography.body(
+                      context,
+                    )?.copyWith(color: context.colors.error),
+                  );
+                }
+
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: AppSpacing.space8,
+                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+
+                final headsUpTime = snapshot.data;
+                if (headsUpTime == null) {
+                  return Text(
+                    'No heads-up scheduled — reminders off, no commute '
+                    "estimate yet, or today isn't a working day.",
+                    style: AppTypography.body(
+                      context,
+                    )?.copyWith(color: context.colors.textSecondary),
+                  );
+                }
+
+                return Text(
+                  '🌅 Fires at ${TimeFormat.hhMmFromDateTime(headsUpTime)}',
+                  style: AppTypography.body(context),
+                );
+              },
             ),
           ],
         ),

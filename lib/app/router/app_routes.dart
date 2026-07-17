@@ -11,7 +11,23 @@ abstract final class AppRoutes {
 
   static const calendar = '/calendar';
 
-  static const statistics = '/statistics';
+  static const tasks = '/tasks';
+
+  static const taskDetail = '/task_detail';
+
+  static const taskManualForm = '/task_manual_form';
+
+  static const taskImportPlatformPicker = '/task_import_platform_picker';
+
+  static const zentaoConnect = '/zentao_connect';
+
+  static const zentaoSelectOption = '/zentao_select_option';
+
+  static const zentaoProductPicker = '/zentao_product_picker';
+
+  static const bugSyncProducts = '/bug_sync_products';
+
+  static const attachmentViewer = '/attachment_viewer';
 
   static const settings = '/settings';
 

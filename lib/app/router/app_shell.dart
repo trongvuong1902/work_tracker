@@ -29,8 +29,8 @@ class AppShell extends StatelessWidget {
             label: 'Calendar',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Statistics',
+            icon: Icon(Icons.checklist_rounded),
+            label: 'Tasks',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

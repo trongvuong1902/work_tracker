@@ -143,7 +143,7 @@
     },
     {
       "id": "3:6679202978330319836",
-      "lastPropertyId": "11:5581931614869045293",
+      "lastPropertyId": "13:2119001519333355787",
       "name": "LeaveReminderSettingsEntity",
       "properties": [
         {
@@ -201,6 +201,16 @@
           "id": "11:5581931614869045293",
           "name": "workAddress",
           "type": 9
+        },
+        {
+          "id": "12:4560392765351613816",
+          "name": "waypointsJson",
+          "type": 9
+        },
+        {
+          "id": "13:2119001519333355787",
+          "name": "workRadiusMeters",
+          "type": 6
         }
       ],
       "relations": []
@@ -252,9 +262,195 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "6:4635867025159930616",
+      "lastPropertyId": "5:6911550269401460243",
+      "name": "NotificationLogEntity",
+      "properties": [
+        {
+          "id": "1:9204796880613570877",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2121627296322521568",
+          "name": "notificationId",
+          "type": 6
+        },
+        {
+          "id": "3:1663780830057021966",
+          "name": "title",
+          "type": 9
+        },
+        {
+          "id": "4:805734213067342852",
+          "name": "body",
+          "type": 9
+        },
+        {
+          "id": "5:6911550269401460243",
+          "name": "scheduledAt",
+          "type": 10
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "7:2824549352060330144",
+      "lastPropertyId": "7:532066523535157237",
+      "name": "LocationLogEntity",
+      "properties": [
+        {
+          "id": "1:6063035504128070621",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4518036191976760167",
+          "name": "dayKey",
+          "type": 6
+        },
+        {
+          "id": "3:8070911131300955897",
+          "name": "type",
+          "type": 6
+        },
+        {
+          "id": "4:4741423178368908379",
+          "name": "timestamp",
+          "type": 10
+        },
+        {
+          "id": "5:5530196140578984042",
+          "name": "latitude",
+          "type": 8
+        },
+        {
+          "id": "6:2814586780108219468",
+          "name": "longitude",
+          "type": 8
+        },
+        {
+          "id": "7:532066523535157237",
+          "name": "address",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "8:9063259141520829508",
+      "lastPropertyId": "2:2934555230439234096",
+      "name": "LocationLogSettingsEntity",
+      "properties": [
+        {
+          "id": "1:2730982632818323062",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2934555230439234096",
+          "name": "enabled",
+          "type": 1
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "9:6191964457532316515",
+      "lastPropertyId": "16:8455426037410360777",
+      "name": "TaskEntity",
+      "properties": [
+        {
+          "id": "1:2281164033161657957",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2968911545761269172",
+          "name": "title",
+          "type": 9
+        },
+        {
+          "id": "3:2115774712449689747",
+          "name": "description",
+          "type": 9
+        },
+        {
+          "id": "4:4577447944555243224",
+          "name": "done",
+          "type": 1
+        },
+        {
+          "id": "5:875205466672412041",
+          "name": "createdAt",
+          "type": 10
+        },
+        {
+          "id": "6:1799410581777712473",
+          "name": "zentaoTaskId",
+          "type": 6
+        },
+        {
+          "id": "7:3058599899231211393",
+          "name": "zentaoStatus",
+          "type": 9
+        },
+        {
+          "id": "8:7768630553333512898",
+          "name": "zentaoLastSyncedAt",
+          "type": 10
+        },
+        {
+          "id": "9:4491951567801882255",
+          "name": "elapsedSeconds",
+          "type": 6
+        },
+        {
+          "id": "10:1274764557099511359",
+          "name": "timerStartedAt",
+          "type": 10
+        },
+        {
+          "id": "11:7311600913338381351",
+          "name": "zentaoBugId",
+          "type": 6
+        },
+        {
+          "id": "12:7583442905243618321",
+          "name": "zentaoPriority",
+          "type": 6
+        },
+        {
+          "id": "13:16665288937463160",
+          "name": "zentaoSeverity",
+          "type": 6
+        },
+        {
+          "id": "14:8159886837718871165",
+          "name": "zentaoProductId",
+          "type": 6
+        },
+        {
+          "id": "15:5475659252933608524",
+          "name": "zentaoProductName",
+          "type": 9
+        },
+        {
+          "id": "16:8455426037410360777",
+          "name": "zentaoProductPriority",
+          "type": 6
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "5:7143482092043233428",
+  "lastEntityId": "9:6191964457532316515",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
