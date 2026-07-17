@@ -16,9 +16,10 @@
 # See docs/leave_reminder_setup.md for how to provision dart_defines.json.
 #
 # Usage: ./scripts/build_release_apk.sh
-# Optional: BUILD_NAME=<x.y.z> to override the version name (used by the
-# `beta` fastlane lane to auto-increment the Firebase App Distribution
-# release's patch version), BUILD_NUMBER=<n> to override the version code.
+# Optional: BUILD_NUMBER=<n> to override the version code (the `beta` fastlane
+# lane sets this from the unified Android counter — see docs/versioning.md),
+# BUILD_NAME=<x.y.z> to override the version name (normally left unset so it
+# comes from pubspec.yaml).
 
 set -euo pipefail
 
