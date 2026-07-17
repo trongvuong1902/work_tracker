@@ -59,6 +59,11 @@ else
   echo "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}" >> "$LOCAL_PROPERTIES_FILE"
 fi
 
+# Full clean first: without it the Android Gradle/Flutter build can reuse a
+# cached libapp.so and ship a stale Dart snapshot under a freshly-bumped
+# version (see docs/versioning.md). Correctness over speed for release builds.
+fvm flutter clean
+
 fvm dart run build_runner build --delete-conflicting-outputs
 
 # Plain strings, not bash arrays: macOS ships bash 3.2 (pre-4.4), which

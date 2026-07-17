@@ -39,4 +39,8 @@ if [[ -n "${BUILD_NUMBER:-}" ]]; then
   BUILD_NUMBER_ARG="--build-number=$BUILD_NUMBER"
 fi
 
+# Full clean first, for parity with the Android release scripts — guarantees a
+# release build never reuses a stale cached Dart snapshot (see docs/versioning.md).
+fvm flutter clean
+
 fvm flutter build ipa --release --dart-define-from-file="$DART_DEFINES_FILE" $BUILD_NUMBER_ARG

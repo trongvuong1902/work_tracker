@@ -76,6 +76,14 @@ cd android && bundle exec fastlane internal # Play Store internal track (AAB)
 3. `./scripts/ship_beta.sh` (or a single lane) to build & upload.
 4. Verify the resulting build number is strictly higher than the previous one on that channel.
 
+## Release builds always start from a clean state
+
+`scripts/build_release_apk.sh`, `build_release_aab.sh`, and `build_release_ipa.sh` each run
+`fvm flutter clean` before building. Without it the Android Gradle/Flutter build could reuse a cached
+`libapp.so` and ship a **stale Dart snapshot under a freshly-bumped version** — the manifest reads
+the new version (name/code are injected at the Gradle layer) while the app runs old code. Correctness
+matters more than build speed for releases, so every release build recompiles from scratch.
+
 ## Notes / caveats
 
 - The Firebase release object exposes the build number as `buildVersion` (name is `displayVersion`).
