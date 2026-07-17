@@ -49,8 +49,18 @@ One statement builds and uploads a fresh beta to **both** TestFlight and Firebas
 ```
 
 It runs `ios/fastlane beta` (IPA → TestFlight) then `android/fastlane beta` (APK → Firebase). Both
-take the version name from `pubspec.yaml` and auto-increment their own build number. To ship a single
-channel, run that lane directly:
+take the version name from `pubspec.yaml` and auto-increment their own build number.
+
+For **internal testers only** (iOS TestFlight internal testers + Firebase `internal` group):
+
+```bash
+./scripts/ship_internal.sh
+```
+
+iOS internal testers auto-receive every uploaded build (no review/group); the Android lane is run
+with `FIREBASE_GROUP=internal`.
+
+To ship a single channel, run that lane directly:
 
 ```bash
 cd ios && bundle exec fastlane beta        # TestFlight only
