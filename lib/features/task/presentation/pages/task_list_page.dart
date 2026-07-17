@@ -145,12 +145,8 @@ class _TaskListViewState extends State<_TaskListView> {
                     child: Text('Newest first'),
                   ),
                   PopupMenuItem(
-                    value: TaskSort.severity,
-                    child: Text('Bug severity'),
-                  ),
-                  PopupMenuItem(
                     value: TaskSort.priority,
-                    child: Text('Bug priority'),
+                    child: Text('Priority'),
                   ),
                 ],
               ),
@@ -322,14 +318,13 @@ class _TaskRow extends StatelessWidget {
     );
   }
 
-  /// A one-line "Product · Sev N · Pri N" summary for bug tasks (only the parts
+  /// A one-line "P{priority} · Product" summary for bug tasks (only the parts
   /// that are present). Null for non-bug tasks.
   String? _bugMetaLabel(Task task) {
     if (!task.isLinkedToZentaoBug) return null;
     final parts = <String>[
+      if (task.priority != null) 'P${task.priority}',
       if (task.zentaoProductName != null) task.zentaoProductName!,
-      if (task.zentaoSeverity != null) 'Sev ${task.zentaoSeverity}',
-      if (task.zentaoPriority != null) 'Pri ${task.zentaoPriority}',
     ];
     return parts.isEmpty ? null : parts.join(' · ');
   }

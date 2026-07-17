@@ -8,9 +8,9 @@ import '../../domain/task_repository.dart';
 part 'task_list_state.dart';
 part 'task_list_cubit.freezed.dart';
 
-/// How the task list is ordered. Severity/priority use the Zentao bug fields
-/// (1 = most severe/urgent); tasks without that field sort last.
-enum TaskSort { createdDesc, severity, priority }
+/// How the task list is ordered. Priority uses the computed 1..5 task priority
+/// (1 = most urgent); tasks without a priority sort last.
+enum TaskSort { createdDesc, priority }
 
 @injectable
 class TaskListCubit extends Cubit<TaskListState> {
@@ -44,16 +44,14 @@ class TaskListCubit extends Cubit<TaskListState> {
     switch (sort) {
       case TaskSort.createdDesc:
         sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      case TaskSort.severity:
-        sorted.sort(_compareByField((t) => t.zentaoSeverity));
       case TaskSort.priority:
-        sorted.sort(_compareByField((t) => t.zentaoPriority));
+        sorted.sort(_compareByField((t) => t.priority));
     }
     return sorted;
   }
 
-  /// Ascending by the Zentao field (1 = most severe/urgent first); tasks with
-  /// a null field sort last, then fall back to most-recently-created.
+  /// Ascending by the priority field (1 = most urgent first); tasks with a
+  /// null field sort last, then fall back to most-recently-created.
   int Function(Task, Task) _compareByField(int? Function(Task) field) {
     return (a, b) {
       final av = field(a);

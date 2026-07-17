@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../zentao/domain/models/zentao_bug_attachment.dart';
+
 part 'task.freezed.dart';
 
 @freezed
@@ -13,12 +15,16 @@ abstract class Task with _$Task {
     int? zentaoTaskId,
     int? zentaoBugId,
     String? zentaoStatus,
+    int? priority,
+    String? notes,
+    @Default(<ZentaoBugAttachment>[]) List<ZentaoBugAttachment> attachments,
     int? zentaoPriority,
     int? zentaoSeverity,
     int? zentaoProductId,
     String? zentaoProductName,
     int? zentaoProductPriority,
     DateTime? zentaoLastSyncedAt,
+    DateTime? zentaoDetailSyncedAt,
     required int elapsedSeconds,
     DateTime? timerStartedAt,
   }) = _Task;

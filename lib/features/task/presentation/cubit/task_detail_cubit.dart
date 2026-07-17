@@ -22,6 +22,21 @@ class TaskDetailCubit extends Cubit<TaskDetailState> {
     final task = await _repository.getById(id);
     emit(state.copyWith(isLoading: false, task: task));
     _syncTicker();
+    await _maybeEnrichBugDetail(task);
+  }
+
+  /// On first open of a bug task (its full detail — description/notes/
+  /// attachments — hasn't been fetched yet), pull and persist it, then reload.
+  Future<void> _maybeEnrichBugDetail(Task? task) async {
+    if (task == null || !task.isLinkedToZentaoBug) return;
+    if (task.zentaoDetailSyncedAt != null) return;
+    emit(state.copyWith(isEnriching: true));
+    try {
+      final updated = await _repository.refreshFromZentao(task.id);
+      emit(state.copyWith(isEnriching: false, task: updated));
+    } catch (_) {
+      emit(state.copyWith(isEnriching: false));
+    }
   }
 
   Future<void> toggleDone() async {

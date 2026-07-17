@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:work_tracker/app/router/app_navigator.dart';
 import 'package:work_tracker/app/theme/app_colors.dart';
 import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
@@ -52,16 +53,20 @@ class _ZentaoProductPickerViewState extends State<_ZentaoProductPickerView> {
     await _handleImportResult(await cubit.importBug(bug));
   }
 
-  /// On a non-null [imported], pops the whole flow back to the Task List
-  /// with a confirmation snackbar.
+  /// On a non-null [imported], returns to the Task List with a confirmation
+  /// snackbar.
   Future<void> _handleImportResult(Task? imported) async {
     if (imported == null || !mounted) return;
 
-    // Capture the (app-root) ScaffoldMessenger before popping — it's the
-    // single instance `MaterialApp` wraps the whole app in, so it stays
-    // valid even after this page (several levels deep) is gone.
+    // Capture the (app-root) ScaffoldMessenger before navigating — it's the
+    // single instance `MaterialApp` wraps the whole app in, so it stays valid
+    // even after this page (several levels deep) is gone.
     final messenger = ScaffoldMessenger.of(context);
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    // Go to the Tasks tab explicitly. This clears the whole import flow AND
+    // guarantees we land on the Task List (which reloads on return), unlike
+    // popUntil(isFirst), which in this shell setup can leave the app on a
+    // different bottom-nav branch so the freshly imported task looks missing.
+    AppNavigator.goTasks(context);
     messenger.showSnackBar(
       SnackBar(content: Text("Imported '${imported.title}'")),
     );

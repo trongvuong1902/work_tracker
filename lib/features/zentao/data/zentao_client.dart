@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 
+import '../../../core/text/html_format.dart';
+
 import '../domain/models/zentao_bug.dart';
 import '../domain/models/zentao_bug_attachment.dart';
 import '../domain/models/zentao_bug_comment.dart';
@@ -160,6 +162,15 @@ class ZentaoRestClient implements ZentaoClient {
   String? _asNonEmptyString(dynamic value) {
     if (value == null) return null;
     final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  /// Like [_asNonEmptyString] but flattens Zentao's HTML-formatted fields
+  /// (bug steps/description, action comments) to readable plain text.
+  String? _asHtmlPlainText(dynamic value) {
+    final raw = _asNonEmptyString(value);
+    if (raw == null) return null;
+    final text = htmlToPlainText(raw);
     return text.isEmpty ? null : text;
   }
 
@@ -604,8 +615,9 @@ class ZentaoRestClient implements ZentaoClient {
       title: title as String,
       status: status as String,
       // Zentao bugs carry repro steps in `steps`; some instances/exports use
-      // `desc`/`description`. Prefer whichever is present.
-      description: _asNonEmptyString(
+      // `desc`/`description`. Prefer whichever is present. These come back as
+      // HTML, so flatten to readable plain text.
+      description: _asHtmlPlainText(
         json['steps'] ?? json['desc'] ?? json['description'],
       ),
       priority: _asIntOrNull(json['pri']),
@@ -652,7 +664,7 @@ class ZentaoRestClient implements ZentaoClient {
     final result = <ZentaoBugComment>[];
     for (final item in _asItemList(actions)) {
       if (item is! Map<String, dynamic>) continue;
-      final comment = _asNonEmptyString(item['comment']);
+      final comment = _asHtmlPlainText(item['comment']);
       if (comment == null) continue;
       final actor = item['actor'];
       result.add(

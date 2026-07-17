@@ -7,6 +7,7 @@ import 'package:work_tracker/features/task/domain/task_repository.dart';
 import 'package:work_tracker/features/task/domain/task_repository_impl.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug_attachment.dart';
+import 'package:work_tracker/features/zentao/domain/models/zentao_bug_comment.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug_detail.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_connection.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_product.dart';
@@ -96,9 +97,16 @@ class FakeZentaoRepository implements ZentaoRepository {
   @override
   Future<ZentaoBug?> refreshBug(int zentaoBugId) => throw UnimplementedError();
 
+  ZentaoBugDetail? bugDetailResult;
+  int getBugDetailCallCount = 0;
+  int? lastBugDetailId;
+
   @override
-  Future<ZentaoBugDetail?> getBugDetail(int zentaoBugId) =>
-      throw UnimplementedError();
+  Future<ZentaoBugDetail?> getBugDetail(int zentaoBugId) async {
+    getBugDetailCallCount++;
+    lastBugDetailId = zentaoBugId;
+    return bugDetailResult;
+  }
 
   @override
   Future<File> downloadAttachment(ZentaoBugAttachment attachment) =>
@@ -281,7 +289,7 @@ void main() {
   });
 
   group('importBugFromZentao', () {
-    test('persists severity/priority/description and product context', () async {
+    test('maps title to [id][title], computes priority, keeps raw fields', () async {
       const bug = ZentaoBug(
         id: 7,
         title: 'Crash on save',
@@ -295,14 +303,63 @@ void main() {
       final task = await repository.importBugFromZentao(bug, product: product);
 
       expect(task.zentaoBugId, 7);
-      expect(task.title, 'Crash on save');
+      expect(task.title, '[7][Crash on save]');
       expect(task.description, 'Steps to reproduce…');
+      // severity 1 + priority 2 -> avg 1.5 -> scaled to 2 (1 = most urgent).
+      expect(task.priority, 2);
       expect(task.zentaoStatus, 'active');
       expect(task.zentaoPriority, 2);
       expect(task.zentaoSeverity, 1);
       expect(task.zentaoProductId, 3);
       expect(task.zentaoProductName, 'Mobile');
       expect(task.zentaoProductPriority, 5);
+    });
+
+    test('computed task priority spans 1..5 (1 = most urgent)', () async {
+      Future<int?> priorityFor(int? severity, int? priority) async {
+        final task = await repository.importBugFromZentao(
+          ZentaoBug(
+            id: DateTime.now().microsecondsSinceEpoch % 100000,
+            title: 't',
+            status: 'active',
+            severity: severity,
+            priority: priority,
+          ),
+        );
+        return task.priority;
+      }
+
+      expect(await priorityFor(1, 1), 1);
+      expect(await priorityFor(2, 2), 2);
+      expect(await priorityFor(2, 3), 3);
+      expect(await priorityFor(3, 3), 4);
+      expect(await priorityFor(4, 4), 5);
+      // Only one set -> use it; neither set -> null.
+      expect(await priorityFor(4, null), 5);
+      expect(await priorityFor(null, null), isNull);
+    });
+  });
+
+  group('startTimer single global timer', () {
+    test('starting one task stops any other running task', () async {
+      final a = await repository.createManual(title: 'A');
+      final b = await repository.createManual(title: 'B');
+
+      await repository.startTimer(a.id);
+      // Rewind A's start so stopping it accumulates a measurable duration.
+      final entityA = dao.getById(a.id)!;
+      entityA.timerStartedAt = DateTime.now().subtract(const Duration(seconds: 5));
+      dao.update(entityA);
+
+      await repository.startTimer(b.id);
+
+      final afterA = dao.getById(a.id)!;
+      final afterB = dao.getById(b.id)!;
+      // A was auto-stopped and its running segment accumulated.
+      expect(afterA.timerStartedAt, isNull);
+      expect(afterA.elapsedSeconds, inInclusiveRange(5, 6));
+      // Only B is running now.
+      expect(afterB.timerStartedAt, isNotNull);
     });
   });
 
@@ -344,14 +401,74 @@ void main() {
       final after = dao.findByZentaoBugId(7)!;
       // Same row, refreshed Zentao fields…
       expect(after.id, originalId);
-      expect(after.title, 'Crash on save (renamed)');
+      expect(after.title, '[7][Crash on save (renamed)]');
       expect(after.zentaoStatus, 'resolved');
       expect(after.zentaoSeverity, 1);
       expect(after.zentaoPriority, 2);
+      expect(after.priority, 2);
       // …local state untouched.
       expect(after.done, isTrue);
       expect(after.elapsedSeconds, 120);
       expect(after.timerStartedAt, DateTime(2026));
+    });
+  });
+
+  group('refreshFromZentao (bug detail enrichment)', () {
+    test('maps description/notes/attachments and stamps detailSyncedAt', () async {
+      const bug = ZentaoBug(id: 7, title: 'Crash', status: 'active', severity: 3);
+      await repository.importBugFromZentao(bug);
+      final id = dao.findByZentaoBugId(7)!.id;
+      expect(dao.getById(id)!.zentaoDetailSyncedAt, isNull);
+
+      zentaoRepository.bugDetailResult = ZentaoBugDetail(
+        bug: const ZentaoBug(
+          id: 7,
+          title: 'Crash on save',
+          status: 'resolved',
+          description: 'Full steps here',
+          priority: 1,
+          severity: 1,
+        ),
+        comments: [
+          ZentaoBugComment(
+            actor: 'Alice',
+            date: DateTime(2026, 7, 1, 9, 30),
+            comment: 'Looking into it',
+          ),
+        ],
+        attachments: const [
+          ZentaoBugAttachment(id: 55, title: 'shot.png', fileExtension: 'png'),
+        ],
+      );
+
+      final refreshed = await repository.refreshFromZentao(id);
+
+      expect(zentaoRepository.lastBugDetailId, 7);
+      expect(refreshed.title, '[7][Crash on save]');
+      expect(refreshed.description, 'Full steps here');
+      expect(refreshed.priority, 1); // sev 1 + pri 1 -> 1
+      expect(refreshed.zentaoStatus, 'resolved');
+      expect(refreshed.notes, contains('Looking into it'));
+      expect(refreshed.notes, contains('Alice'));
+      expect(refreshed.attachments, hasLength(1));
+      expect(refreshed.attachments.first.id, 55);
+      expect(refreshed.attachments.first.title, 'shot.png');
+      expect(refreshed.attachments.first.fileExtension, 'png');
+      expect(refreshed.zentaoDetailSyncedAt, isNotNull);
+    });
+
+    test('returns the task unchanged when the detail fetch fails', () async {
+      const bug = ZentaoBug(id: 7, title: 'Crash', status: 'active');
+      await repository.importBugFromZentao(bug);
+      final id = dao.findByZentaoBugId(7)!.id;
+
+      zentaoRepository.bugDetailResult = null; // simulated failure
+
+      final result = await repository.refreshFromZentao(id);
+
+      expect(zentaoRepository.getBugDetailCallCount, 1);
+      expect(result.zentaoDetailSyncedAt, isNull);
+      expect(result.notes, isNull);
     });
   });
 

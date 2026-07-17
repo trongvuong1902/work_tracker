@@ -139,8 +139,6 @@ import 'package:work_tracker/features/task/domain/task_repository.dart'
     as _i1026;
 import 'package:work_tracker/features/task/domain/task_repository_impl.dart'
     as _i383;
-import 'package:work_tracker/features/task/presentation/cubit/bug_detail_cubit.dart'
-    as _i361;
 import 'package:work_tracker/features/task/presentation/cubit/bug_sync_cubit.dart'
     as _i987;
 import 'package:work_tracker/features/task/presentation/cubit/bug_sync_products_cubit.dart'
@@ -289,9 +287,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i591.LeaveReminderDaoImpl(
         gh<_i1034.Box<_i1017.LeaveReminderSettingsEntity>>(),
       ),
-    );
-    gh.factory<_i361.BugDetailCubit>(
-      () => _i361.BugDetailCubit(gh<_i298.ZentaoRepository>()),
     );
     gh.lazySingleton<_i196.WorkScheduleDao>(
       () =>

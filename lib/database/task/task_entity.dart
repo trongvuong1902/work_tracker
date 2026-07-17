@@ -24,8 +24,20 @@ class TaskEntity {
 
   String? zentaoStatus;
 
-  // Bug-only rich fields, persisted so the task list can sort offline. Null
-  // for manual and task-linked rows.
+  // Single task priority, 1..5 (1 = most urgent), computed from the Zentao
+  // severity + priority. Null for tasks with no priority.
+  int? priority;
+
+  // Free-text notes; for bug tasks this holds the mapped comment/action
+  // history. Null when empty.
+  String? notes;
+
+  // JSON-encoded list of task attachments ({id,title,fileExtension,sizeBytes}).
+  // Null when the task has none / hasn't been detail-synced yet.
+  String? zentaoAttachmentsJson;
+
+  // Bug-only raw fields, kept for the detail popup. Null for manual and
+  // task-linked rows.
   int? zentaoPriority;
 
   int? zentaoSeverity;
@@ -38,6 +50,12 @@ class TaskEntity {
 
   @Property(type: PropertyType.date)
   DateTime? zentaoLastSyncedAt;
+
+  // When the bug's full detail (description/notes/attachments) was last
+  // fetched. Null means it hasn't been fetched yet — the detail screen pulls
+  // it lazily on first open.
+  @Property(type: PropertyType.date)
+  DateTime? zentaoDetailSyncedAt;
 
   int elapsedSeconds;
 
@@ -55,12 +73,16 @@ class TaskEntity {
     this.zentaoTaskId,
     this.zentaoBugId,
     this.zentaoStatus,
+    this.priority,
+    this.notes,
+    this.zentaoAttachmentsJson,
     this.zentaoPriority,
     this.zentaoSeverity,
     this.zentaoProductId,
     this.zentaoProductName,
     this.zentaoProductPriority,
     this.zentaoLastSyncedAt,
+    this.zentaoDetailSyncedAt,
     required this.elapsedSeconds,
     this.timerStartedAt,
   });

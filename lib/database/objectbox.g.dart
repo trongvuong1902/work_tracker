@@ -452,7 +452,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(9, 6191964457532316515),
     name: 'TaskEntity',
-    lastPropertyId: const obx_int.IdUid(16, 8455426037410360777),
+    lastPropertyId: const obx_int.IdUid(20, 4510822663679732228),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -549,6 +549,30 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(16, 8455426037410360777),
         name: 'zentaoProductPriority',
         type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(17, 6518626843692918939),
+        name: 'priority',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(18, 2406249912600057726),
+        name: 'notes',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(19, 375707130230014140),
+        name: 'zentaoAttachmentsJson',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(20, 4510822663679732228),
+        name: 'zentaoDetailSyncedAt',
+        type: 10,
         flags: 0,
       ),
     ],
@@ -1195,7 +1219,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final zentaoProductNameOffset = object.zentaoProductName == null
             ? null
             : fbb.writeString(object.zentaoProductName!);
-        fbb.startTable(17);
+        final notesOffset = object.notes == null
+            ? null
+            : fbb.writeString(object.notes!);
+        final zentaoAttachmentsJsonOffset = object.zentaoAttachmentsJson == null
+            ? null
+            : fbb.writeString(object.zentaoAttachmentsJson!);
+        fbb.startTable(21);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, titleOffset);
         fbb.addOffset(2, descriptionOffset);
@@ -1212,6 +1242,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(13, object.zentaoProductId);
         fbb.addOffset(14, zentaoProductNameOffset);
         fbb.addInt64(15, object.zentaoProductPriority);
+        fbb.addInt64(16, object.priority);
+        fbb.addOffset(17, notesOffset);
+        fbb.addOffset(18, zentaoAttachmentsJsonOffset);
+        fbb.addInt64(19, object.zentaoDetailSyncedAt?.millisecondsSinceEpoch);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -1225,6 +1259,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           rootOffset,
           22,
         );
+        final zentaoDetailSyncedAtValue = const fb.Int64Reader()
+            .vTableGetNullable(buffer, rootOffset, 42);
         final titleParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 6, '');
@@ -1253,6 +1289,17 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final zentaoStatusParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 16);
+        final priorityParam = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          36,
+        );
+        final notesParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 38);
+        final zentaoAttachmentsJsonParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 40);
         final zentaoPriorityParam = const fb.Int64Reader().vTableGetNullable(
           buffer,
           rootOffset,
@@ -1276,6 +1323,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final zentaoLastSyncedAtParam = zentaoLastSyncedAtValue == null
             ? null
             : DateTime.fromMillisecondsSinceEpoch(zentaoLastSyncedAtValue);
+        final zentaoDetailSyncedAtParam = zentaoDetailSyncedAtValue == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(zentaoDetailSyncedAtValue);
         final elapsedSecondsParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -1293,12 +1343,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
           zentaoTaskId: zentaoTaskIdParam,
           zentaoBugId: zentaoBugIdParam,
           zentaoStatus: zentaoStatusParam,
+          priority: priorityParam,
+          notes: notesParam,
+          zentaoAttachmentsJson: zentaoAttachmentsJsonParam,
           zentaoPriority: zentaoPriorityParam,
           zentaoSeverity: zentaoSeverityParam,
           zentaoProductId: zentaoProductIdParam,
           zentaoProductName: zentaoProductNameParam,
           zentaoProductPriority: zentaoProductPriorityParam,
           zentaoLastSyncedAt: zentaoLastSyncedAtParam,
+          zentaoDetailSyncedAt: zentaoDetailSyncedAtParam,
           elapsedSeconds: elapsedSecondsParam,
           timerStartedAt: timerStartedAtParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
@@ -1708,5 +1762,25 @@ class TaskEntity_ {
   /// See [TaskEntity.zentaoProductPriority].
   static final zentaoProductPriority = obx.QueryIntegerProperty<TaskEntity>(
     _entities[8].properties[15],
+  );
+
+  /// See [TaskEntity.priority].
+  static final priority = obx.QueryIntegerProperty<TaskEntity>(
+    _entities[8].properties[16],
+  );
+
+  /// See [TaskEntity.notes].
+  static final notes = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[17],
+  );
+
+  /// See [TaskEntity.zentaoAttachmentsJson].
+  static final zentaoAttachmentsJson = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[18],
+  );
+
+  /// See [TaskEntity.zentaoDetailSyncedAt].
+  static final zentaoDetailSyncedAt = obx.QueryDateProperty<TaskEntity>(
+    _entities[8].properties[19],
   );
 }

@@ -362,7 +362,7 @@
     },
     {
       "id": "9:6191964457532316515",
-      "lastPropertyId": "16:8455426037410360777",
+      "lastPropertyId": "20:4510822663679732228",
       "name": "TaskEntity",
       "properties": [
         {
@@ -445,6 +445,26 @@
           "id": "16:8455426037410360777",
           "name": "zentaoProductPriority",
           "type": 6
+        },
+        {
+          "id": "17:6518626843692918939",
+          "name": "priority",
+          "type": 6
+        },
+        {
+          "id": "18:2406249912600057726",
+          "name": "notes",
+          "type": 9
+        },
+        {
+          "id": "19:375707130230014140",
+          "name": "zentaoAttachmentsJson",
+          "type": 9
+        },
+        {
+          "id": "20:4510822663679732228",
+          "name": "zentaoDetailSyncedAt",
+          "type": 10
         }
       ],
       "relations": []
