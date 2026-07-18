@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:work_tracker/app/router/app_navigator.dart';
@@ -8,6 +9,7 @@ import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/time/time_format.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
+import 'package:work_tracker/features/task/domain/bug_prompt.dart';
 import 'package:work_tracker/features/task/domain/models/task.dart';
 import 'package:work_tracker/features/task/presentation/cubit/task_detail_cubit.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug_attachment.dart';
@@ -131,6 +133,14 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
           isLoading: state.isEnriching && (task.notes ?? '').isEmpty,
           child: _bodyText(context, task.notes, 'No notes.'),
         ),
+        if (isBug) ...[
+          const SizedBox(height: AppSpacing.space16),
+          SecondaryButton(
+            label: 'Generate Claude prompt',
+            icon: Icons.auto_awesome,
+            onPressed: () => _showClaudePromptSheet(context, task),
+          ),
+        ],
         if (state.errorMessage != null) ...[
           const SizedBox(height: AppSpacing.space16),
           Text(
@@ -169,6 +179,15 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
         value: cubit,
         child: _TaskInfoSheet(connection: _zentaoConnection),
       ),
+    );
+  }
+
+  void _showClaudePromptSheet(BuildContext context, Task task) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _ClaudePromptSheet(task: task),
     );
   }
 }
@@ -461,5 +480,68 @@ class _TaskInfoSheet extends StatelessWidget {
         : null;
     if (url == null) return;
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+}
+
+/// Bottom sheet previewing the generated Claude prompt for [task]'s linked
+/// bug, with a single primary action to copy it to the clipboard.
+class _ClaudePromptSheet extends StatelessWidget {
+  const _ClaudePromptSheet({required this.task});
+
+  final Task task;
+
+  @override
+  Widget build(BuildContext context) {
+    final prompt = buildBugResolutionPrompt(task);
+
+    return SafeArea(
+      top: false,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.space16,
+            0,
+            AppSpacing.space16,
+            AppSpacing.space16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Prompt for Claude', style: AppTypography.title(context)),
+              const SizedBox(height: AppSpacing.space12),
+              Flexible(
+                child: ShadowCard(
+                  margin: EdgeInsets.zero,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppSpacing.space16),
+                    child: SelectableText(
+                      prompt,
+                      style: AppTypography.body(context),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.space16),
+              PrimaryButton(
+                label: 'Copy',
+                icon: Icons.copy,
+                onPressed: () => _copyPrompt(context, prompt),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _copyPrompt(BuildContext context, String prompt) {
+    Clipboard.setData(ClipboardData(text: prompt));
+    final messenger = ScaffoldMessenger.of(context);
+    Navigator.of(context).pop();
+    messenger.showSnackBar(const SnackBar(content: Text('Prompt copied')));
   }
 }
