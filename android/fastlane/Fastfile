@@ -62,6 +62,36 @@ platform :android do
     )
   end
 
+  desc "Build the release AAB (via repo build script) and upload it to the Play Store closed testing track"
+  lane :closed do
+    repo_root = File.expand_path("../..", __dir__)
+    package_name = ENV.fetch("PLAY_STORE_PACKAGE_NAME")
+    json_key = File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__)
+    # Play's built-in "Closed testing" track is the `alpha` track; override with
+    # PLAY_CLOSED_TRACK to target a custom closed track created in Play Console.
+    track = ENV.fetch("PLAY_CLOSED_TRACK", "alpha")
+
+    # Same unified counter as `beta`/`internal`, so codes never collide across
+    # tracks (Play requires versionCodes to be globally unique per app).
+    ENV["BUILD_NUMBER"] = next_android_version_code.to_s
+
+    sh("#{repo_root}/scripts/build_release_aab.sh")
+
+    aab_path = Dir.glob("#{repo_root}/build/app/outputs/bundle/prodRelease/*.aab").max_by { |f| File.mtime(f) }
+    UI.user_error!("No release .aab found in build/app/outputs/bundle/prodRelease after build_release_aab.sh") unless aab_path
+
+    upload_to_play_store(
+      package_name: package_name,
+      json_key: json_key,
+      aab: aab_path,
+      track: track,
+      release_status: "completed",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
   desc "Build the release AAB (via repo build script) and upload it to the Play Store production track"
   lane :production do
     repo_root = File.expand_path("../..", __dir__)
@@ -115,8 +145,8 @@ platform :android do
   # lands as a NEW/latest release (Firebase keys releases by
   # versionName+versionCode; a repeated code just updates the existing one),
   # and a Firebase tester is never blocked from upgrading to a lower-coded Play
-  # build (Android refuses versionCode downgrades). Both `beta` and `internal`
-  # use this so their counters never diverge.
+  # build (Android refuses versionCode downgrades). `beta`, `internal`, `closed`,
+  # and `production` all use this so their counters never diverge.
   private_lane :next_android_version_code do
     firebase_latest = firebase_app_distribution_get_latest_release(
       app: ENV.fetch("FIREBASE_APP_ID"),
@@ -126,18 +156,31 @@ platform :android do
     # version name is `displayVersion`).
     firebase_code = firebase_latest ? (firebase_latest["buildVersion"] || firebase_latest[:buildVersion]).to_i : 0
 
-    play_codes = begin
-      google_play_track_version_codes(
-        package_name: ENV.fetch("PLAY_STORE_PACKAGE_NAME"),
-        track: ENV.fetch("PLAY_STORE_TRACK", "internal"),
-        json_key: File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__)
-      )
-    rescue => e
-      UI.important("Could not read Play Store version codes (#{e.message}); using Firebase only.")
-      []
-    end
+    # Play requires versionCodes to be globally unique per app across ALL tracks,
+    # so max over every track we ship to (internal + closed/alpha + production),
+    # not just one — otherwise a code already used on the closed track could be
+    # reused and rejected. Each track is guarded independently (a track with no
+    # releases yet errors on read).
+    tracks = [
+      ENV.fetch("PLAY_STORE_TRACK", "internal"),
+      ENV.fetch("PLAY_CLOSED_TRACK", "alpha"),
+      "production"
+    ].uniq
 
-    [firebase_code, (play_codes.max || 0)].max + 1
+    play_max = tracks.map do |t|
+      begin
+        (google_play_track_version_codes(
+          package_name: ENV.fetch("PLAY_STORE_PACKAGE_NAME"),
+          track: t,
+          json_key: File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__)
+        ).max || 0)
+      rescue => e
+        UI.important("Could not read Play Store version codes for track '#{t}' (#{e.message}); ignoring.")
+        0
+      end
+    end.max
+
+    [firebase_code, play_max].max + 1
   end
 
   private_lane :add_testers_from_file do |options|

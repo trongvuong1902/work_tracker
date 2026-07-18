@@ -1,8 +1,8 @@
 # Versioning & release builds
 
 How WorkTracker versions builds across iOS (TestFlight) and Android (Firebase App
-Distribution beta + Play Store internal). Two independent things — the **version name** and the
-**build number** — must never be conflated.
+Distribution + Play Store internal / closed / production tracks). Two independent things — the
+**version name** and the **build number** — must never be conflated.
 
 > For the branching model and which audience each channel serves (internal → public testers →
 > production), see [release_flow.md](release_flow.md). This doc owns only the version-number policy.
@@ -29,10 +29,12 @@ builds.
 
 - **iOS (TestFlight → App Store):** one counter — `latest_testflight_build_number + 1`
   (`ios/fastlane/Fastfile` `beta`).
-- **Android — one unified counter across Firebase beta AND Play Store.** Both lanes draw from
-  `max(latest Firebase buildVersion, latest Play versionCode) + 1` via the
-  `next_android_version_code` private_lane in `android/fastlane/Fastfile`. Keeping them unified means
-  a Firebase tester is never blocked from a Play upgrade (Android refuses `versionCode` downgrades).
+- **Android — one unified counter across Firebase AND every Play track.** All lanes draw from
+  `max(latest Firebase buildVersion, max Play versionCode across the internal / closed-`alpha` /
+  production tracks) + 1` via the `next_android_version_code` private_lane in
+  `android/fastlane/Fastfile`. Spanning every track is required because Play version codes must be
+  globally unique per app; keeping them unified also means a Firebase tester is never blocked from a
+  Play upgrade (Android refuses `versionCode` downgrades).
 
 ### Why a new Firebase upload must have a higher versionCode
 
@@ -43,16 +45,19 @@ never set `BUILD_NUMBER`, so `versionCode` was pinned and new uploads didn't reg
 `next_android_version_code` counter fixes this: every upload gets a strictly higher code, so it
 always lands as a distinct new/latest release.
 
-## Shipping a beta to both channels
+## Shipping a beta to the public-tester channels
 
-One statement builds and uploads a fresh beta to **both** TestFlight and Firebase:
+One statement builds and uploads a fresh beta to **all** public-tester channels:
 
 ```bash
 ./scripts/ship_beta.sh
 ```
 
-It runs `ios/fastlane beta` (IPA → TestFlight) then `android/fastlane beta` (APK → Firebase). Both
-take the version name from `pubspec.yaml` and auto-increment their own build number.
+It runs `ios/fastlane beta_external` (IPA → TestFlight external, waits for Apple processing) then the
+Android leg: `add_nexsoft_testers` → `android/fastlane beta` (APK → Firebase Nexsoft). Both take the
+version name from `pubspec.yaml` and auto-increment their own build number. (Play Closed testing is
+not part of this flow — run `android/fastlane closed` manually to also push an AAB to the `alpha`
+track.)
 
 For **internal testers only** (iOS TestFlight internal testers + Firebase `internal` group):
 
@@ -66,9 +71,11 @@ with `FIREBASE_GROUP=internal`.
 To ship a single channel, run that lane directly:
 
 ```bash
-cd ios && bundle exec fastlane beta        # TestFlight only
-cd android && bundle exec fastlane beta    # Firebase only
-cd android && bundle exec fastlane internal # Play Store internal track (AAB)
+cd ios && bundle exec fastlane beta          # TestFlight (internal auto-receive) only
+cd ios && bundle exec fastlane beta_external # TestFlight external group (build + wait + distribute)
+cd android && bundle exec fastlane beta      # Firebase only
+cd android && bundle exec fastlane closed    # Play Store Closed testing track (AAB)
+cd android && bundle exec fastlane internal  # Play Store internal track (AAB)
 ```
 
 For a **production** release to both stores (App Store submit + Play `production` track):

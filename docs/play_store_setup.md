@@ -127,12 +127,36 @@ configured via `PLAY_STORE_TRACK` (defaults to `internal`) using
 uploads skipped (store listing content is managed manually in Play Console,
 per step 3/4 above).
 
+## Closed testing track (public-tester tier)
+
+The `closed` fastlane lane ships an Android build to Play **Closed testing** — the real store beta
+channel, symmetric with iOS TestFlight external testers. It is **run manually** (`cd android &&
+bundle exec fastlane closed`); it is **not** part of `./scripts/ship_beta.sh`, whose Android leg goes
+to Firebase App Distribution only.
+
+- The `closed` lane builds an AAB and uploads it to the track named by `PLAY_CLOSED_TRACK`
+  (defaults to **`alpha`**, Play's built-in Closed testing track — no track creation needed). To use
+  a custom closed track instead, create it once in Play Console (**Testing → Closed testing → Create
+  track**) and set `PLAY_CLOSED_TRACK` to its name.
+- **Add testers manually** in Play Console → **Testing → Closed testing → Testers** (email list or
+  linked Google Group). As with internal testing, there is **no fastlane automation** for the Play
+  tester roster — it stays a manual Console step.
+- Like the `internal` lane, `closed` only works **after** the release-#1 bootstrap above (app record,
+  store listing, compliance declarations, manual first upload + Play App Signing, and API access).
+  Until then the upload is rejected by the Play Developer API.
+- versionCodes are shared across all tracks (see the note below) — the unified counter already reads
+  the closed track, so codes never collide between internal / closed / production.
+
 ### Note on versionCode
 
-The `internal` lane auto-increments the Play Store `versionCode` by querying
-the **max versionCode already present on the target track**
-(`google_play_track_version_codes`) and adding 1 — passed to
-`scripts/build_release_aab.sh` as `BUILD_NUMBER`. This is:
+The `internal`, `closed`, and `production` lanes auto-increment the Play Store
+`versionCode` via the shared `next_android_version_code` helper, which queries
+the **max versionCode across all tracks** (internal, closed/`alpha`, production)
+**and the latest Firebase build** (`google_play_track_version_codes` +
+`firebase_app_distribution_get_latest_release`) and adds 1 — passed to
+`scripts/build_release_aab.sh` as `BUILD_NUMBER`. Spanning every track matters
+because Play requires versionCodes to be globally unique per app, so a code used
+on one track can't be reused on another. This is:
 
 - **Independent of `pubspec.yaml`'s version** — it does not read or bump the
   version string there.
@@ -141,8 +165,9 @@ the **max versionCode already present on the target track**
 
 ## Manual steps that stay manual forever
 
-- **Tester list management** — adding/removing internal testers in Play
-  Console; there is no fastlane automation for this (see step 6).
+- **Tester list management** — adding/removing testers on any track (internal
+  **and** closed testing) in Play Console; there is no fastlane automation for
+  this (see step 6).
 - **Content and compliance declarations** — store listing, privacy policy,
   data safety form, content rating, target audience, ads declaration; these
   require human judgment and product-owner sign-off, not automation.
