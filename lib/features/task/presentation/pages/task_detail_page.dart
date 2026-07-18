@@ -9,6 +9,8 @@ import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/time/time_format.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
+import 'package:work_tracker/features/ai_assist/domain/ai_repository.dart';
+import 'package:work_tracker/features/ai_assist/presentation/widgets/bug_ai_resolution_sheet.dart';
 import 'package:work_tracker/features/task/domain/bug_prompt.dart';
 import 'package:work_tracker/features/task/domain/models/task.dart';
 import 'package:work_tracker/features/task/presentation/cubit/task_detail_cubit.dart';
@@ -140,6 +142,12 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
             icon: Icons.auto_awesome,
             onPressed: () => _showClaudePromptSheet(context, task),
           ),
+          const SizedBox(height: AppSpacing.space16),
+          PrimaryButton(
+            label: 'Resolve with AI',
+            icon: Icons.auto_awesome,
+            onPressed: () => _resolveWithAi(context, task),
+          ),
         ],
         if (state.errorMessage != null) ...[
           const SizedBox(height: AppSpacing.space16),
@@ -189,6 +197,16 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
       showDragHandle: true,
       builder: (_) => _ClaudePromptSheet(task: task),
     );
+  }
+
+  void _resolveWithAi(BuildContext context, Task task) {
+    if (!getIt<AiRepository>().isConfigured) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("AI isn't configured in this build.")),
+      );
+      return;
+    }
+    showBugAiResolutionSheet(context, task);
   }
 }
 

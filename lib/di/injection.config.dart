@@ -44,6 +44,11 @@ import 'package:work_tracker/di/register_module.dart' as _i61;
 import 'package:work_tracker/domain/repository/app_repository.dart' as _i204;
 import 'package:work_tracker/domain/repository/app_repository_impl.dart'
     as _i927;
+import 'package:work_tracker/features/ai_assist/data/claude_client.dart' as _i0;
+import 'package:work_tracker/features/ai_assist/domain/ai_repository.dart'
+    as _i913;
+import 'package:work_tracker/features/ai_assist/presentation/cubit/bug_ai_cubit.dart'
+    as _i167;
 import 'package:work_tracker/features/attendance/data/attendance_dao.dart'
     as _i616;
 import 'package:work_tracker/features/attendance/domain/attendance_repository.dart'
@@ -184,6 +189,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i343.LocationSource>(() => _i343.LocationSourceImpl());
     gh.lazySingleton<_i376.ZentaoClient>(() => _i376.ZentaoRestClient());
+    gh.lazySingleton<_i0.ClaudeClient>(() => _i0.ClaudeRestClient());
     gh.lazySingleton<_i1.ZentaoCredentialsStore>(
       () => _i1.ZentaoCredentialsStore(gh<_i558.FlutterSecureStorage>()),
     );
@@ -257,6 +263,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i522.ZentaoSyncPrefs>(),
       ),
     );
+    gh.lazySingleton<_i913.AiRepository>(
+      () => _i913.AiRepositoryImpl(
+        gh<_i0.ClaudeClient>(),
+        gh<_i298.ZentaoRepository>(),
+      ),
+    );
     gh.lazySingleton<_i150.CommuteSampleDao>(
       () => _i150.CommuteSampleDaoImpl(
         gh<_i625.Box<_i793.CommuteSampleEntity>>(),
@@ -300,6 +312,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i344.TaskDao>(),
         gh<_i298.ZentaoRepository>(),
       ),
+    );
+    gh.factory<_i167.BugAiCubit>(
+      () => _i167.BugAiCubit(gh<_i913.AiRepository>()),
     );
     gh.lazySingleton<_i697.LocationLogSettingsDatasource>(
       () => _i552.LocationLogSettingsDatasourceImpl(
