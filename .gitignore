@@ -50,6 +50,10 @@ app.*.map.json
 # Local secrets (never commit real API keys)
 /ios/Flutter/Secrets.xcconfig
 /dart_defines.json
+# Tier-specific release configs (see docs/release_flow.md); only the .example
+# templates are committed. internal = AI key baked; prod = AI key omitted.
+/dart_defines.internal.json
+/dart_defines.prod.json
 
 # Fastlane / App Store Connect secrets
 /ios/fastlane/.env

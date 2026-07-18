@@ -27,7 +27,9 @@ cd "$(dirname "$0")/.."
 
 FLAVOR="${FLAVOR:-prod}"
 
-DART_DEFINES_FILE="dart_defines.json"
+# Tier-specific config override (dart_defines.internal.json vs
+# dart_defines.prod.json — see docs/release_flow.md); defaults to the local file.
+DART_DEFINES_FILE="${DART_DEFINES_FILE:-dart_defines.json}"
 LOCAL_PROPERTIES_FILE="android/local.properties"
 
 if [[ ! -f "$DART_DEFINES_FILE" ]]; then

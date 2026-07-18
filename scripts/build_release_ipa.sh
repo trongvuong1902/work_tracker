@@ -16,12 +16,15 @@
 # See docs/leave_reminder_setup.md for how to provision dart_defines.json.
 #
 # Usage: ./scripts/build_release_ipa.sh
+# Optional: DART_DEFINES_FILE=<file> to build against a tier-specific config
+# (e.g. dart_defines.internal.json vs dart_defines.prod.json — see
+# docs/release_flow.md). Defaults to dart_defines.json for local builds.
 
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-DART_DEFINES_FILE="dart_defines.json"
+DART_DEFINES_FILE="${DART_DEFINES_FILE:-dart_defines.json}"
 
 if [[ ! -f "$DART_DEFINES_FILE" ]]; then
   echo "error: $DART_DEFINES_FILE not found." >&2

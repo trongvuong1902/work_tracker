@@ -4,6 +4,9 @@ How WorkTracker versions builds across iOS (TestFlight) and Android (Firebase Ap
 Distribution beta + Play Store internal). Two independent things — the **version name** and the
 **build number** — must never be conflated.
 
+> For the branching model and which audience each channel serves (internal → public testers →
+> production), see [release_flow.md](release_flow.md). This doc owns only the version-number policy.
+
 ## Version name — `MAJOR.MINOR.PATCH` (SemVer)
 
 `pubspec.yaml` `version: X.Y.Z+N`. The `X.Y.Z` part is the **single source of truth for the version
@@ -67,6 +70,14 @@ cd ios && bundle exec fastlane beta        # TestFlight only
 cd android && bundle exec fastlane beta    # Firebase only
 cd android && bundle exec fastlane internal # Play Store internal track (AAB)
 ```
+
+For a **production** release to both stores (App Store submit + Play `production` track):
+
+```bash
+./scripts/ship_production.sh
+```
+
+See [release_flow.md](release_flow.md) for the full tag-and-promote runbook.
 
 ## Release checklist
 

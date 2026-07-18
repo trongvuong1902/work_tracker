@@ -17,6 +17,17 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Public-tester tier uses the prod config (AI_API_KEY omitted → AI self-disables).
+# Both lanes' build scripts inherit this via `sh(...)`. See docs/release_flow.md.
+export DART_DEFINES_FILE="${DART_DEFINES_FILE:-dart_defines.prod.json}"
+
+if [[ ! -f "$DART_DEFINES_FILE" ]]; then
+  echo "error: $DART_DEFINES_FILE not found." >&2
+  echo "Copy dart_defines.prod.json.example to $DART_DEFINES_FILE and fill in" >&2
+  echo "your keys (leave AI_API_KEY empty for public/prod builds)." >&2
+  exit 1
+fi
+
 echo "==> iOS: building IPA and uploading to TestFlight"
 ( cd ios && bundle exec fastlane beta )
 
