@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../task/domain/models/task.dart';
 import '../../domain/ai_repository.dart';
-import '../../data/claude_client.dart';
+import '../../data/ai_client.dart';
 
 part 'bug_ai_state.dart';
 part 'bug_ai_cubit.freezed.dart';
@@ -41,7 +41,7 @@ class BugAiCubit extends Cubit<BugAiState> {
   }
 
   String _errorMessage(Object error) {
-    if (error is ClaudeNotConfiguredException) {
+    if (error is AiNotConfiguredException) {
       return _withDebugDetail("AI isn't configured in this build.", error);
     }
     return _withDebugDetail("Couldn't get an AI resolution — try again.", error);

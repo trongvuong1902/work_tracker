@@ -6,19 +6,19 @@ import '../../task/domain/bug_prompt.dart';
 import '../../task/domain/models/task.dart';
 import '../../zentao/domain/models/zentao_bug_attachment.dart';
 import '../../zentao/domain/zentao_repository.dart';
-import '../data/claude_client.dart';
+import '../data/ai_client.dart';
 
 abstract class AiRepository {
-  /// Whether the Claude API key is configured for this build.
+  /// Whether an AI API key is configured for this build.
   bool get isConfigured;
 
-  /// Streams Claude's diagnosis/fix for [task]'s linked Zentao bug — builds
+  /// Streams the model's diagnosis/fix for [task]'s linked Zentao bug — builds
   /// the prompt from the task's synced fields and attaches whatever
   /// downloadable image attachments qualify (see [AiRepositoryImpl]).
   Stream<String> resolveBug(Task task);
 }
 
-/// Claude-media-supported image formats and their per-extension mapping.
+/// Vision-supported image formats and their per-extension mapping.
 const _supportedImageMediaTypes = {
   'png': 'image/png',
   'jpg': 'image/jpeg',
@@ -34,7 +34,7 @@ const _maxImages = 5;
 class AiRepositoryImpl implements AiRepository {
   AiRepositoryImpl(this._client, this._zentaoRepository);
 
-  final ClaudeClient _client;
+  final AiClient _client;
   final ZentaoRepository _zentaoRepository;
 
   @override
@@ -47,10 +47,10 @@ class AiRepositoryImpl implements AiRepository {
     yield* _client.resolveBug(prompt: prompt, images: images);
   }
 
-  Future<List<ClaudeImage>> _buildImages(
+  Future<List<AiImage>> _buildImages(
     List<ZentaoBugAttachment> attachments,
   ) async {
-    final images = <ClaudeImage>[];
+    final images = <AiImage>[];
     for (final attachment in attachments) {
       if (images.length >= _maxImages) break;
       if (!attachment.isImage) continue;
@@ -67,7 +67,7 @@ class AiRepositoryImpl implements AiRepository {
         final file = await _zentaoRepository.downloadAttachment(attachment);
         final bytes = await file.readAsBytes();
         images.add(
-          ClaudeImage(mediaType: mediaType, base64Data: base64Encode(bytes)),
+          AiImage(mediaType: mediaType, base64Data: base64Encode(bytes)),
         );
       } catch (_) {
         // Skip attachments that fail to download rather than aborting the
