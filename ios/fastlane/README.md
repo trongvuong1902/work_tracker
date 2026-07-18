@@ -23,6 +23,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build the release IPA (via repo build script) and upload it to TestFlight
 
+### ios release
+
+```sh
+[bundle exec] fastlane ios release
+```
+
+Build the release IPA and submit it to the App Store for review (production)
+
 ### ios distribute_beta
 
 ```sh

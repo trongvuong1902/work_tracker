@@ -47,6 +47,22 @@ Add/update testers from android/fastlane/nexsoft_testers.txt into the Firebase '
 
 Build the release AAB (via repo build script) and upload it to the Play Store Internal testing track
 
+### android production
+
+```sh
+[bundle exec] fastlane android production
+```
+
+Build the release AAB (via repo build script) and upload it to the Play Store production track
+
+### android promote_to_production
+
+```sh
+[bundle exec] fastlane android promote_to_production
+```
+
+Promote the latest build on the internal track to production without rebuilding
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

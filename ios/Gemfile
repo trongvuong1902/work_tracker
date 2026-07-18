@@ -1,3 +1,8 @@
 source "https://rubygems.org"
 
 gem "fastlane"
+# Keep CocoaPods in the bundle so `pod` works inside `bundle exec fastlane`.
+# Without it, bundle exec prepends rbenv's ruby bin to PATH and picks the
+# rbenv `pod`, which bundler then refuses to run ("cocoapods is not currently
+# included in the bundle") — Flutter reports this as "CocoaPods is broken".
+gem "cocoapods", "~> 1.16"
