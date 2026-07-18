@@ -52,18 +52,23 @@ abstract class AiClient {
 class OpenAiCompatibleAiClient implements AiClient {
   static const _apiKey = String.fromEnvironment('AI_API_KEY');
 
+  // Read raw (no defaultValue): `String.fromEnvironment` only applies its
+  // default when the key is ABSENT, so a present-but-empty dart-define
+  // (`"AI_BASE_URL": ""`) would otherwise yield "" and produce a host-less URI.
+  static const _baseUrlRaw = String.fromEnvironment('AI_BASE_URL');
+  static const _modelRaw = String.fromEnvironment('AI_MODEL');
+
   // Defaults point at Gemini's OpenAI-compatibility layer; override via
   // --dart-define to use DeepSeek / Groq / OpenRouter / etc.
-  static const _baseUrl = String.fromEnvironment(
-    'AI_BASE_URL',
-    defaultValue: 'https://generativelanguage.googleapis.com/v1beta/openai',
-  );
-  static const _model = String.fromEnvironment(
-    'AI_MODEL',
-    defaultValue: 'gemini-2.0-flash',
-  );
+  static const _defaultBaseUrl =
+      'https://generativelanguage.googleapis.com/v1beta/openai';
+  static const _defaultModel = 'gemini-2.0-flash';
 
   static const _requestTimeout = Duration(seconds: 60);
+
+  // Empty (not just absent) falls back to the Gemini defaults.
+  String get _baseUrl => _baseUrlRaw.isEmpty ? _defaultBaseUrl : _baseUrlRaw;
+  String get _model => _modelRaw.isEmpty ? _defaultModel : _modelRaw;
 
   @override
   bool get isConfigured => _apiKey.isNotEmpty;
