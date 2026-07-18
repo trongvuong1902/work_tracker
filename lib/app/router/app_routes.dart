@@ -23,8 +23,6 @@ abstract final class AppRoutes {
 
   static const zentaoConnect = '/zentao_connect';
 
-  static const zentaoSelectOption = '/zentao_select_option';
-
   static const zentaoProductPicker = '/zentao_product_picker';
 
   static const bugSyncProducts = '/bug_sync_products';

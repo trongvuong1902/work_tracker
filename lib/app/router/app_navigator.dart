@@ -88,26 +88,21 @@ abstract final class AppNavigator {
   static Future<void> pushZentaoConnect(BuildContext context) =>
       context.push(AppRoutes.zentaoConnect);
 
-  /// Pushed when the account is already connected — the user still needs to
-  /// pick Tasks vs Bugs.
-  static Future<void> pushZentaoSelectOption(BuildContext context) =>
-      context.push(AppRoutes.zentaoSelectOption);
-
-  /// Replaces the current route (the Connect page) with the Select Option
-  /// screen on a successful connect, so the back button from there returns
-  /// to the Platform Picker, not back to the connect form.
-  static void pushReplacementZentaoSelectOption(BuildContext context) =>
-      context.pushReplacement(AppRoutes.zentaoSelectOption);
-
   static Future<void> pushZentaoProductPicker(
     BuildContext context, {
     required ZentaoImportKind kind,
   }) => context.push(AppRoutes.zentaoProductPicker, extra: kind);
 
-  /// The product multi-select step of the bulk "Bugs assigned to me" sync.
-  /// Resolves to `true` once the user saves a selection.
-  static Future<bool?> pushBugSyncProducts(BuildContext context) =>
-      context.push<bool>(AppRoutes.bugSyncProducts);
+  /// The product multi-select step of the "Bugs assigned to me" flow. The page
+  /// runs the sync on confirm and navigates to Tasks itself.
+  static Future<void> pushBugSyncProducts(BuildContext context) =>
+      context.push(AppRoutes.bugSyncProducts);
+
+  /// Replaces the current route (the Connect page) with the products-to-sync
+  /// page on a successful first-time connect, so the flow is
+  /// connect → pick products → sync → Tasks.
+  static void pushReplacementBugSyncProducts(BuildContext context) =>
+      context.pushReplacement(AppRoutes.bugSyncProducts);
 
   static Future<void> pushAttachmentViewer(
     BuildContext context,

@@ -23,9 +23,11 @@ abstract class TaskRepository {
   /// "Bugs assigned to me" sync: if a task already links this bug, its Zentao
   /// fields (title/description/status/priority/severity/product) and
   /// `zentaoLastSyncedAt` are refreshed while local state
-  /// (`done`/`elapsedSeconds`/`timerStartedAt`) is preserved; otherwise a new
-  /// task is inserted. Returns whether it was [BugUpsertOutcome.added] or
-  /// [BugUpsertOutcome.updated].
+  /// (`elapsedSeconds`/`timerStartedAt`) is preserved; otherwise a new task is
+  /// inserted. `done` is preserved with ONE exception — it is flipped to true
+  /// (one-way, never reversed) when the Zentao bug status is resolved/closed,
+  /// finalizing any running timer. Returns whether it was
+  /// [BugUpsertOutcome.added] or [BugUpsertOutcome.updated].
   Future<BugUpsertOutcome> upsertBugFromZentao(
     ZentaoBug bug, {
     ZentaoProduct? product,
@@ -42,6 +44,22 @@ abstract class TaskRepository {
   Future<Task?> getById(int id);
 
   Future<void> toggleDone(int id);
+
+  /// Sets (or clears, when [date] is null) the day the task is planned for,
+  /// normalized to local midnight. Returns the updated task.
+  Future<Task> setPlannedDate(int id, DateTime? date);
+
+  /// All tasks planned within the given [year]/[month] — powers the calendar's
+  /// per-day list and day markers.
+  Future<List<Task>> getPlannedTasksForMonth(int year, int month);
+
+  /// Candidate tasks to plan onto a day: not done and not already planned.
+  /// Sorted by priority (1 = most urgent first, unset last), then newest.
+  Future<List<Task>> getUnplannedOpenTasks();
+
+  /// Plans every task in [ids] onto [day] (normalized to local midnight) in one
+  /// batch, emitting a single change notification.
+  Future<void> setPlannedDateForTasks(List<int> ids, DateTime day);
 
   /// No-ops if the timer is already running.
   Future<void> startTimer(int id);
@@ -70,4 +88,14 @@ abstract class TaskRepository {
   /// and mark the task done locally. Throws on failure so the caller can leave
   /// the task not-done.
   Future<Task> resolveZentaoBug(int id);
+
+  /// Closes the linked Zentao bug in Zentao, then locally sets its status to
+  /// `closed`, marks it done, and finalizes any running timer. Throws on Zentao
+  /// failure so the caller can leave local state unchanged.
+  Future<Task> closeZentaoBug(int id);
+
+  /// Activates (reopens) the linked Zentao bug in Zentao, then locally sets its
+  /// status to `active`, un-marks done, and clears the confirmed flag so the
+  /// next Start-timer re-confirms. Throws on Zentao failure.
+  Future<Task> reopenZentaoBug(int id);
 }

@@ -75,6 +75,32 @@ class TaskEntity {
   // the resolve assignee. Null until enriched from the bug detail.
   String? zentaoOpenedBy;
 
+  // --- Platform-agnostic external link (sync-ready for Notion/Jira) ---
+  // A row links to exactly one external item, identified by
+  // (externalSource, externalId, externalType), or is a manual local task
+  // (all null). These are forward-filled on Zentao sync; legacy rows (written
+  // before these columns existed) have them null and the repository derives the
+  // generic values from the zentao* columns on read.
+
+  // TaskSource.name ('zentao'|'notion'|'jira'); null = legacy/manual.
+  String? taskSource;
+
+  // Platform id as a string — numeric for Zentao, issue key for Jira
+  // ('PROJ-123'), page UUID for Notion.
+  String? externalId;
+
+  // ExternalItemType.name ('task'|'bug'); null = legacy/manual.
+  String? externalType;
+
+  // Canonical deep link back to the external item. Null until an integration
+  // populates it.
+  String? externalUrl;
+
+  // Day the user has planned to work on this task (normalized to local
+  // midnight). Null when unplanned. Drives the calendar's per-day task list.
+  @Property(type: PropertyType.date)
+  DateTime? plannedDate;
+
   TaskEntity({
     required this.title,
     this.description,
@@ -97,5 +123,10 @@ class TaskEntity {
     this.timerStartedAt,
     this.zentaoConfirmed = false,
     this.zentaoOpenedBy,
+    this.taskSource,
+    this.externalId,
+    this.externalType,
+    this.externalUrl,
+    this.plannedDate,
   });
 }

@@ -15,6 +15,8 @@ abstract class CalendarDayModel with _$CalendarDayModel {
     required DayStatus status,
     String? timeLabel,
     Attendance? attendance,
+    // Whether the user has planned any task for this day (drives a marker).
+    @Default(false) bool hasPlannedTasks,
   }) = _CalendarDayModel;
 }
 
@@ -29,6 +31,7 @@ List<CalendarDayModel> buildMonthGrid({
   required Map<int, Attendance> attendanceByDayKey,
   required DateTime today,
   required DateTime selectedDate,
+  Set<int> plannedDayKeys = const {},
 }) {
   final firstOfMonth = DateTime(year, month, 1);
   final daysInMonth = DateTime(year, month + 1, 0).day;
@@ -62,6 +65,7 @@ List<CalendarDayModel> buildMonthGrid({
       status: deriveDayStatus(attendance: attendance),
       timeLabel: deriveTimeLabel(attendance),
       attendance: attendance,
+      hasPlannedTasks: plannedDayKeys.contains(dayKey),
     );
   });
 }

@@ -63,7 +63,9 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
         final task = state.task;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Task'),
+            title: Text(
+              task?.externalId != null ? '#${task!.externalId}' : 'Task',
+            ),
             actions: [
               if (task != null)
                 IconButton(
@@ -113,6 +115,20 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
             context,
           )?.copyWith(fontWeight: FontWeight.w600),
         ),
+        const SizedBox(height: AppSpacing.space12),
+        _PlanDateControl(
+          task: task,
+          onTap: () => _pickPlannedDate(context, task),
+          onClear: () => context.read<TaskDetailCubit>().setPlannedDate(null),
+        ),
+        if (isBug) ...[
+          const SizedBox(height: AppSpacing.space12),
+          _BugStatusControl(
+            task: task,
+            isChanging: state.isChangingStatus,
+            onTap: () => _showStatusSheet(context, task),
+          ),
+        ],
         const SizedBox(height: AppSpacing.space16),
         _SectionTile(
           title: 'Description',
@@ -190,6 +206,65 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
     );
   }
 
+  Future<void> _pickPlannedDate(BuildContext context, Task task) async {
+    final cubit = context.read<TaskDetailCubit>();
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: task.plannedDate ?? now,
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 2),
+    );
+    if (picked != null) await cubit.setPlannedDate(picked);
+  }
+
+  Future<void> _showStatusSheet(BuildContext context, Task task) async {
+    final cubit = context.read<TaskDetailCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+    final actions = _statusActionsFor(task);
+
+    final action = await showModalBottomSheet<BugStatusAction>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.space16,
+                0,
+                AppSpacing.space16,
+                AppSpacing.space8,
+              ),
+              child: Text(
+                'Change status',
+                style: AppTypography.title(sheetContext),
+              ),
+            ),
+            for (final a in actions)
+              ListTile(
+                leading: Icon(_statusActionIcon(a)),
+                title: Text(_statusActionLabel(a)),
+                onTap: () => Navigator.of(sheetContext).pop(a),
+              ),
+            const SizedBox(height: AppSpacing.space8),
+          ],
+        ),
+      ),
+    );
+
+    if (action == null) return;
+    await cubit.changeBugStatus(action);
+    if (!mounted) return;
+    final error = cubit.state.errorMessage;
+    messenger.showSnackBar(
+      SnackBar(content: Text(error ?? _statusActionSuccess(action))),
+    );
+  }
+
   void _showClaudePromptSheet(BuildContext context, Task task) {
     showModalBottomSheet<void>(
       context: context,
@@ -212,6 +287,219 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
 
 /// A titled `ShadowCard` tile — the shared container for description/
 /// attachments/notes, with an inline spinner while [isLoading].
+/// The valid Zentao status transitions offered for [task]'s current status:
+/// active → Resolve; resolved → Close/Reopen; closed → Reopen.
+List<BugStatusAction> _statusActionsFor(Task task) {
+  switch ((task.externalStatus ?? '').trim().toLowerCase()) {
+    case 'resolved':
+      return const [BugStatusAction.close, BugStatusAction.reopen];
+    case 'closed':
+      return const [BugStatusAction.reopen];
+    default:
+      return const [BugStatusAction.resolve];
+  }
+}
+
+String _statusActionLabel(BugStatusAction a) => switch (a) {
+  BugStatusAction.resolve => 'Resolve',
+  BugStatusAction.close => 'Close',
+  BugStatusAction.reopen => 'Reopen',
+};
+
+IconData _statusActionIcon(BugStatusAction a) => switch (a) {
+  BugStatusAction.resolve => Icons.check_circle_outline,
+  BugStatusAction.close => Icons.lock_outline,
+  BugStatusAction.reopen => Icons.refresh,
+};
+
+String _statusActionSuccess(BugStatusAction a) => switch (a) {
+  BugStatusAction.resolve => 'Bug resolved',
+  BugStatusAction.close => 'Bug closed',
+  BugStatusAction.reopen => 'Bug reopened',
+};
+
+String _bugStatusLabel(String? raw) {
+  final s = (raw ?? 'active').trim().toLowerCase();
+  switch (s) {
+    case 'active':
+      return 'Active';
+    case 'resolved':
+      return 'Resolved';
+    case 'closed':
+      return 'Closed';
+    default:
+      return s.isEmpty ? 'Active' : s[0].toUpperCase() + s.substring(1);
+  }
+}
+
+Color _bugStatusColor(BuildContext context, String? raw) {
+  switch ((raw ?? 'active').trim().toLowerCase()) {
+    case 'resolved':
+      return context.colors.primary;
+    case 'closed':
+      return context.colors.textSecondary;
+    default:
+      return context.colors.secondary;
+  }
+}
+
+String _formatPlanDate(DateTime d) =>
+    '${d.day} ${monthNames[d.month - 1]} ${d.year}';
+
+/// Tappable row to plan the task for a day (any task). Shows the chosen date
+/// or "Set date", with a clear affordance when a date is set.
+class _PlanDateControl extends StatelessWidget {
+  const _PlanDateControl({
+    required this.task,
+    required this.onTap,
+    required this.onClear,
+  });
+
+  final Task task;
+  final VoidCallback onTap;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final date = task.plannedDate;
+    final hasDate = date != null;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.space16,
+          vertical: AppSpacing.space12,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(color: context.colors.outline),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.event_outlined,
+              size: 18,
+              color: hasDate ? context.colors.primary : context.colors.textSecondary,
+            ),
+            const SizedBox(width: AppSpacing.space8),
+            Text(
+              'Plan date',
+              style: AppTypography.caption(
+                context,
+              )?.copyWith(color: context.colors.textSecondary),
+            ),
+            const SizedBox(width: AppSpacing.space8),
+            Text(
+              hasDate ? _formatPlanDate(date) : 'Set date',
+              style: AppTypography.label(context)?.copyWith(
+                color: hasDate ? context.colors.primary : context.colors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            if (hasDate)
+              InkWell(
+                onTap: onClear,
+                borderRadius: BorderRadius.circular(999),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.close,
+                    size: 18,
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+              )
+            else
+              Icon(
+                Icons.chevron_right,
+                size: 18,
+                color: context.colors.textSecondary,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Tappable status row on the bug detail body — shows the current status and
+/// opens the change-status sheet.
+class _BugStatusControl extends StatelessWidget {
+  const _BugStatusControl({
+    required this.task,
+    required this.isChanging,
+    required this.onTap,
+  });
+
+  final Task task;
+  final bool isChanging;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _bugStatusColor(context, task.externalStatus);
+    return InkWell(
+      onTap: isChanging ? null : onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.space16,
+          vertical: AppSpacing.space12,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(color: context.colors.outline),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: AppSpacing.space8),
+            Text(
+              'Status',
+              style: AppTypography.caption(
+                context,
+              )?.copyWith(color: context.colors.textSecondary),
+            ),
+            const SizedBox(width: AppSpacing.space8),
+            Text(
+              _bugStatusLabel(task.externalStatus),
+              style: AppTypography.label(
+                context,
+              )?.copyWith(color: color, fontWeight: FontWeight.w600),
+            ),
+            const Spacer(),
+            if (isChanging)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else ...[
+              Text(
+                'Change',
+                style: AppTypography.caption(
+                  context,
+                )?.copyWith(color: context.colors.primary),
+              ),
+              Icon(
+                Icons.chevron_right,
+                size: 18,
+                color: context.colors.textSecondary,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _SectionTile extends StatelessWidget {
   const _SectionTile({
     required this.title,
@@ -405,8 +693,7 @@ class _TaskInfoSheet extends StatelessWidget {
                 ),
                 if (task.priority != null)
                   _infoRow(context, 'Priority', 'P${task.priority}'),
-                if (task.zentaoStatus != null)
-                  _infoRow(context, 'Status', task.zentaoStatus!),
+                // Status is shown/changed via the tappable control on the body.
                 if (task.zentaoSeverity != null)
                   _infoRow(context, 'Severity', '${task.zentaoSeverity}'),
                 if (task.zentaoPriority != null)

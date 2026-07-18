@@ -10,6 +10,9 @@ import '../../domain/task_repository.dart';
 part 'task_detail_state.dart';
 part 'task_detail_cubit.freezed.dart';
 
+/// A Zentao bug status transition the user can trigger from the detail page.
+enum BugStatusAction { resolve, close, reopen }
+
 @injectable
 class TaskDetailCubit extends Cubit<TaskDetailState> {
   TaskDetailCubit(this._repository) : super(const TaskDetailState());
@@ -96,6 +99,48 @@ class TaskDetailCubit extends Cubit<TaskDetailState> {
     final updated = await _repository.getById(task.id);
     emit(state.copyWith(isTogglingTimer: false, task: updated));
     _syncTicker();
+  }
+
+  /// Changes the linked Zentao bug's status (resolve/close/reopen). On success
+  /// the updated task is emitted; on failure the task is left unchanged and an
+  /// error message is surfaced.
+  Future<void> changeBugStatus(BugStatusAction action) async {
+    final task = state.task;
+    if (task == null || !task.isLinkedToZentaoBug) return;
+    emit(state.copyWith(isChangingStatus: true, errorMessage: null));
+    try {
+      final updated = switch (action) {
+        BugStatusAction.resolve => await _repository.resolveZentaoBug(task.id),
+        BugStatusAction.close => await _repository.closeZentaoBug(task.id),
+        BugStatusAction.reopen => await _repository.reopenZentaoBug(task.id),
+      };
+      emit(state.copyWith(isChangingStatus: false, task: updated));
+      _syncTicker();
+    } catch (_) {
+      emit(
+        state.copyWith(
+          isChangingStatus: false,
+          errorMessage: _statusErrorMessage(action),
+        ),
+      );
+    }
+  }
+
+  String _statusErrorMessage(BugStatusAction action) {
+    final verb = switch (action) {
+      BugStatusAction.resolve => 'resolve',
+      BugStatusAction.close => 'close',
+      BugStatusAction.reopen => 'reopen',
+    };
+    return "Couldn't $verb in Zentao — try again.";
+  }
+
+  /// Sets or clears the day this task is planned for.
+  Future<void> setPlannedDate(DateTime? date) async {
+    final task = state.task;
+    if (task == null) return;
+    final updated = await _repository.setPlannedDate(task.id, date);
+    emit(state.copyWith(task: updated));
   }
 
   Future<void> refreshFromZentao() async {

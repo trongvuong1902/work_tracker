@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:work_tracker/database/task/task_entity.dart';
 import 'package:work_tracker/database/task/task_time_log_entity.dart';
+import 'package:work_tracker/database/task/task_time_session_entity.dart';
 import 'package:work_tracker/features/task/data/task_dao.dart';
 import 'package:work_tracker/features/task/data/task_time_log_dao.dart';
+import 'package:work_tracker/features/task/data/task_time_session_dao.dart';
 import 'package:work_tracker/features/task/domain/task_time_log_repository.dart';
 
 class FakeTaskTimeLogDao implements TaskTimeLogDao {
@@ -42,6 +44,35 @@ class FakeTaskTimeLogDao implements TaskTimeLogDao {
       store.removeWhere((_, e) => e.taskId == taskId);
 }
 
+class FakeTaskTimeSessionDao implements TaskTimeSessionDao {
+  final List<TaskTimeSessionEntity> store = [];
+  int _nextId = 1;
+
+  @override
+  List<TaskTimeSessionEntity> getAll() => List.of(store);
+
+  @override
+  List<TaskTimeSessionEntity> getByDay(DateTime day) {
+    final dayStart = DateTime(day.year, day.month, day.day);
+    final nextMidnight = dayStart.add(const Duration(days: 1));
+    return store
+        .where((e) => !e.start.isBefore(dayStart) && e.start.isBefore(nextMidnight))
+        .toList();
+  }
+
+  @override
+  int put(TaskTimeSessionEntity entity) {
+    if (entity.id == 0) entity.id = _nextId++;
+    store.removeWhere((e) => e.id == entity.id);
+    store.add(entity);
+    return entity.id;
+  }
+
+  @override
+  void removeForTask(int taskId) =>
+      store.removeWhere((e) => e.taskId == taskId);
+}
+
 class FakeTaskDao implements TaskDao {
   final Map<int, TaskEntity> store = {};
 
@@ -76,12 +107,55 @@ TaskEntity _task(int id, int elapsed) {
 void main() {
   late FakeTaskTimeLogDao logDao;
   late FakeTaskDao taskDao;
+  late FakeTaskTimeSessionDao sessionDao;
   late TaskTimeLogRepositoryImpl repository;
 
   setUp(() {
     logDao = FakeTaskTimeLogDao();
     taskDao = FakeTaskDao();
-    repository = TaskTimeLogRepositoryImpl(logDao, taskDao);
+    sessionDao = FakeTaskTimeSessionDao();
+    repository = TaskTimeLogRepositoryImpl(logDao, taskDao, sessionDao);
+  });
+
+  group('recordSegment sessions', () {
+    test('records a session with the exact start/end', () async {
+      final start = DateTime(2026, 7, 18, 9, 0, 0);
+      final end = DateTime(2026, 7, 18, 9, 30, 0);
+
+      await repository.recordSegment(1, start, end);
+
+      expect(sessionDao.store, hasLength(1));
+      expect(sessionDao.store.single.taskId, 1);
+      expect(sessionDao.store.single.start, start);
+      expect(sessionDao.store.single.end, end);
+    });
+
+    test('splits a midnight-spanning segment into two sessions', () async {
+      final start = DateTime(2026, 7, 18, 23, 30, 0);
+      final end = DateTime(2026, 7, 19, 0, 30, 0);
+
+      await repository.recordSegment(1, start, end);
+
+      final day18 = sessionDao.getByDay(DateTime(2026, 7, 18));
+      final day19 = sessionDao.getByDay(DateTime(2026, 7, 19));
+      expect(day18, hasLength(1));
+      expect(day18.single.start, start);
+      expect(day18.single.end, DateTime(2026, 7, 19));
+      expect(day19, hasLength(1));
+      expect(day19.single.start, DateTime(2026, 7, 19));
+      expect(day19.single.end, end);
+    });
+
+    test('getSessionsForDay returns the day\'s sessions', () async {
+      await repository.recordSegment(
+        1,
+        DateTime(2026, 7, 18, 9, 0, 0),
+        DateTime(2026, 7, 18, 9, 30, 0),
+      );
+      final sessions = await repository.getSessionsForDay(DateTime(2026, 7, 18));
+      expect(sessions, hasLength(1));
+      expect(sessions.single.durationSeconds, 30 * 60);
+    });
   });
 
   group('recordSegment', () {

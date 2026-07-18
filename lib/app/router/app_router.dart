@@ -30,7 +30,6 @@ import 'package:work_tracker/features/zentao/domain/models/zentao_bug_attachment
 import 'package:work_tracker/features/zentao/domain/models/zentao_import_kind.dart';
 import 'package:work_tracker/features/zentao/presentation/pages/zentao_connect_page.dart';
 import 'package:work_tracker/features/zentao/presentation/pages/zentao_product_picker_page.dart';
-import 'package:work_tracker/features/zentao/presentation/pages/zentao_select_option_page.dart';
 
 import 'task_branch.dart';
 
@@ -145,10 +144,6 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.zentaoConnect,
       builder: (context, state) => const ZentaoConnectPage(),
-    ),
-    GoRoute(
-      path: AppRoutes.zentaoSelectOption,
-      builder: (context, state) => const ZentaoSelectOptionPage(),
     ),
     GoRoute(
       path: AppRoutes.zentaoProductPicker,

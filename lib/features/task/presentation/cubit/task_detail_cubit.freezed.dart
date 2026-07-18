@@ -14,7 +14,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TaskDetailState {
 
- bool get isLoading; Task? get task; bool get isTogglingDone; bool get isTogglingTimer; bool get isRefreshing;// True while the bug's full detail (description/notes/attachments) is being
+ bool get isLoading; Task? get task; bool get isTogglingDone; bool get isTogglingTimer; bool get isRefreshing;// True while a Zentao bug status change (resolve/close/reopen) is in flight.
+ bool get isChangingStatus;// True while the bug's full detail (description/notes/attachments) is being
 // fetched and persisted on first open.
  bool get isEnriching; String? get errorMessage;// Bumped every second while the timer runs purely to force a rebuild —
 // not read by anything, the live elapsed time itself is recomputed via
@@ -30,16 +31,16 @@ $TaskDetailStateCopyWith<TaskDetailState> get copyWith => _$TaskDetailStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskDetailState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.task, task) || other.task == task)&&(identical(other.isTogglingDone, isTogglingDone) || other.isTogglingDone == isTogglingDone)&&(identical(other.isTogglingTimer, isTogglingTimer) || other.isTogglingTimer == isTogglingTimer)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&(identical(other.isEnriching, isEnriching) || other.isEnriching == isEnriching)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.tick, tick) || other.tick == tick));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskDetailState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.task, task) || other.task == task)&&(identical(other.isTogglingDone, isTogglingDone) || other.isTogglingDone == isTogglingDone)&&(identical(other.isTogglingTimer, isTogglingTimer) || other.isTogglingTimer == isTogglingTimer)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&(identical(other.isChangingStatus, isChangingStatus) || other.isChangingStatus == isChangingStatus)&&(identical(other.isEnriching, isEnriching) || other.isEnriching == isEnriching)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.tick, tick) || other.tick == tick));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,task,isTogglingDone,isTogglingTimer,isRefreshing,isEnriching,errorMessage,tick);
+int get hashCode => Object.hash(runtimeType,isLoading,task,isTogglingDone,isTogglingTimer,isRefreshing,isChangingStatus,isEnriching,errorMessage,tick);
 
 @override
 String toString() {
-  return 'TaskDetailState(isLoading: $isLoading, task: $task, isTogglingDone: $isTogglingDone, isTogglingTimer: $isTogglingTimer, isRefreshing: $isRefreshing, isEnriching: $isEnriching, errorMessage: $errorMessage, tick: $tick)';
+  return 'TaskDetailState(isLoading: $isLoading, task: $task, isTogglingDone: $isTogglingDone, isTogglingTimer: $isTogglingTimer, isRefreshing: $isRefreshing, isChangingStatus: $isChangingStatus, isEnriching: $isEnriching, errorMessage: $errorMessage, tick: $tick)';
 }
 
 
@@ -50,7 +51,7 @@ abstract mixin class $TaskDetailStateCopyWith<$Res>  {
   factory $TaskDetailStateCopyWith(TaskDetailState value, $Res Function(TaskDetailState) _then) = _$TaskDetailStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, Task? task, bool isTogglingDone, bool isTogglingTimer, bool isRefreshing, bool isEnriching, String? errorMessage, int tick
+ bool isLoading, Task? task, bool isTogglingDone, bool isTogglingTimer, bool isRefreshing, bool isChangingStatus, bool isEnriching, String? errorMessage, int tick
 });
 
 
@@ -67,13 +68,14 @@ class _$TaskDetailStateCopyWithImpl<$Res>
 
 /// Create a copy of TaskDetailState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? task = freezed,Object? isTogglingDone = null,Object? isTogglingTimer = null,Object? isRefreshing = null,Object? isEnriching = null,Object? errorMessage = freezed,Object? tick = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? task = freezed,Object? isTogglingDone = null,Object? isTogglingTimer = null,Object? isRefreshing = null,Object? isChangingStatus = null,Object? isEnriching = null,Object? errorMessage = freezed,Object? tick = null,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,task: freezed == task ? _self.task : task // ignore: cast_nullable_to_non_nullable
 as Task?,isTogglingDone: null == isTogglingDone ? _self.isTogglingDone : isTogglingDone // ignore: cast_nullable_to_non_nullable
 as bool,isTogglingTimer: null == isTogglingTimer ? _self.isTogglingTimer : isTogglingTimer // ignore: cast_nullable_to_non_nullable
 as bool,isRefreshing: null == isRefreshing ? _self.isRefreshing : isRefreshing // ignore: cast_nullable_to_non_nullable
+as bool,isChangingStatus: null == isChangingStatus ? _self.isChangingStatus : isChangingStatus // ignore: cast_nullable_to_non_nullable
 as bool,isEnriching: null == isEnriching ? _self.isEnriching : isEnriching // ignore: cast_nullable_to_non_nullable
 as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,tick: null == tick ? _self.tick : tick // ignore: cast_nullable_to_non_nullable
@@ -174,10 +176,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  Task? task,  bool isTogglingDone,  bool isTogglingTimer,  bool isRefreshing,  bool isEnriching,  String? errorMessage,  int tick)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  Task? task,  bool isTogglingDone,  bool isTogglingTimer,  bool isRefreshing,  bool isChangingStatus,  bool isEnriching,  String? errorMessage,  int tick)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskDetailState() when $default != null:
-return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isTogglingTimer,_that.isRefreshing,_that.isEnriching,_that.errorMessage,_that.tick);case _:
+return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isTogglingTimer,_that.isRefreshing,_that.isChangingStatus,_that.isEnriching,_that.errorMessage,_that.tick);case _:
   return orElse();
 
 }
@@ -195,10 +197,10 @@ return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isToggling
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  Task? task,  bool isTogglingDone,  bool isTogglingTimer,  bool isRefreshing,  bool isEnriching,  String? errorMessage,  int tick)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  Task? task,  bool isTogglingDone,  bool isTogglingTimer,  bool isRefreshing,  bool isChangingStatus,  bool isEnriching,  String? errorMessage,  int tick)  $default,) {final _that = this;
 switch (_that) {
 case _TaskDetailState():
-return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isTogglingTimer,_that.isRefreshing,_that.isEnriching,_that.errorMessage,_that.tick);case _:
+return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isTogglingTimer,_that.isRefreshing,_that.isChangingStatus,_that.isEnriching,_that.errorMessage,_that.tick);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -215,10 +217,10 @@ return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isToggling
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  Task? task,  bool isTogglingDone,  bool isTogglingTimer,  bool isRefreshing,  bool isEnriching,  String? errorMessage,  int tick)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  Task? task,  bool isTogglingDone,  bool isTogglingTimer,  bool isRefreshing,  bool isChangingStatus,  bool isEnriching,  String? errorMessage,  int tick)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskDetailState() when $default != null:
-return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isTogglingTimer,_that.isRefreshing,_that.isEnriching,_that.errorMessage,_that.tick);case _:
+return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isTogglingTimer,_that.isRefreshing,_that.isChangingStatus,_that.isEnriching,_that.errorMessage,_that.tick);case _:
   return null;
 
 }
@@ -230,7 +232,7 @@ return $default(_that.isLoading,_that.task,_that.isTogglingDone,_that.isToggling
 
 
 class _TaskDetailState implements TaskDetailState {
-  const _TaskDetailState({this.isLoading = true, this.task, this.isTogglingDone = false, this.isTogglingTimer = false, this.isRefreshing = false, this.isEnriching = false, this.errorMessage, this.tick = 0});
+  const _TaskDetailState({this.isLoading = true, this.task, this.isTogglingDone = false, this.isTogglingTimer = false, this.isRefreshing = false, this.isChangingStatus = false, this.isEnriching = false, this.errorMessage, this.tick = 0});
   
 
 @override@JsonKey() final  bool isLoading;
@@ -238,6 +240,8 @@ class _TaskDetailState implements TaskDetailState {
 @override@JsonKey() final  bool isTogglingDone;
 @override@JsonKey() final  bool isTogglingTimer;
 @override@JsonKey() final  bool isRefreshing;
+// True while a Zentao bug status change (resolve/close/reopen) is in flight.
+@override@JsonKey() final  bool isChangingStatus;
 // True while the bug's full detail (description/notes/attachments) is being
 // fetched and persisted on first open.
 @override@JsonKey() final  bool isEnriching;
@@ -257,16 +261,16 @@ _$TaskDetailStateCopyWith<_TaskDetailState> get copyWith => __$TaskDetailStateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskDetailState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.task, task) || other.task == task)&&(identical(other.isTogglingDone, isTogglingDone) || other.isTogglingDone == isTogglingDone)&&(identical(other.isTogglingTimer, isTogglingTimer) || other.isTogglingTimer == isTogglingTimer)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&(identical(other.isEnriching, isEnriching) || other.isEnriching == isEnriching)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.tick, tick) || other.tick == tick));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskDetailState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.task, task) || other.task == task)&&(identical(other.isTogglingDone, isTogglingDone) || other.isTogglingDone == isTogglingDone)&&(identical(other.isTogglingTimer, isTogglingTimer) || other.isTogglingTimer == isTogglingTimer)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&(identical(other.isChangingStatus, isChangingStatus) || other.isChangingStatus == isChangingStatus)&&(identical(other.isEnriching, isEnriching) || other.isEnriching == isEnriching)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.tick, tick) || other.tick == tick));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,task,isTogglingDone,isTogglingTimer,isRefreshing,isEnriching,errorMessage,tick);
+int get hashCode => Object.hash(runtimeType,isLoading,task,isTogglingDone,isTogglingTimer,isRefreshing,isChangingStatus,isEnriching,errorMessage,tick);
 
 @override
 String toString() {
-  return 'TaskDetailState(isLoading: $isLoading, task: $task, isTogglingDone: $isTogglingDone, isTogglingTimer: $isTogglingTimer, isRefreshing: $isRefreshing, isEnriching: $isEnriching, errorMessage: $errorMessage, tick: $tick)';
+  return 'TaskDetailState(isLoading: $isLoading, task: $task, isTogglingDone: $isTogglingDone, isTogglingTimer: $isTogglingTimer, isRefreshing: $isRefreshing, isChangingStatus: $isChangingStatus, isEnriching: $isEnriching, errorMessage: $errorMessage, tick: $tick)';
 }
 
 
@@ -277,7 +281,7 @@ abstract mixin class _$TaskDetailStateCopyWith<$Res> implements $TaskDetailState
   factory _$TaskDetailStateCopyWith(_TaskDetailState value, $Res Function(_TaskDetailState) _then) = __$TaskDetailStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, Task? task, bool isTogglingDone, bool isTogglingTimer, bool isRefreshing, bool isEnriching, String? errorMessage, int tick
+ bool isLoading, Task? task, bool isTogglingDone, bool isTogglingTimer, bool isRefreshing, bool isChangingStatus, bool isEnriching, String? errorMessage, int tick
 });
 
 
@@ -294,13 +298,14 @@ class __$TaskDetailStateCopyWithImpl<$Res>
 
 /// Create a copy of TaskDetailState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? task = freezed,Object? isTogglingDone = null,Object? isTogglingTimer = null,Object? isRefreshing = null,Object? isEnriching = null,Object? errorMessage = freezed,Object? tick = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? task = freezed,Object? isTogglingDone = null,Object? isTogglingTimer = null,Object? isRefreshing = null,Object? isChangingStatus = null,Object? isEnriching = null,Object? errorMessage = freezed,Object? tick = null,}) {
   return _then(_TaskDetailState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,task: freezed == task ? _self.task : task // ignore: cast_nullable_to_non_nullable
 as Task?,isTogglingDone: null == isTogglingDone ? _self.isTogglingDone : isTogglingDone // ignore: cast_nullable_to_non_nullable
 as bool,isTogglingTimer: null == isTogglingTimer ? _self.isTogglingTimer : isTogglingTimer // ignore: cast_nullable_to_non_nullable
 as bool,isRefreshing: null == isRefreshing ? _self.isRefreshing : isRefreshing // ignore: cast_nullable_to_non_nullable
+as bool,isChangingStatus: null == isChangingStatus ? _self.isChangingStatus : isChangingStatus // ignore: cast_nullable_to_non_nullable
 as bool,isEnriching: null == isEnriching ? _self.isEnriching : isEnriching // ignore: cast_nullable_to_non_nullable
 as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,tick: null == tick ? _self.tick : tick // ignore: cast_nullable_to_non_nullable

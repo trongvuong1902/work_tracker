@@ -8,8 +8,6 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:work_tracker/app/cubit/app_cubit.dart';
 import 'package:work_tracker/app/router/app_navigator.dart';
-import 'package:work_tracker/app/theme/app_colors.dart';
-import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
@@ -19,6 +17,8 @@ import 'package:work_tracker/features/leave_reminder/domain/models/leave_reminde
 import 'package:work_tracker/features/leave_reminder/presentation/widgets/leave_reminder_setup_sheet.dart';
 import 'package:work_tracker/features/location_log/domain/location_log_repository.dart';
 import 'package:work_tracker/features/location_log/presentation/widgets/location_log_setup_sheet.dart';
+import 'package:work_tracker/features/setting/presentation/widgets/settings_section.dart';
+import 'package:work_tracker/features/setting/presentation/widgets/settings_tile.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_connection.dart';
 import 'package:work_tracker/features/zentao/domain/zentao_repository.dart';
 import 'package:work_tracker/features/zentao/presentation/widgets/manage_zentao_connection_sheet.dart';
@@ -104,336 +104,190 @@ class _SettingPageState extends State<SettingPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Setting Page',
+              'Settings',
               style: AppTypography.title(
                 context,
               )?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.space16),
-            ShadowCard(
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                onTap: () async {
-                  await showLeaveReminderSetupSheet(context);
-                  _loadLeaveReminderStatus();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.space16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Leave reminders',
-                        style: AppTypography.label(context),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (statusText != null) ...[
-                            Text(
-                              statusText,
-                              style: AppTypography.body(context)?.copyWith(
-                                color: isActive
-                                    ? context.colors.primary
-                                    : context.colors.textSecondary,
-                                fontWeight: isActive
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.space8),
-                          ],
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                    ],
-                  ),
+            SettingsSection(
+              title: 'Reminders',
+              children: [
+                SettingsTile(
+                  label: 'Leave reminders',
+                  trailing: statusText != null
+                      ? SettingsTileStatus(text: statusText, active: isActive)
+                      : null,
+                  onTap: () async {
+                    await showLeaveReminderSetupSheet(context);
+                    _loadLeaveReminderStatus();
+                  },
                 ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.space16),
-            ShadowCard(
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                onTap: () => AppNavigator.pushWorkScheduleSettings(context),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.space16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Work schedule',
-                        style: AppTypography.label(context),
-                      ),
-                      const Icon(Icons.chevron_right),
-                    ],
-                  ),
+                SettingsTile(
+                  label: 'Checkout reminder',
+                  onTap: () => showCheckoutReminderSetupSheet(context),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: AppSpacing.space16),
-            ShadowCard(
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                onTap: () => showCheckoutReminderSetupSheet(context),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.space16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Checkout reminder',
-                        style: AppTypography.label(context),
-                      ),
-                      const Icon(Icons.chevron_right),
-                    ],
-                  ),
+            SettingsSection(
+              title: 'Work',
+              children: [
+                SettingsTile(
+                  label: 'Work schedule',
+                  onTap: () => AppNavigator.pushWorkScheduleSettings(context),
                 ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.space16),
-            ShadowCard(
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                onTap: () async {
-                  await showLocationLogSetupSheet(context);
-                  _loadLocationLogStatus();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.space16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Location activity',
-                        style: AppTypography.label(context),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (_locationLogEnabled != null) ...[
-                            Text(
-                              _locationLogEnabled! ? 'On' : 'Off',
-                              style: AppTypography.body(context)?.copyWith(
-                                color: _locationLogEnabled!
-                                    ? context.colors.primary
-                                    : context.colors.textSecondary,
-                                fontWeight: _locationLogEnabled!
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.space8),
-                          ],
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                    ],
-                  ),
+                SettingsTile(
+                  label: 'Location activity',
+                  trailing: _locationLogEnabled != null
+                      ? SettingsTileStatus(
+                          text: _locationLogEnabled! ? 'On' : 'Off',
+                          active: _locationLogEnabled!,
+                        )
+                      : null,
+                  onTap: () async {
+                    await showLocationLogSetupSheet(context);
+                    _loadLocationLogStatus();
+                  },
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: AppSpacing.space16),
-            ShadowCard(
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                onTap: () async {
-                  await showManageZentaoConnectionSheet(context);
-                  _loadZentaoConnection();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.space16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Zentao account', style: AppTypography.label(context)),
-                      Flexible(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (!_isLoadingZentaoConnection)
-                              Flexible(
-                                child: Text(
-                                  _zentaoConnection != null
-                                      ? 'Connected — ${_zentaoConnection!.domain}'
-                                      : 'Not connected',
-                                  style: AppTypography.body(context)?.copyWith(
-                                    color: _zentaoConnection != null
-                                        ? context.colors.primary
-                                        : context.colors.textSecondary,
-                                    fontWeight: _zentaoConnection != null
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            const SizedBox(width: AppSpacing.space8),
-                            const Icon(Icons.chevron_right),
-                          ],
+            SettingsSection(
+              title: 'Integrations',
+              children: [
+                SettingsTile(
+                  label: 'Zentao account',
+                  trailing: _isLoadingZentaoConnection
+                      ? null
+                      : SettingsTileStatus(
+                          text: _zentaoConnection != null
+                              ? 'Connected — ${_zentaoConnection!.domain}'
+                              : 'Not connected',
+                          active: _zentaoConnection != null,
                         ),
-                      ),
-                    ],
-                  ),
+                  onTap: () async {
+                    await showManageZentaoConnectionSheet(context);
+                    _loadZentaoConnection();
+                  },
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: AppSpacing.space16),
-            ShadowCard(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.space16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Appearance', style: AppTypography.label(context)),
-                    const SizedBox(height: AppSpacing.space8),
-                    BlocBuilder<AppCubit, AppState>(
-                      builder: (context, state) => Row(
-                        children: [
-                          Expanded(
-                            child: SegmentedButton<ThemeMode>(
-                              segments: const [
-                                ButtonSegment(
-                                  value: ThemeMode.system,
-                                  label: Text('System'),
-                                  icon: Icon(Icons.brightness_auto),
-                                ),
-                                ButtonSegment(
-                                  value: ThemeMode.light,
-                                  label: Text('Light'),
-                                  icon: Icon(Icons.light_mode),
-                                ),
-                                ButtonSegment(
-                                  value: ThemeMode.dark,
-                                  label: Text('Dark'),
-                                  icon: Icon(Icons.dark_mode),
-                                ),
-                              ],
-                              selected: {state.themeMode},
-                              onSelectionChanged: (selection) => context
-                                  .read<AppCubit>()
-                                  .setThemeMode(selection.first),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.space16),
-            ShadowCard(
-              margin: EdgeInsets.zero,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.space16,
-                      AppSpacing.space16,
-                      AppSpacing.space16,
-                      AppSpacing.space8,
-                    ),
-                    child: Text('About', style: AppTypography.label(context)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.space16,
-                    ),
-                    child: Text(
-                      _packageInfo == null
-                          ? 'Loading…'
-                          : '${_packageInfo!.appName} '
-                                '${_packageInfo!.version} '
-                                '(${_packageInfo!.buildNumber})',
-                      style: AppTypography.caption(context),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.space8),
-                  InkWell(
-                    onTap: () => AppNavigator.pushPrivacyPolicy(context),
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.space16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Privacy Policy',
-                            style: AppTypography.label(context),
-                          ),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (kDebugMode) ...[
-              const SizedBox(height: AppSpacing.space16),
-              ShadowCard(
-                margin: EdgeInsets.zero,
-                child: InkWell(
-                  onTap: () => AppNavigator.pushDebug(context),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.space16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Debug tools',
-                          style: AppTypography.label(context),
-                        ),
-                        const Icon(Icons.chevron_right),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.space16),
-              ShadowCard(
-                margin: EdgeInsets.zero,
-                child: Padding(
+            SettingsSection(
+              title: 'General',
+              children: [
+                Padding(
                   padding: const EdgeInsets.all(AppSpacing.space16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'ObjectBox database file',
-                        style: AppTypography.label(context),
-                      ),
-                      const SizedBox(height: AppSpacing.space4),
-                      Text(
-                        'Point ObjectBox Admin at this path to inspect the '
-                        'database.',
-                        style: AppTypography.caption(context),
-                      ),
+                      Text('Appearance', style: AppTypography.label(context)),
                       const SizedBox(height: AppSpacing.space8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SelectableText(
-                              _databasePath ?? 'Loading…',
-                              style: AppTypography.body(context),
+                      BlocBuilder<AppCubit, AppState>(
+                        builder: (context, state) => Row(
+                          children: [
+                            Expanded(
+                              child: SegmentedButton<ThemeMode>(
+                                segments: const [
+                                  ButtonSegment(
+                                    value: ThemeMode.system,
+                                    label: Text('System'),
+                                    icon: Icon(Icons.brightness_auto),
+                                  ),
+                                  ButtonSegment(
+                                    value: ThemeMode.light,
+                                    label: Text('Light'),
+                                    icon: Icon(Icons.light_mode),
+                                  ),
+                                  ButtonSegment(
+                                    value: ThemeMode.dark,
+                                    label: Text('Dark'),
+                                    icon: Icon(Icons.dark_mode),
+                                  ),
+                                ],
+                                selected: {state.themeMode},
+                                onSelectionChanged: (selection) => context
+                                    .read<AppCubit>()
+                                    .setThemeMode(selection.first),
+                              ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.copy, size: 20),
-                            tooltip: 'Copy path',
-                            onPressed: _databasePath == null
-                                ? null
-                                : () => _copyPath(context, _databasePath!),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
+              ],
+            ),
+            SettingsSection(
+              title: 'About',
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.space16,
+                    AppSpacing.space16,
+                    AppSpacing.space16,
+                    AppSpacing.space8,
+                  ),
+                  child: Text(
+                    _packageInfo == null
+                        ? 'Loading…'
+                        : '${_packageInfo!.appName} '
+                              '${_packageInfo!.version} '
+                              '(${_packageInfo!.buildNumber})',
+                    style: AppTypography.caption(context),
+                  ),
+                ),
+                SettingsTile(
+                  label: 'Privacy Policy',
+                  onTap: () => AppNavigator.pushPrivacyPolicy(context),
+                ),
+              ],
+            ),
+            if (kDebugMode)
+              SettingsSection(
+                title: 'Developer',
+                children: [
+                  SettingsTile(
+                    label: 'Debug tools',
+                    onTap: () => AppNavigator.pushDebug(context),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.space16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ObjectBox database file',
+                          style: AppTypography.label(context),
+                        ),
+                        const SizedBox(height: AppSpacing.space4),
+                        Text(
+                          'Point ObjectBox Admin at this path to inspect the '
+                          'database.',
+                          style: AppTypography.caption(context),
+                        ),
+                        const SizedBox(height: AppSpacing.space8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SelectableText(
+                                _databasePath ?? 'Loading…',
+                                style: AppTypography.body(context),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.copy, size: 20),
+                              tooltip: 'Copy path',
+                              onPressed: _databasePath == null
+                                  ? null
+                                  : () => _copyPath(context, _databasePath!),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
           ],
         ),
       ),

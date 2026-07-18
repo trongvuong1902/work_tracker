@@ -19,8 +19,12 @@ class DayCell extends StatelessWidget {
     final showDot = !isToday && day.status != DayStatus.none;
 
     return GestureDetector(
+      // Opaque so the whole cell (not just the painted number/dot) is tappable
+      // — non-selected cells have no background, which made them hard to hit.
+      behavior: HitTestBehavior.opaque,
       onTap: () => context.read<CalendarCubit>().selectDate(day.date),
       child: Container(
+        width: double.infinity,
         margin: const EdgeInsets.symmetric(vertical: AppSpacing.space4),
         decoration: showBackground
             ? BoxDecoration(
@@ -28,7 +32,7 @@ class DayCell extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.radius12),
               )
             : null,
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.space4),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
         child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -53,26 +57,35 @@ class DayCell extends StatelessWidget {
             ),
           ),
           // const SizedBox(height: AppSpacing.space4),
-          if (showDot)
-            Container(
-              width: 6,
-              height: 6,
-              decoration: BoxDecoration(
-                color: day.status
-                    .color(context)
-                    .withValues(alpha: dimmed ? 0.4 : 1),
-                shape: BoxShape.circle,
-              ),
-            )
-          else
-            const SizedBox(height: 6),
-          const SizedBox(height: AppSpacing.space8),
-          Text(
-            day.timeLabel ?? '',
-            style: AppTypography.caption(context)?.copyWith(
-              color: dimmed
-                  ? colors.textSecondary.withValues(alpha: 0.5)
-                  : colors.textSecondary,
+          SizedBox(
+            height: 6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showDot)
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: day.status
+                          .color(context)
+                          .withValues(alpha: dimmed ? 0.4 : 1),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                if (showDot && day.hasPlannedTasks)
+                  const SizedBox(width: 3),
+                if (day.hasPlannedTasks)
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: colors.secondary.withValues(alpha: dimmed ? 0.4 : 1),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+              ],
             ),
           ),
         ],

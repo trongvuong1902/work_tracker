@@ -23,6 +23,7 @@ import '../database/location_log/location_log_entity.dart';
 import '../database/location_log/location_log_settings_entity.dart';
 import '../database/task/task_entity.dart';
 import '../database/task/task_time_log_entity.dart';
+import '../database/task/task_time_session_entity.dart';
 import '../database/work_schedule/work_schedule_entity.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -453,7 +454,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(9, 6191964457532316515),
     name: 'TaskEntity',
-    lastPropertyId: const obx_int.IdUid(22, 8201534001140874554),
+    lastPropertyId: const obx_int.IdUid(27, 4770243704959934970),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -588,6 +589,36 @@ final _entities = <obx_int.ModelEntity>[
         type: 9,
         flags: 0,
       ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(23, 3441189308133093498),
+        name: 'taskSource',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(24, 2340040536483980282),
+        name: 'externalId',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(25, 5222337241677922312),
+        name: 'externalType',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(26, 3563730060788996664),
+        name: 'externalUrl',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(27, 4770243704959934970),
+        name: 'plannedDate',
+        type: 10,
+        flags: 0,
+      ),
     ],
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
@@ -620,6 +651,40 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(4, 2034381477115506792),
         name: 'seconds',
         type: 6,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(11, 3023733283392953570),
+    name: 'TaskTimeSessionEntity',
+    lastPropertyId: const obx_int.IdUid(4, 3959612860431795762),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 100384369743255408),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 8725599110943652297),
+        name: 'taskId',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 6132323153534112863),
+        name: 'start',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 3959612860431795762),
+        name: 'end',
+        type: 10,
         flags: 0,
       ),
     ],
@@ -671,7 +736,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     // Typically, this is done with `dart run build_runner build`.
     generatorVersion: obx_int.GeneratorVersion.v2025_12_16,
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(10, 8169882491915754974),
+    lastEntityId: const obx_int.IdUid(11, 3023733283392953570),
     lastIndexId: const obx_int.IdUid(0, 0),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
@@ -1275,7 +1340,19 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final zentaoOpenedByOffset = object.zentaoOpenedBy == null
             ? null
             : fbb.writeString(object.zentaoOpenedBy!);
-        fbb.startTable(23);
+        final taskSourceOffset = object.taskSource == null
+            ? null
+            : fbb.writeString(object.taskSource!);
+        final externalIdOffset = object.externalId == null
+            ? null
+            : fbb.writeString(object.externalId!);
+        final externalTypeOffset = object.externalType == null
+            ? null
+            : fbb.writeString(object.externalType!);
+        final externalUrlOffset = object.externalUrl == null
+            ? null
+            : fbb.writeString(object.externalUrl!);
+        fbb.startTable(28);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, titleOffset);
         fbb.addOffset(2, descriptionOffset);
@@ -1298,6 +1375,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(19, object.zentaoDetailSyncedAt?.millisecondsSinceEpoch);
         fbb.addBool(20, object.zentaoConfirmed);
         fbb.addOffset(21, zentaoOpenedByOffset);
+        fbb.addOffset(22, taskSourceOffset);
+        fbb.addOffset(23, externalIdOffset);
+        fbb.addOffset(24, externalTypeOffset);
+        fbb.addOffset(25, externalUrlOffset);
+        fbb.addInt64(26, object.plannedDate?.millisecondsSinceEpoch);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -1313,6 +1395,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
         );
         final zentaoDetailSyncedAtValue = const fb.Int64Reader()
             .vTableGetNullable(buffer, rootOffset, 42);
+        final plannedDateValue = const fb.Int64Reader().vTableGetNullable(
+          buffer,
+          rootOffset,
+          56,
+        );
         final titleParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 6, '');
@@ -1396,6 +1483,21 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final zentaoOpenedByParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 46);
+        final taskSourceParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 48);
+        final externalIdParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 50);
+        final externalTypeParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 52);
+        final externalUrlParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 54);
+        final plannedDateParam = plannedDateValue == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(plannedDateValue);
         final object = TaskEntity(
           title: titleParam,
           description: descriptionParam,
@@ -1418,6 +1520,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
           timerStartedAt: timerStartedAtParam,
           zentaoConfirmed: zentaoConfirmedParam,
           zentaoOpenedBy: zentaoOpenedByParam,
+          taskSource: taskSourceParam,
+          externalId: externalIdParam,
+          externalType: externalTypeParam,
+          externalUrl: externalUrlParam,
+          plannedDate: plannedDateParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
         return object;
@@ -1462,6 +1569,47 @@ obx_int.ModelDefinition getObjectBoxModel() {
           taskId: taskIdParam,
           day: dayParam,
           seconds: secondsParam,
+        )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+
+        return object;
+      },
+    ),
+    TaskTimeSessionEntity: obx_int.EntityDefinition<TaskTimeSessionEntity>(
+      model: _entities[10],
+      toOneRelations: (TaskTimeSessionEntity object) => [],
+      toManyRelations: (TaskTimeSessionEntity object) => {},
+      getId: (TaskTimeSessionEntity object) => object.id,
+      setId: (TaskTimeSessionEntity object, int id) {
+        object.id = id;
+      },
+      objectToFB: (TaskTimeSessionEntity object, fb.Builder fbb) {
+        fbb.startTable(5);
+        fbb.addInt64(0, object.id);
+        fbb.addInt64(1, object.taskId);
+        fbb.addInt64(2, object.start.millisecondsSinceEpoch);
+        fbb.addInt64(3, object.end.millisecondsSinceEpoch);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final taskIdParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          6,
+          0,
+        );
+        final startParam = DateTime.fromMillisecondsSinceEpoch(
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0),
+        );
+        final endParam = DateTime.fromMillisecondsSinceEpoch(
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0),
+        );
+        final object = TaskTimeSessionEntity(
+          taskId: taskIdParam,
+          start: startParam,
+          end: endParam,
         )..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
         return object;
@@ -1900,6 +2048,31 @@ class TaskEntity_ {
   static final zentaoOpenedBy = obx.QueryStringProperty<TaskEntity>(
     _entities[8].properties[21],
   );
+
+  /// See [TaskEntity.taskSource].
+  static final taskSource = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[22],
+  );
+
+  /// See [TaskEntity.externalId].
+  static final externalId = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[23],
+  );
+
+  /// See [TaskEntity.externalType].
+  static final externalType = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[24],
+  );
+
+  /// See [TaskEntity.externalUrl].
+  static final externalUrl = obx.QueryStringProperty<TaskEntity>(
+    _entities[8].properties[25],
+  );
+
+  /// See [TaskEntity.plannedDate].
+  static final plannedDate = obx.QueryDateProperty<TaskEntity>(
+    _entities[8].properties[26],
+  );
 }
 
 /// [TaskTimeLogEntity] entity fields to define ObjectBox queries.
@@ -1922,5 +2095,28 @@ class TaskTimeLogEntity_ {
   /// See [TaskTimeLogEntity.seconds].
   static final seconds = obx.QueryIntegerProperty<TaskTimeLogEntity>(
     _entities[9].properties[3],
+  );
+}
+
+/// [TaskTimeSessionEntity] entity fields to define ObjectBox queries.
+class TaskTimeSessionEntity_ {
+  /// See [TaskTimeSessionEntity.id].
+  static final id = obx.QueryIntegerProperty<TaskTimeSessionEntity>(
+    _entities[10].properties[0],
+  );
+
+  /// See [TaskTimeSessionEntity.taskId].
+  static final taskId = obx.QueryIntegerProperty<TaskTimeSessionEntity>(
+    _entities[10].properties[1],
+  );
+
+  /// See [TaskTimeSessionEntity.start].
+  static final start = obx.QueryDateProperty<TaskTimeSessionEntity>(
+    _entities[10].properties[2],
+  );
+
+  /// See [TaskTimeSessionEntity.end].
+  static final end = obx.QueryDateProperty<TaskTimeSessionEntity>(
+    _entities[10].properties[3],
   );
 }

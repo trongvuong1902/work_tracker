@@ -14,6 +14,7 @@ import '../../zentao/domain/models/zentao_task.dart';
 import '../../zentao/domain/zentao_repository.dart';
 import '../data/task_dao.dart';
 import 'models/task.dart';
+import 'models/task_source.dart';
 import 'task_repository.dart';
 import 'task_time_log_repository.dart';
 
@@ -34,6 +35,35 @@ class TaskRepositoryImpl implements TaskRepository {
   Stream<void> watchTasksChanges() => _changesController.stream;
 
   void _notifyChanged() => _changesController.add(null);
+
+  // Zentao statuses that mean the item is finished. Bugs use resolved/closed;
+  // tasks use done/closed. Cancelled is deliberately excluded (not "done").
+  static const _completedZentaoStatuses = {'resolved', 'closed', 'done'};
+
+  bool _isZentaoCompletedStatus(String? status) {
+    if (status == null) return false;
+    return _completedZentaoStatuses.contains(status.trim().toLowerCase());
+  }
+
+  /// One-way sync completion: if [entity] links a Zentao item whose status is
+  /// completed, mark it done locally. Only ever sets `done = true` — never
+  /// reverses it if Zentao later reopens. Finalizes a running timer the same
+  /// way [stopTimer] does so tracked time isn't lost. Assumes the caller has
+  /// already applied the fresh `zentaoStatus`, and persists via the caller's
+  /// `_dao.update`.
+  Future<void> _applyZentaoCompletion(TaskEntity entity) async {
+    if (entity.done) return;
+    if (!_isZentaoCompletedStatus(entity.zentaoStatus)) return;
+
+    final startedAt = entity.timerStartedAt;
+    if (startedAt != null) {
+      final now = DateTime.now();
+      entity.elapsedSeconds += now.difference(startedAt).inSeconds;
+      entity.timerStartedAt = null;
+      await _timeLogRepository.recordSegment(entity.id, startedAt, now);
+    }
+    entity.done = true;
+  }
 
   @override
   Future<Task> createManual({
@@ -62,8 +92,13 @@ class TaskRepositoryImpl implements TaskRepository {
       zentaoStatus: task.status,
       zentaoLastSyncedAt: DateTime.now(),
       elapsedSeconds: 0,
+      taskSource: TaskSource.zentao.name,
+      externalId: task.id.toString(),
+      externalType: ExternalItemType.task.name,
     );
     _dao.insert(entity);
+    await _applyZentaoCompletion(entity);
+    _dao.update(entity);
     _notifyChanged();
     return _toModel(entity);
   }
@@ -80,6 +115,8 @@ class TaskRepositoryImpl implements TaskRepository {
     );
     _applyBugFields(entity, bug, product);
     _dao.insert(entity);
+    await _applyZentaoCompletion(entity);
+    _dao.update(entity);
     _notifyChanged();
     return _toModel(entity);
   }
@@ -92,8 +129,10 @@ class TaskRepositoryImpl implements TaskRepository {
     final existing = _dao.findByZentaoBugId(bug.id);
     if (existing != null) {
       // Refresh the Zentao-sourced fields; leave local state
-      // (done/elapsedSeconds/timerStartedAt/createdAt) untouched.
+      // (elapsedSeconds/timerStartedAt/createdAt) untouched — except `done`,
+      // which is flipped true (one-way) when Zentao reports the bug completed.
       _applyBugFields(existing, bug, product);
+      await _applyZentaoCompletion(existing);
       _dao.update(existing);
       _notifyChanged();
       return BugUpsertOutcome.updated;
@@ -109,6 +148,8 @@ class TaskRepositoryImpl implements TaskRepository {
     );
     _applyBugFields(entity, bug, product);
     _dao.insert(entity);
+    await _applyZentaoCompletion(entity);
+    _dao.update(entity);
     _notifyChanged();
     return BugUpsertOutcome.added;
   }
@@ -134,10 +175,14 @@ class TaskRepositoryImpl implements TaskRepository {
     entity.zentaoConfirmed = bug.confirmed;
     entity.zentaoOpenedBy = bug.openedByAccount ?? entity.zentaoOpenedBy;
     entity.zentaoLastSyncedAt = DateTime.now();
+    // Forward-fill the platform-agnostic identity so new rows are sync-ready.
+    entity.taskSource = TaskSource.zentao.name;
+    entity.externalId = bug.id.toString();
+    entity.externalType = ExternalItemType.bug.name;
   }
 
-  /// Task title for a bug: the `[id][title]` pattern, with any HTML flattened.
-  String _bugTitle(ZentaoBug bug) => '[${bug.id}][${htmlToPlainText(bug.title)}]';
+  /// Task title for a bug: the plain-text title, with any HTML flattened.
+  String _bugTitle(ZentaoBug bug) => htmlToPlainText(bug.title);
 
   /// Single 1..5 task priority (1 = most urgent) from the Zentao severity +
   /// priority (each 1..4, 1 = highest; 0/null = unset). Equal-weight average
@@ -227,6 +272,60 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
+  Future<Task> setPlannedDate(int id, DateTime? date) async {
+    final entity = _dao.getById(id);
+    if (entity == null) throw Exception('Task not found: $id');
+    entity.plannedDate =
+        date == null ? null : DateTime(date.year, date.month, date.day);
+    _dao.update(entity);
+    _notifyChanged();
+    return _toModel(entity);
+  }
+
+  @override
+  Future<List<Task>> getUnplannedOpenTasks() async {
+    final entities = _dao.getAll()
+        .where((e) => !e.done && e.plannedDate == null)
+        .toList()
+      ..sort((a, b) {
+        final ap = a.priority;
+        final bp = b.priority;
+        if (ap != bp) {
+          if (ap == null) return 1;
+          if (bp == null) return -1;
+          return ap.compareTo(bp);
+        }
+        return b.createdAt.compareTo(a.createdAt);
+      });
+    return entities.map(_toModel).toList();
+  }
+
+  @override
+  Future<void> setPlannedDateForTasks(List<int> ids, DateTime day) async {
+    if (ids.isEmpty) return;
+    final dayStart = DateTime(day.year, day.month, day.day);
+    for (final id in ids) {
+      final entity = _dao.getById(id);
+      if (entity == null) continue;
+      entity.plannedDate = dayStart;
+      _dao.update(entity);
+    }
+    _notifyChanged();
+  }
+
+  @override
+  Future<List<Task>> getPlannedTasksForMonth(int year, int month) async {
+    final entities = _dao.getAll().where((e) {
+      final planned = e.plannedDate;
+      return planned != null &&
+          planned.year == year &&
+          planned.month == month;
+    }).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return entities.map(_toModel).toList();
+  }
+
+  @override
   Future<void> startTimer(int id) async {
     final entity = _dao.getById(id);
     if (entity == null || entity.timerStartedAt != null) return;
@@ -273,6 +372,7 @@ class TaskRepositoryImpl implements TaskRepository {
       if (refreshed != null) {
         entity.zentaoStatus = refreshed.status;
         entity.zentaoLastSyncedAt = DateTime.now();
+        await _applyZentaoCompletion(entity);
         _dao.update(entity);
       }
     } else if (zentaoBugId != null) {
@@ -297,6 +397,7 @@ class TaskRepositoryImpl implements TaskRepository {
         entity.zentaoAttachmentsJson = _encodeAttachments(detail.attachments);
         entity.zentaoLastSyncedAt = now;
         entity.zentaoDetailSyncedAt = now;
+        await _applyZentaoCompletion(entity);
         _dao.update(entity);
       }
     }
@@ -328,7 +429,32 @@ class TaskRepositoryImpl implements TaskRepository {
     elapsedSeconds: entity.elapsedSeconds,
     timerStartedAt: entity.timerStartedAt,
     zentaoConfirmed: entity.zentaoConfirmed,
+    source: _deriveSource(entity),
+    externalId: entity.externalId ??
+        (entity.zentaoBugId ?? entity.zentaoTaskId)?.toString(),
+    externalType: _deriveExternalType(entity),
+    externalUrl: entity.externalUrl,
+    plannedDate: entity.plannedDate,
   );
+
+  /// Source discriminator: the stored value when present, otherwise derived
+  /// from the legacy zentao* columns so pre-existing rows map correctly.
+  TaskSource _deriveSource(TaskEntity entity) {
+    if (entity.taskSource != null) {
+      return TaskSourceX.fromName(entity.taskSource);
+    }
+    return (entity.zentaoBugId != null || entity.zentaoTaskId != null)
+        ? TaskSource.zentao
+        : TaskSource.manual;
+  }
+
+  ExternalItemType? _deriveExternalType(TaskEntity entity) {
+    final stored = ExternalItemTypeX.fromName(entity.externalType);
+    if (stored != null) return stored;
+    if (entity.zentaoBugId != null) return ExternalItemType.bug;
+    if (entity.zentaoTaskId != null) return ExternalItemType.task;
+    return null;
+  }
 
   @override
   Future<void> confirmZentaoBug(int id) async {
@@ -397,6 +523,57 @@ class TaskRepositoryImpl implements TaskRepository {
     if (startedAt != null) {
       await _timeLogRepository.recordSegment(id, startedAt, now);
     }
+    _notifyChanged();
+    return _toModel(entity);
+  }
+
+  @override
+  Future<Task> closeZentaoBug(int id) async {
+    final entity = _dao.getById(id);
+    if (entity == null) throw Exception('Task not found: $id');
+    final zentaoBugId = entity.zentaoBugId;
+    if (zentaoBugId == null) {
+      throw Exception('Task $id is not linked to a Zentao bug');
+    }
+
+    // Throws on failure — the caller leaves local state unchanged.
+    await _zentaoRepository.closeBug(zentaoBugId);
+
+    // Success — finalize any running timer and mark it closed/done locally.
+    final startedAt = entity.timerStartedAt;
+    final now = DateTime.now();
+    if (startedAt != null) {
+      entity.elapsedSeconds += now.difference(startedAt).inSeconds;
+      entity.timerStartedAt = null;
+    }
+    entity.done = true;
+    entity.zentaoStatus = 'closed';
+    _dao.update(entity);
+    if (startedAt != null) {
+      await _timeLogRepository.recordSegment(id, startedAt, now);
+    }
+    _notifyChanged();
+    return _toModel(entity);
+  }
+
+  @override
+  Future<Task> reopenZentaoBug(int id) async {
+    final entity = _dao.getById(id);
+    if (entity == null) throw Exception('Task not found: $id');
+    final zentaoBugId = entity.zentaoBugId;
+    if (zentaoBugId == null) {
+      throw Exception('Task $id is not linked to a Zentao bug');
+    }
+
+    // Throws on failure — the caller leaves local state unchanged.
+    await _zentaoRepository.activateBug(zentaoBugId);
+
+    // Success — reopen locally: back to active, not done, and needing a fresh
+    // confirm on the next Start-timer.
+    entity.done = false;
+    entity.zentaoStatus = 'active';
+    entity.zentaoConfirmed = false;
+    _dao.update(entity);
     _notifyChanged();
     return _toModel(entity);
   }

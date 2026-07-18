@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:injectable/injectable.dart';
 
 import '../../../database/task/task_time_log_entity.dart';
+import '../../../database/task/task_time_session_entity.dart';
 import '../data/task_dao.dart';
 import '../data/task_time_log_dao.dart';
+import '../data/task_time_session_dao.dart';
 import 'models/task_time_log.dart';
+import 'models/task_time_session.dart';
 
 /// Per-date time tracking for tasks. The timer path
 /// (`TaskRepositoryImpl`) calls [recordSegment] to attribute finalized work to
@@ -32,6 +35,10 @@ abstract class TaskTimeLogRepository {
   /// Removes a log row, subtracting its seconds from the task total.
   Future<void> deleteEntry(int logId);
 
+  /// The individual work sessions (real start/end clock times) that started on
+  /// the calendar day of [day] — used by the daily report.
+  Future<List<TaskTimeSession>> getSessionsForDay(DateTime day);
+
   /// Emits whenever the per-day logs change (record/add/update/delete), so
   /// reactive views can re-read. Emits only on writes, never on reads.
   Stream<void> watchTimeLogsChanges();
@@ -39,10 +46,11 @@ abstract class TaskTimeLogRepository {
 
 @LazySingleton(as: TaskTimeLogRepository)
 class TaskTimeLogRepositoryImpl implements TaskTimeLogRepository {
-  TaskTimeLogRepositoryImpl(this._logDao, this._taskDao);
+  TaskTimeLogRepositoryImpl(this._logDao, this._taskDao, this._sessionDao);
 
   final TaskTimeLogDao _logDao;
   final TaskDao _taskDao;
+  final TaskTimeSessionDao _sessionDao;
 
   // Broadcast on every write so reactive views (home "Today's tasks") re-read.
   // App-scoped singleton, so it's never closed.
@@ -62,11 +70,33 @@ class TaskTimeLogRepositoryImpl implements TaskTimeLogRepository {
       final nextMidnight = dayStart.add(const Duration(days: 1));
       final segmentEnd = end.isBefore(nextMidnight) ? end : nextMidnight;
       final seconds = segmentEnd.difference(cursor).inSeconds;
-      if (seconds > 0) _addSecondsToDay(taskId, dayStart, seconds);
+      if (seconds > 0) {
+        _addSecondsToDay(taskId, dayStart, seconds);
+        // Preserve the real clock times for the daily report (one row per day
+        // slice for a midnight-spanning segment).
+        _sessionDao.put(
+          TaskTimeSessionEntity(
+            taskId: taskId,
+            start: cursor,
+            end: segmentEnd,
+          ),
+        );
+      }
       cursor = nextMidnight;
     }
     _changesController.add(null);
   }
+
+  @override
+  Future<List<TaskTimeSession>> getSessionsForDay(DateTime day) async =>
+      _sessionDao.getByDay(day).map(_toSessionModel).toList();
+
+  TaskTimeSession _toSessionModel(TaskTimeSessionEntity e) => TaskTimeSession(
+    id: e.id,
+    taskId: e.taskId,
+    start: e.start,
+    end: e.end,
+  );
 
   void _addSecondsToDay(int taskId, DateTime dayStart, int seconds) {
     final existing = _logDao.findByTaskAndDay(taskId, dayStart);

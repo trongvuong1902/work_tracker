@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:work_tracker/database/task/task_entity.dart';
 import 'package:work_tracker/features/task/data/task_dao.dart';
+import 'package:work_tracker/features/task/domain/models/task_source.dart';
 import 'package:work_tracker/features/task/domain/models/task_time_log.dart';
+import 'package:work_tracker/features/task/domain/models/task_time_session.dart';
 import 'package:work_tracker/features/task/domain/task_repository.dart';
 import 'package:work_tracker/features/task/domain/task_repository_impl.dart';
 import 'package:work_tracker/features/task/domain/task_time_log_repository.dart';
@@ -158,6 +160,28 @@ class FakeZentaoRepository implements ZentaoRepository {
     lastResolveComment = comment;
     if (resolveBugShouldThrow) throw Exception('resolve failed');
   }
+
+  bool closeBugShouldThrow = false;
+  int closeBugCallCount = 0;
+  int? lastCloseBugId;
+
+  @override
+  Future<void> closeBug(int bugId, {String comment = ''}) async {
+    closeBugCallCount++;
+    lastCloseBugId = bugId;
+    if (closeBugShouldThrow) throw Exception('close failed');
+  }
+
+  bool activateBugShouldThrow = false;
+  int activateBugCallCount = 0;
+  int? lastActivateBugId;
+
+  @override
+  Future<void> activateBug(int bugId, {String comment = ''}) async {
+    activateBugCallCount++;
+    lastActivateBugId = bugId;
+    if (activateBugShouldThrow) throw Exception('activate failed');
+  }
 }
 
 /// Captures the segments the repository attributes to per-day logs so tests
@@ -186,6 +210,10 @@ class FakeTaskTimeLogRepository implements TaskTimeLogRepository {
 
   @override
   Future<List<TaskTimeLog>> getByDay(DateTime day) =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<TaskTimeSession>> getSessionsForDay(DateTime day) =>
       throw UnimplementedError();
 
   @override
@@ -264,6 +292,58 @@ void main() {
         task.zentaoLastSyncedAt!.isBefore(after.add(const Duration(milliseconds: 1))),
         isTrue,
       );
+    });
+  });
+
+  group('generic external identity (multi-platform)', () {
+    test('a manual task maps to source manual with no external id', () async {
+      final task = await repository.createManual(title: 'Plain');
+      expect(task.source, TaskSource.manual);
+      expect(task.externalId, isNull);
+      expect(task.externalType, isNull);
+    });
+
+    test('a legacy zentao bug row (no stored source) derives zentao/bug', () async {
+      // Simulate a row written before the generic columns existed: only the
+      // legacy zentaoBugId is set, taskSource/externalId are null.
+      final legacy = TaskEntity(
+        title: 'Crash',
+        done: false,
+        createdAt: DateTime(2026),
+        zentaoBugId: 7,
+        zentaoStatus: 'active',
+        elapsedSeconds: 0,
+      );
+      dao.insert(legacy);
+
+      final task = (await repository.getById(legacy.id))!;
+      expect(task.source, TaskSource.zentao);
+      expect(task.externalType, ExternalItemType.bug);
+      expect(task.externalId, '7');
+    });
+
+    test('importBugFromZentao forward-fills the generic identity', () async {
+      await repository.importBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      final entity = dao.findByZentaoBugId(7)!;
+      expect(entity.taskSource, 'zentao');
+      expect(entity.externalId, '7');
+      expect(entity.externalType, 'bug');
+
+      final task = (await repository.getById(entity.id))!;
+      expect(task.source, TaskSource.zentao);
+      expect(task.externalType, ExternalItemType.bug);
+      expect(task.externalId, '7');
+    });
+
+    test('importFromZentao forward-fills a task-type identity', () async {
+      final task = await repository.importFromZentao(
+        const ZentaoTask(id: 42, name: 'Fix login', status: 'doing'),
+      );
+      expect(task.source, TaskSource.zentao);
+      expect(task.externalType, ExternalItemType.task);
+      expect(task.externalId, '42');
     });
   });
 
@@ -401,7 +481,7 @@ void main() {
   });
 
   group('importBugFromZentao', () {
-    test('maps title to [id][title], computes priority, keeps raw fields', () async {
+    test('maps title to plain title, computes priority, keeps raw fields', () async {
       const bug = ZentaoBug(
         id: 7,
         title: 'Crash on save',
@@ -415,7 +495,7 @@ void main() {
       final task = await repository.importBugFromZentao(bug, product: product);
 
       expect(task.zentaoBugId, 7);
-      expect(task.title, '[7][Crash on save]');
+      expect(task.title, 'Crash on save');
       expect(task.description, 'Steps to reproduce…');
       // severity 1 + priority 2 -> avg 1.5 -> scaled to 2 (1 = most urgent).
       expect(task.priority, 2);
@@ -513,7 +593,7 @@ void main() {
       final after = dao.findByZentaoBugId(7)!;
       // Same row, refreshed Zentao fields…
       expect(after.id, originalId);
-      expect(after.title, '[7][Crash on save (renamed)]');
+      expect(after.title, 'Crash on save (renamed)');
       expect(after.zentaoStatus, 'resolved');
       expect(after.zentaoSeverity, 1);
       expect(after.zentaoPriority, 2);
@@ -556,7 +636,7 @@ void main() {
       final refreshed = await repository.refreshFromZentao(id);
 
       expect(zentaoRepository.lastBugDetailId, 7);
-      expect(refreshed.title, '[7][Crash on save]');
+      expect(refreshed.title, 'Crash on save');
       expect(refreshed.description, 'Full steps here');
       expect(refreshed.priority, 1); // sev 1 + pri 1 -> 1
       expect(refreshed.zentaoStatus, 'resolved');
@@ -780,6 +860,244 @@ void main() {
         repository.resolveZentaoBug(task.id),
         throwsA(isA<Exception>()),
       );
+    });
+  });
+
+  group('planned date', () {
+    test('setPlannedDate normalizes to midnight and persists', () async {
+      final task = await repository.createManual(title: 'Plan me');
+
+      final updated = await repository.setPlannedDate(
+        task.id,
+        DateTime(2026, 7, 19, 14, 30),
+      );
+
+      expect(updated.plannedDate, DateTime(2026, 7, 19));
+      expect(dao.getById(task.id)!.plannedDate, DateTime(2026, 7, 19));
+    });
+
+    test('setPlannedDate(null) clears the planned date', () async {
+      final task = await repository.createManual(title: 'Plan me');
+      await repository.setPlannedDate(task.id, DateTime(2026, 7, 19));
+
+      final cleared = await repository.setPlannedDate(task.id, null);
+
+      expect(cleared.plannedDate, isNull);
+    });
+
+    test('getUnplannedOpenTasks excludes done and already-planned tasks', () async {
+      final open = await repository.createManual(title: 'Open unplanned');
+      final planned = await repository.createManual(title: 'Planned');
+      final done = await repository.createManual(title: 'Done');
+      await repository.setPlannedDate(planned.id, DateTime(2026, 7, 19));
+      await repository.toggleDone(done.id);
+
+      final candidates = await repository.getUnplannedOpenTasks();
+
+      expect(candidates.map((t) => t.id), [open.id]);
+    });
+
+    test('setPlannedDateForTasks plans every id in one batch', () async {
+      final a = await repository.createManual(title: 'A');
+      final b = await repository.createManual(title: 'B');
+
+      await repository.setPlannedDateForTasks(
+        [a.id, b.id],
+        DateTime(2026, 7, 19, 9),
+      );
+
+      expect(dao.getById(a.id)!.plannedDate, DateTime(2026, 7, 19));
+      expect(dao.getById(b.id)!.plannedDate, DateTime(2026, 7, 19));
+    });
+
+    test('getPlannedTasksForMonth returns only that month\'s planned tasks', () async {
+      final a = await repository.createManual(title: 'July');
+      final b = await repository.createManual(title: 'August');
+      final c = await repository.createManual(title: 'Unplanned');
+      await repository.setPlannedDate(a.id, DateTime(2026, 7, 19));
+      await repository.setPlannedDate(b.id, DateTime(2026, 8, 1));
+      // c left unplanned.
+
+      final july = await repository.getPlannedTasksForMonth(2026, 7);
+
+      expect(july.map((t) => t.id), [a.id]);
+      expect(july.single.title, 'July');
+      // sanity: c never appears
+      expect(july.any((t) => t.id == c.id), isFalse);
+    });
+  });
+
+  group('closeZentaoBug / reopenZentaoBug', () {
+    Future<int> seedResolvedBug() async {
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'resolved'),
+      );
+      return dao.findByZentaoBugId(7)!.id;
+    }
+
+    test('closeZentaoBug closes in Zentao then marks it closed + done', () async {
+      final id = await seedResolvedBug();
+
+      final result = await repository.closeZentaoBug(id);
+
+      expect(zentaoRepository.closeBugCallCount, 1);
+      expect(zentaoRepository.lastCloseBugId, 7);
+      expect(result.zentaoStatus, 'closed');
+      expect(result.done, isTrue);
+    });
+
+    test('closeZentaoBug finalizes a running timer', () async {
+      final id = await seedResolvedBug();
+      final entity = dao.getById(id)!;
+      final started = DateTime.now().subtract(const Duration(seconds: 5));
+      entity.timerStartedAt = started;
+      entity.done = false;
+      dao.update(entity);
+      timeLogRepository.recorded.clear();
+
+      final result = await repository.closeZentaoBug(id);
+
+      expect(result.timerStartedAt, isNull);
+      expect(result.elapsedSeconds, inInclusiveRange(5, 6));
+      expect(timeLogRepository.recorded, isNotEmpty);
+    });
+
+    test('reopenZentaoBug activates in Zentao then reopens locally', () async {
+      final id = await seedResolvedBug();
+
+      final result = await repository.reopenZentaoBug(id);
+
+      expect(zentaoRepository.activateBugCallCount, 1);
+      expect(zentaoRepository.lastActivateBugId, 7);
+      expect(result.zentaoStatus, 'active');
+      expect(result.done, isFalse);
+      expect(dao.getById(id)!.zentaoConfirmed, isFalse);
+    });
+
+    test('closeZentaoBug leaves local state unchanged on Zentao failure', () async {
+      final id = await seedResolvedBug();
+      zentaoRepository.closeBugShouldThrow = true;
+
+      await expectLater(
+        repository.closeZentaoBug(id),
+        throwsA(isA<Exception>()),
+      );
+      expect(dao.getById(id)!.zentaoStatus, 'resolved');
+    });
+
+    test('closeZentaoBug throws for a non-bug task', () async {
+      final task = await repository.createManual(title: 'Manual');
+      await expectLater(
+        repository.closeZentaoBug(task.id),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
+
+  group('sync-driven completion (Zentao resolved/closed -> done)', () {
+    test('upsertBugFromZentao marks an open task done when status is resolved', () async {
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      expect(dao.findByZentaoBugId(7)!.done, isFalse);
+
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'resolved'),
+      );
+      expect(dao.findByZentaoBugId(7)!.done, isTrue);
+    });
+
+    test('upsertBugFromZentao marks done when status is closed', () async {
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'CLOSED'), // case-insensitive
+      );
+      expect(dao.findByZentaoBugId(7)!.done, isTrue);
+    });
+
+    test('one-way: an active re-sync never un-marks an already-done task', () async {
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      final entity = dao.findByZentaoBugId(7)!;
+      entity.done = true;
+      dao.update(entity);
+
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      expect(dao.findByZentaoBugId(7)!.done, isTrue);
+    });
+
+    test('finalizes a running timer when sync marks the task done', () async {
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      final entity = dao.findByZentaoBugId(7)!;
+      final started = DateTime.now().subtract(const Duration(seconds: 5));
+      entity.timerStartedAt = started;
+      dao.update(entity);
+      timeLogRepository.recorded.clear();
+
+      await repository.upsertBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'resolved'),
+      );
+
+      final after = dao.findByZentaoBugId(7)!;
+      expect(after.done, isTrue);
+      expect(after.timerStartedAt, isNull);
+      expect(after.elapsedSeconds, inInclusiveRange(5, 6));
+      expect(timeLogRepository.recorded, isNotEmpty);
+      expect(timeLogRepository.recorded.last.taskId, after.id);
+    });
+
+    test('refreshFromZentao marks a bug task done when the detail is resolved', () async {
+      await repository.importBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      final id = dao.findByZentaoBugId(7)!.id;
+      zentaoRepository.bugDetailResult = const ZentaoBugDetail(
+        bug: ZentaoBug(id: 7, title: 'Crash', status: 'resolved'),
+        comments: [],
+        attachments: [],
+      );
+
+      final refreshed = await repository.refreshFromZentao(id);
+
+      expect(refreshed.done, isTrue);
+    });
+
+    test('refreshFromZentao marks a task done when its status is done', () async {
+      final imported = await repository.importFromZentao(
+        const ZentaoTask(id: 42, name: 'Fix login', status: 'doing'),
+      );
+      expect(imported.done, isFalse);
+      zentaoRepository.refreshTaskResult = const ZentaoTask(
+        id: 42,
+        name: 'Fix login',
+        status: 'done',
+      );
+
+      final refreshed = await repository.refreshFromZentao(imported.id);
+
+      expect(refreshed.done, isTrue);
+    });
+
+    test('a cancelled task is not marked done', () async {
+      final imported = await repository.importFromZentao(
+        const ZentaoTask(id: 42, name: 'Fix login', status: 'doing'),
+      );
+      zentaoRepository.refreshTaskResult = const ZentaoTask(
+        id: 42,
+        name: 'Fix login',
+        status: 'cancel',
+      );
+
+      final refreshed = await repository.refreshFromZentao(imported.id);
+
+      expect(refreshed.done, isFalse);
     });
   });
 }

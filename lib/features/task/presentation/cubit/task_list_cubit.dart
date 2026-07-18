@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -16,9 +18,19 @@ enum TaskSort { createdDesc, priority }
 class TaskListCubit extends Cubit<TaskListState> {
   TaskListCubit(this._repository) : super(const TaskListState()) {
     load();
+    // Reload whenever any task changes (e.g. a bug sync, timer, or status
+    // change elsewhere) so the list reflects synced data on return.
+    _changesSub = _repository.watchTasksChanges().listen((_) => load());
   }
 
   final TaskRepository _repository;
+  StreamSubscription<void>? _changesSub;
+
+  @override
+  Future<void> close() {
+    _changesSub?.cancel();
+    return super.close();
+  }
 
   Future<void> load() async {
     emit(state.copyWith(isLoading: true, errorMessage: null));

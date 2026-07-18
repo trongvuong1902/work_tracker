@@ -14,7 +14,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CalendarDayModel {
 
- DateTime get date; bool get isCurrentMonth; bool get isToday; bool get isSelected; DayStatus get status; String? get timeLabel; Attendance? get attendance;
+ DateTime get date; bool get isCurrentMonth; bool get isToday; bool get isSelected; DayStatus get status; String? get timeLabel; Attendance? get attendance;// Whether the user has planned any task for this day (drives a marker).
+ bool get hasPlannedTasks;
 /// Create a copy of CalendarDayModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +26,16 @@ $CalendarDayModelCopyWith<CalendarDayModel> get copyWith => _$CalendarDayModelCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CalendarDayModel&&(identical(other.date, date) || other.date == date)&&(identical(other.isCurrentMonth, isCurrentMonth) || other.isCurrentMonth == isCurrentMonth)&&(identical(other.isToday, isToday) || other.isToday == isToday)&&(identical(other.isSelected, isSelected) || other.isSelected == isSelected)&&(identical(other.status, status) || other.status == status)&&(identical(other.timeLabel, timeLabel) || other.timeLabel == timeLabel)&&(identical(other.attendance, attendance) || other.attendance == attendance));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CalendarDayModel&&(identical(other.date, date) || other.date == date)&&(identical(other.isCurrentMonth, isCurrentMonth) || other.isCurrentMonth == isCurrentMonth)&&(identical(other.isToday, isToday) || other.isToday == isToday)&&(identical(other.isSelected, isSelected) || other.isSelected == isSelected)&&(identical(other.status, status) || other.status == status)&&(identical(other.timeLabel, timeLabel) || other.timeLabel == timeLabel)&&(identical(other.attendance, attendance) || other.attendance == attendance)&&(identical(other.hasPlannedTasks, hasPlannedTasks) || other.hasPlannedTasks == hasPlannedTasks));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,date,isCurrentMonth,isToday,isSelected,status,timeLabel,attendance);
+int get hashCode => Object.hash(runtimeType,date,isCurrentMonth,isToday,isSelected,status,timeLabel,attendance,hasPlannedTasks);
 
 @override
 String toString() {
-  return 'CalendarDayModel(date: $date, isCurrentMonth: $isCurrentMonth, isToday: $isToday, isSelected: $isSelected, status: $status, timeLabel: $timeLabel, attendance: $attendance)';
+  return 'CalendarDayModel(date: $date, isCurrentMonth: $isCurrentMonth, isToday: $isToday, isSelected: $isSelected, status: $status, timeLabel: $timeLabel, attendance: $attendance, hasPlannedTasks: $hasPlannedTasks)';
 }
 
 
@@ -45,7 +46,7 @@ abstract mixin class $CalendarDayModelCopyWith<$Res>  {
   factory $CalendarDayModelCopyWith(CalendarDayModel value, $Res Function(CalendarDayModel) _then) = _$CalendarDayModelCopyWithImpl;
 @useResult
 $Res call({
- DateTime date, bool isCurrentMonth, bool isToday, bool isSelected, DayStatus status, String? timeLabel, Attendance? attendance
+ DateTime date, bool isCurrentMonth, bool isToday, bool isSelected, DayStatus status, String? timeLabel, Attendance? attendance, bool hasPlannedTasks
 });
 
 
@@ -62,7 +63,7 @@ class _$CalendarDayModelCopyWithImpl<$Res>
 
 /// Create a copy of CalendarDayModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? isCurrentMonth = null,Object? isToday = null,Object? isSelected = null,Object? status = null,Object? timeLabel = freezed,Object? attendance = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? isCurrentMonth = null,Object? isToday = null,Object? isSelected = null,Object? status = null,Object? timeLabel = freezed,Object? attendance = freezed,Object? hasPlannedTasks = null,}) {
   return _then(_self.copyWith(
 date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,isCurrentMonth: null == isCurrentMonth ? _self.isCurrentMonth : isCurrentMonth // ignore: cast_nullable_to_non_nullable
@@ -71,7 +72,8 @@ as bool,isSelected: null == isSelected ? _self.isSelected : isSelected // ignore
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as DayStatus,timeLabel: freezed == timeLabel ? _self.timeLabel : timeLabel // ignore: cast_nullable_to_non_nullable
 as String?,attendance: freezed == attendance ? _self.attendance : attendance // ignore: cast_nullable_to_non_nullable
-as Attendance?,
+as Attendance?,hasPlannedTasks: null == hasPlannedTasks ? _self.hasPlannedTasks : hasPlannedTasks // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of CalendarDayModel
@@ -168,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DateTime date,  bool isCurrentMonth,  bool isToday,  bool isSelected,  DayStatus status,  String? timeLabel,  Attendance? attendance)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DateTime date,  bool isCurrentMonth,  bool isToday,  bool isSelected,  DayStatus status,  String? timeLabel,  Attendance? attendance,  bool hasPlannedTasks)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CalendarDayModel() when $default != null:
-return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_that.status,_that.timeLabel,_that.attendance);case _:
+return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_that.status,_that.timeLabel,_that.attendance,_that.hasPlannedTasks);case _:
   return orElse();
 
 }
@@ -189,10 +191,10 @@ return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DateTime date,  bool isCurrentMonth,  bool isToday,  bool isSelected,  DayStatus status,  String? timeLabel,  Attendance? attendance)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DateTime date,  bool isCurrentMonth,  bool isToday,  bool isSelected,  DayStatus status,  String? timeLabel,  Attendance? attendance,  bool hasPlannedTasks)  $default,) {final _that = this;
 switch (_that) {
 case _CalendarDayModel():
-return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_that.status,_that.timeLabel,_that.attendance);case _:
+return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_that.status,_that.timeLabel,_that.attendance,_that.hasPlannedTasks);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +211,10 @@ return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DateTime date,  bool isCurrentMonth,  bool isToday,  bool isSelected,  DayStatus status,  String? timeLabel,  Attendance? attendance)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DateTime date,  bool isCurrentMonth,  bool isToday,  bool isSelected,  DayStatus status,  String? timeLabel,  Attendance? attendance,  bool hasPlannedTasks)?  $default,) {final _that = this;
 switch (_that) {
 case _CalendarDayModel() when $default != null:
-return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_that.status,_that.timeLabel,_that.attendance);case _:
+return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_that.status,_that.timeLabel,_that.attendance,_that.hasPlannedTasks);case _:
   return null;
 
 }
@@ -224,7 +226,7 @@ return $default(_that.date,_that.isCurrentMonth,_that.isToday,_that.isSelected,_
 
 
 class _CalendarDayModel implements CalendarDayModel {
-  const _CalendarDayModel({required this.date, required this.isCurrentMonth, required this.isToday, required this.isSelected, required this.status, this.timeLabel, this.attendance});
+  const _CalendarDayModel({required this.date, required this.isCurrentMonth, required this.isToday, required this.isSelected, required this.status, this.timeLabel, this.attendance, this.hasPlannedTasks = false});
   
 
 @override final  DateTime date;
@@ -234,6 +236,8 @@ class _CalendarDayModel implements CalendarDayModel {
 @override final  DayStatus status;
 @override final  String? timeLabel;
 @override final  Attendance? attendance;
+// Whether the user has planned any task for this day (drives a marker).
+@override@JsonKey() final  bool hasPlannedTasks;
 
 /// Create a copy of CalendarDayModel
 /// with the given fields replaced by the non-null parameter values.
@@ -245,16 +249,16 @@ _$CalendarDayModelCopyWith<_CalendarDayModel> get copyWith => __$CalendarDayMode
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CalendarDayModel&&(identical(other.date, date) || other.date == date)&&(identical(other.isCurrentMonth, isCurrentMonth) || other.isCurrentMonth == isCurrentMonth)&&(identical(other.isToday, isToday) || other.isToday == isToday)&&(identical(other.isSelected, isSelected) || other.isSelected == isSelected)&&(identical(other.status, status) || other.status == status)&&(identical(other.timeLabel, timeLabel) || other.timeLabel == timeLabel)&&(identical(other.attendance, attendance) || other.attendance == attendance));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CalendarDayModel&&(identical(other.date, date) || other.date == date)&&(identical(other.isCurrentMonth, isCurrentMonth) || other.isCurrentMonth == isCurrentMonth)&&(identical(other.isToday, isToday) || other.isToday == isToday)&&(identical(other.isSelected, isSelected) || other.isSelected == isSelected)&&(identical(other.status, status) || other.status == status)&&(identical(other.timeLabel, timeLabel) || other.timeLabel == timeLabel)&&(identical(other.attendance, attendance) || other.attendance == attendance)&&(identical(other.hasPlannedTasks, hasPlannedTasks) || other.hasPlannedTasks == hasPlannedTasks));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,date,isCurrentMonth,isToday,isSelected,status,timeLabel,attendance);
+int get hashCode => Object.hash(runtimeType,date,isCurrentMonth,isToday,isSelected,status,timeLabel,attendance,hasPlannedTasks);
 
 @override
 String toString() {
-  return 'CalendarDayModel(date: $date, isCurrentMonth: $isCurrentMonth, isToday: $isToday, isSelected: $isSelected, status: $status, timeLabel: $timeLabel, attendance: $attendance)';
+  return 'CalendarDayModel(date: $date, isCurrentMonth: $isCurrentMonth, isToday: $isToday, isSelected: $isSelected, status: $status, timeLabel: $timeLabel, attendance: $attendance, hasPlannedTasks: $hasPlannedTasks)';
 }
 
 
@@ -265,7 +269,7 @@ abstract mixin class _$CalendarDayModelCopyWith<$Res> implements $CalendarDayMod
   factory _$CalendarDayModelCopyWith(_CalendarDayModel value, $Res Function(_CalendarDayModel) _then) = __$CalendarDayModelCopyWithImpl;
 @override @useResult
 $Res call({
- DateTime date, bool isCurrentMonth, bool isToday, bool isSelected, DayStatus status, String? timeLabel, Attendance? attendance
+ DateTime date, bool isCurrentMonth, bool isToday, bool isSelected, DayStatus status, String? timeLabel, Attendance? attendance, bool hasPlannedTasks
 });
 
 
@@ -282,7 +286,7 @@ class __$CalendarDayModelCopyWithImpl<$Res>
 
 /// Create a copy of CalendarDayModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? isCurrentMonth = null,Object? isToday = null,Object? isSelected = null,Object? status = null,Object? timeLabel = freezed,Object? attendance = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? isCurrentMonth = null,Object? isToday = null,Object? isSelected = null,Object? status = null,Object? timeLabel = freezed,Object? attendance = freezed,Object? hasPlannedTasks = null,}) {
   return _then(_CalendarDayModel(
 date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,isCurrentMonth: null == isCurrentMonth ? _self.isCurrentMonth : isCurrentMonth // ignore: cast_nullable_to_non_nullable
@@ -291,7 +295,8 @@ as bool,isSelected: null == isSelected ? _self.isSelected : isSelected // ignore
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as DayStatus,timeLabel: freezed == timeLabel ? _self.timeLabel : timeLabel // ignore: cast_nullable_to_non_nullable
 as String?,attendance: freezed == attendance ? _self.attendance : attendance // ignore: cast_nullable_to_non_nullable
-as Attendance?,
+as Attendance?,hasPlannedTasks: null == hasPlannedTasks ? _self.hasPlannedTasks : hasPlannedTasks // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

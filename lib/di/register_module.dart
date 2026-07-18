@@ -16,6 +16,7 @@ import '../database/location_log/location_log_settings_entity.dart';
 import '../database/objectbox.g.dart';
 import '../database/task/task_entity.dart';
 import '../database/task/task_time_log_entity.dart';
+import '../database/task/task_time_session_entity.dart';
 import '../database/work_schedule/work_schedule_entity.dart';
 
 @module
@@ -75,6 +76,10 @@ abstract class RegisterModule {
   @singleton
   Box<TaskTimeLogEntity> taskTimeLogBox(Store store) =>
       store.box<TaskTimeLogEntity>();
+
+  @singleton
+  Box<TaskTimeSessionEntity> taskTimeSessionBox(Store store) =>
+      store.box<TaskTimeSessionEntity>();
 
   @lazySingleton
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin() =>

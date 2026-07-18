@@ -208,6 +208,36 @@ class ZentaoRepositoryImpl implements ZentaoRepository {
     );
   }
 
+  @override
+  Future<void> closeBug(int bugId, {String comment = ''}) {
+    return _withToken(
+      (domain, token) => _client.closeBug(
+        domain: domain,
+        token: token,
+        bugId: bugId,
+        comment: comment,
+      ),
+    );
+  }
+
+  @override
+  Future<void> activateBug(int bugId, {String comment = ''}) {
+    return _withToken((domain, token) async {
+      final credentials = await _credentialsStore.read();
+      if (credentials == null) {
+        throw Exception('Not connected to Zentao');
+      }
+      // Reopening assigns the bug back to the connected (self) account.
+      return _client.activateBug(
+        domain: domain,
+        token: token,
+        bugId: bugId,
+        assignedTo: credentials.account,
+        comment: comment,
+      );
+    });
+  }
+
   Future<Directory> _attachmentCacheDir() async {
     final base = await getApplicationCacheDirectory();
     final dir = Directory('${base.path}/zentao_attachments');

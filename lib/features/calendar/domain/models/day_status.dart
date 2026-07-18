@@ -5,17 +5,16 @@ import 'package:work_tracker/features/attendance/domain/models/attendance.dart';
 
 enum DayStatus { onTime, late, none }
 
-/// Derives the indicator status of a single calendar day, based purely on
-/// check-out behavior:
-/// - No attendance record, or checked in but not yet checked out →
-///   [DayStatus.none] (no indicator shown).
-/// - Checked out later than the expected end time → [DayStatus.late].
-/// - Checked out early or on time → [DayStatus.onTime].
+/// Derives the indicator status of a single calendar day, based on the
+/// check-in versus the scheduled start time:
+/// - No check-in recorded → [DayStatus.none] (no indicator shown).
+/// - Checked in after the scheduled start → [DayStatus.late].
+/// - Checked in on time or early → [DayStatus.onTime] (green).
 DayStatus deriveDayStatus({required Attendance? attendance}) {
-  if (attendance?.checkOut == null) {
+  if (attendance?.checkIn == null) {
     return DayStatus.none;
   }
-  return attendance!.overtimeMinutes > 0 ? DayStatus.late : DayStatus.onTime;
+  return attendance!.lateMinutes > 0 ? DayStatus.late : DayStatus.onTime;
 }
 
 /// The check-in/check-out time to display under the date number, or `null`
@@ -38,7 +37,7 @@ extension DayStatusColor on DayStatus {
       case DayStatus.onTime:
         return colors.primary;
       case DayStatus.late:
-        return colors.warning;
+        return colors.error;
       case DayStatus.none:
         return colors.outline;
     }

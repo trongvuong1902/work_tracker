@@ -8,6 +8,8 @@ abstract class TaskDetailState with _$TaskDetailState {
     @Default(false) bool isTogglingDone,
     @Default(false) bool isTogglingTimer,
     @Default(false) bool isRefreshing,
+    // True while a Zentao bug status change (resolve/close/reopen) is in flight.
+    @Default(false) bool isChangingStatus,
     // True while the bug's full detail (description/notes/attachments) is being
     // fetched and persisted on first open.
     @Default(false) bool isEnriching,

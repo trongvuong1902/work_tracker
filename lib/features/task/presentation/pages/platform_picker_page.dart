@@ -18,12 +18,11 @@ class PlatformPickerPage extends StatelessWidget {
     if (connection == null) {
       await AppNavigator.pushZentaoConnect(context);
     } else {
-      await AppNavigator.pushZentaoSelectOption(context);
+      await AppNavigator.pushBugSyncProducts(context);
     }
-    // Whether the flow above ended in an import (which pops straight back
-    // to the Task List, past this page) or was cancelled partway through,
-    // nothing further to do here — if this page is still on-screen it just
-    // stays put and lets the user pick again or back out.
+    // Both paths lead to the unified connect → pick products → sync → Tasks
+    // flow (the products page navigates to Tasks itself on sync), so there's
+    // nothing to do here if this page is still on-screen.
   }
 
   @override

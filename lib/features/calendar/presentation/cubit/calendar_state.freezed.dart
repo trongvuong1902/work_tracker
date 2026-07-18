@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CalendarState {
 
- bool get isLoading; int get year; int get month; DateTime get selectedDate; List<CalendarDayModel> get days; MonthSummary get summary; WorkSchedule? get schedule; bool get isSelectedDateWorkingDay; DaySummaryDisplayState get displayState; String? get editErrorMessage; String? get errorMessage;
+ bool get isLoading; int get year; int get month; DateTime get selectedDate; List<CalendarDayModel> get days; MonthSummary get summary; WorkSchedule? get schedule; bool get isSelectedDateWorkingDay; List<Task> get plannedTasksForSelectedDay; List<DayWorkedTask> get workedTasksForSelectedDay; DaySummaryDisplayState get displayState; String? get editErrorMessage; String? get errorMessage;
 /// Create a copy of CalendarState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $CalendarStateCopyWith<CalendarState> get copyWith => _$CalendarStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CalendarState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.selectedDate, selectedDate) || other.selectedDate == selectedDate)&&const DeepCollectionEquality().equals(other.days, days)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.schedule, schedule) || other.schedule == schedule)&&(identical(other.isSelectedDateWorkingDay, isSelectedDateWorkingDay) || other.isSelectedDateWorkingDay == isSelectedDateWorkingDay)&&(identical(other.displayState, displayState) || other.displayState == displayState)&&(identical(other.editErrorMessage, editErrorMessage) || other.editErrorMessage == editErrorMessage)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CalendarState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.selectedDate, selectedDate) || other.selectedDate == selectedDate)&&const DeepCollectionEquality().equals(other.days, days)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.schedule, schedule) || other.schedule == schedule)&&(identical(other.isSelectedDateWorkingDay, isSelectedDateWorkingDay) || other.isSelectedDateWorkingDay == isSelectedDateWorkingDay)&&const DeepCollectionEquality().equals(other.plannedTasksForSelectedDay, plannedTasksForSelectedDay)&&const DeepCollectionEquality().equals(other.workedTasksForSelectedDay, workedTasksForSelectedDay)&&(identical(other.displayState, displayState) || other.displayState == displayState)&&(identical(other.editErrorMessage, editErrorMessage) || other.editErrorMessage == editErrorMessage)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,year,month,selectedDate,const DeepCollectionEquality().hash(days),summary,schedule,isSelectedDateWorkingDay,displayState,editErrorMessage,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,year,month,selectedDate,const DeepCollectionEquality().hash(days),summary,schedule,isSelectedDateWorkingDay,const DeepCollectionEquality().hash(plannedTasksForSelectedDay),const DeepCollectionEquality().hash(workedTasksForSelectedDay),displayState,editErrorMessage,errorMessage);
 
 @override
 String toString() {
-  return 'CalendarState(isLoading: $isLoading, year: $year, month: $month, selectedDate: $selectedDate, days: $days, summary: $summary, schedule: $schedule, isSelectedDateWorkingDay: $isSelectedDateWorkingDay, displayState: $displayState, editErrorMessage: $editErrorMessage, errorMessage: $errorMessage)';
+  return 'CalendarState(isLoading: $isLoading, year: $year, month: $month, selectedDate: $selectedDate, days: $days, summary: $summary, schedule: $schedule, isSelectedDateWorkingDay: $isSelectedDateWorkingDay, plannedTasksForSelectedDay: $plannedTasksForSelectedDay, workedTasksForSelectedDay: $workedTasksForSelectedDay, displayState: $displayState, editErrorMessage: $editErrorMessage, errorMessage: $errorMessage)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $CalendarStateCopyWith<$Res>  {
   factory $CalendarStateCopyWith(CalendarState value, $Res Function(CalendarState) _then) = _$CalendarStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, int year, int month, DateTime selectedDate, List<CalendarDayModel> days, MonthSummary summary, WorkSchedule? schedule, bool isSelectedDateWorkingDay, DaySummaryDisplayState displayState, String? editErrorMessage, String? errorMessage
+ bool isLoading, int year, int month, DateTime selectedDate, List<CalendarDayModel> days, MonthSummary summary, WorkSchedule? schedule, bool isSelectedDateWorkingDay, List<Task> plannedTasksForSelectedDay, List<DayWorkedTask> workedTasksForSelectedDay, DaySummaryDisplayState displayState, String? editErrorMessage, String? errorMessage
 });
 
 
@@ -62,7 +62,7 @@ class _$CalendarStateCopyWithImpl<$Res>
 
 /// Create a copy of CalendarState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? year = null,Object? month = null,Object? selectedDate = null,Object? days = null,Object? summary = null,Object? schedule = freezed,Object? isSelectedDateWorkingDay = null,Object? displayState = null,Object? editErrorMessage = freezed,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? year = null,Object? month = null,Object? selectedDate = null,Object? days = null,Object? summary = null,Object? schedule = freezed,Object? isSelectedDateWorkingDay = null,Object? plannedTasksForSelectedDay = null,Object? workedTasksForSelectedDay = null,Object? displayState = null,Object? editErrorMessage = freezed,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
@@ -72,7 +72,9 @@ as DateTime,days: null == days ? _self.days : days // ignore: cast_nullable_to_n
 as List<CalendarDayModel>,summary: null == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
 as MonthSummary,schedule: freezed == schedule ? _self.schedule : schedule // ignore: cast_nullable_to_non_nullable
 as WorkSchedule?,isSelectedDateWorkingDay: null == isSelectedDateWorkingDay ? _self.isSelectedDateWorkingDay : isSelectedDateWorkingDay // ignore: cast_nullable_to_non_nullable
-as bool,displayState: null == displayState ? _self.displayState : displayState // ignore: cast_nullable_to_non_nullable
+as bool,plannedTasksForSelectedDay: null == plannedTasksForSelectedDay ? _self.plannedTasksForSelectedDay : plannedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
+as List<Task>,workedTasksForSelectedDay: null == workedTasksForSelectedDay ? _self.workedTasksForSelectedDay : workedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
+as List<DayWorkedTask>,displayState: null == displayState ? _self.displayState : displayState // ignore: cast_nullable_to_non_nullable
 as DaySummaryDisplayState,editErrorMessage: freezed == editErrorMessage ? _self.editErrorMessage : editErrorMessage // ignore: cast_nullable_to_non_nullable
 as String?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,
@@ -181,10 +183,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<Task> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CalendarState() when $default != null:
-return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.plannedTasksForSelectedDay,_that.workedTasksForSelectedDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -202,10 +204,10 @@ return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<Task> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _CalendarState():
-return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.plannedTasksForSelectedDay,_that.workedTasksForSelectedDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -222,10 +224,10 @@ return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<Task> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _CalendarState() when $default != null:
-return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.plannedTasksForSelectedDay,_that.workedTasksForSelectedDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
   return null;
 
 }
@@ -237,7 +239,7 @@ return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.
 
 
 class _CalendarState implements CalendarState {
-  const _CalendarState({this.isLoading = true, required this.year, required this.month, required this.selectedDate, final  List<CalendarDayModel> days = const <CalendarDayModel>[], this.summary = const MonthSummary(), this.schedule, this.isSelectedDateWorkingDay = false, this.displayState = DaySummaryDisplayState.noScheduleSetUp, this.editErrorMessage, this.errorMessage}): _days = days;
+  const _CalendarState({this.isLoading = true, required this.year, required this.month, required this.selectedDate, final  List<CalendarDayModel> days = const <CalendarDayModel>[], this.summary = const MonthSummary(), this.schedule, this.isSelectedDateWorkingDay = false, final  List<Task> plannedTasksForSelectedDay = const <Task>[], final  List<DayWorkedTask> workedTasksForSelectedDay = const <DayWorkedTask>[], this.displayState = DaySummaryDisplayState.noScheduleSetUp, this.editErrorMessage, this.errorMessage}): _days = days,_plannedTasksForSelectedDay = plannedTasksForSelectedDay,_workedTasksForSelectedDay = workedTasksForSelectedDay;
   
 
 @override@JsonKey() final  bool isLoading;
@@ -254,6 +256,20 @@ class _CalendarState implements CalendarState {
 @override@JsonKey() final  MonthSummary summary;
 @override final  WorkSchedule? schedule;
 @override@JsonKey() final  bool isSelectedDateWorkingDay;
+ final  List<Task> _plannedTasksForSelectedDay;
+@override@JsonKey() List<Task> get plannedTasksForSelectedDay {
+  if (_plannedTasksForSelectedDay is EqualUnmodifiableListView) return _plannedTasksForSelectedDay;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_plannedTasksForSelectedDay);
+}
+
+ final  List<DayWorkedTask> _workedTasksForSelectedDay;
+@override@JsonKey() List<DayWorkedTask> get workedTasksForSelectedDay {
+  if (_workedTasksForSelectedDay is EqualUnmodifiableListView) return _workedTasksForSelectedDay;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_workedTasksForSelectedDay);
+}
+
 @override@JsonKey() final  DaySummaryDisplayState displayState;
 @override final  String? editErrorMessage;
 @override final  String? errorMessage;
@@ -268,16 +284,16 @@ _$CalendarStateCopyWith<_CalendarState> get copyWith => __$CalendarStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CalendarState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.selectedDate, selectedDate) || other.selectedDate == selectedDate)&&const DeepCollectionEquality().equals(other._days, _days)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.schedule, schedule) || other.schedule == schedule)&&(identical(other.isSelectedDateWorkingDay, isSelectedDateWorkingDay) || other.isSelectedDateWorkingDay == isSelectedDateWorkingDay)&&(identical(other.displayState, displayState) || other.displayState == displayState)&&(identical(other.editErrorMessage, editErrorMessage) || other.editErrorMessage == editErrorMessage)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CalendarState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.selectedDate, selectedDate) || other.selectedDate == selectedDate)&&const DeepCollectionEquality().equals(other._days, _days)&&(identical(other.summary, summary) || other.summary == summary)&&(identical(other.schedule, schedule) || other.schedule == schedule)&&(identical(other.isSelectedDateWorkingDay, isSelectedDateWorkingDay) || other.isSelectedDateWorkingDay == isSelectedDateWorkingDay)&&const DeepCollectionEquality().equals(other._plannedTasksForSelectedDay, _plannedTasksForSelectedDay)&&const DeepCollectionEquality().equals(other._workedTasksForSelectedDay, _workedTasksForSelectedDay)&&(identical(other.displayState, displayState) || other.displayState == displayState)&&(identical(other.editErrorMessage, editErrorMessage) || other.editErrorMessage == editErrorMessage)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,year,month,selectedDate,const DeepCollectionEquality().hash(_days),summary,schedule,isSelectedDateWorkingDay,displayState,editErrorMessage,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,year,month,selectedDate,const DeepCollectionEquality().hash(_days),summary,schedule,isSelectedDateWorkingDay,const DeepCollectionEquality().hash(_plannedTasksForSelectedDay),const DeepCollectionEquality().hash(_workedTasksForSelectedDay),displayState,editErrorMessage,errorMessage);
 
 @override
 String toString() {
-  return 'CalendarState(isLoading: $isLoading, year: $year, month: $month, selectedDate: $selectedDate, days: $days, summary: $summary, schedule: $schedule, isSelectedDateWorkingDay: $isSelectedDateWorkingDay, displayState: $displayState, editErrorMessage: $editErrorMessage, errorMessage: $errorMessage)';
+  return 'CalendarState(isLoading: $isLoading, year: $year, month: $month, selectedDate: $selectedDate, days: $days, summary: $summary, schedule: $schedule, isSelectedDateWorkingDay: $isSelectedDateWorkingDay, plannedTasksForSelectedDay: $plannedTasksForSelectedDay, workedTasksForSelectedDay: $workedTasksForSelectedDay, displayState: $displayState, editErrorMessage: $editErrorMessage, errorMessage: $errorMessage)';
 }
 
 
@@ -288,7 +304,7 @@ abstract mixin class _$CalendarStateCopyWith<$Res> implements $CalendarStateCopy
   factory _$CalendarStateCopyWith(_CalendarState value, $Res Function(_CalendarState) _then) = __$CalendarStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, int year, int month, DateTime selectedDate, List<CalendarDayModel> days, MonthSummary summary, WorkSchedule? schedule, bool isSelectedDateWorkingDay, DaySummaryDisplayState displayState, String? editErrorMessage, String? errorMessage
+ bool isLoading, int year, int month, DateTime selectedDate, List<CalendarDayModel> days, MonthSummary summary, WorkSchedule? schedule, bool isSelectedDateWorkingDay, List<Task> plannedTasksForSelectedDay, List<DayWorkedTask> workedTasksForSelectedDay, DaySummaryDisplayState displayState, String? editErrorMessage, String? errorMessage
 });
 
 
@@ -305,7 +321,7 @@ class __$CalendarStateCopyWithImpl<$Res>
 
 /// Create a copy of CalendarState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? year = null,Object? month = null,Object? selectedDate = null,Object? days = null,Object? summary = null,Object? schedule = freezed,Object? isSelectedDateWorkingDay = null,Object? displayState = null,Object? editErrorMessage = freezed,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? year = null,Object? month = null,Object? selectedDate = null,Object? days = null,Object? summary = null,Object? schedule = freezed,Object? isSelectedDateWorkingDay = null,Object? plannedTasksForSelectedDay = null,Object? workedTasksForSelectedDay = null,Object? displayState = null,Object? editErrorMessage = freezed,Object? errorMessage = freezed,}) {
   return _then(_CalendarState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
@@ -315,7 +331,9 @@ as DateTime,days: null == days ? _self._days : days // ignore: cast_nullable_to_
 as List<CalendarDayModel>,summary: null == summary ? _self.summary : summary // ignore: cast_nullable_to_non_nullable
 as MonthSummary,schedule: freezed == schedule ? _self.schedule : schedule // ignore: cast_nullable_to_non_nullable
 as WorkSchedule?,isSelectedDateWorkingDay: null == isSelectedDateWorkingDay ? _self.isSelectedDateWorkingDay : isSelectedDateWorkingDay // ignore: cast_nullable_to_non_nullable
-as bool,displayState: null == displayState ? _self.displayState : displayState // ignore: cast_nullable_to_non_nullable
+as bool,plannedTasksForSelectedDay: null == plannedTasksForSelectedDay ? _self._plannedTasksForSelectedDay : plannedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
+as List<Task>,workedTasksForSelectedDay: null == workedTasksForSelectedDay ? _self._workedTasksForSelectedDay : workedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
+as List<DayWorkedTask>,displayState: null == displayState ? _self.displayState : displayState // ignore: cast_nullable_to_non_nullable
 as DaySummaryDisplayState,editErrorMessage: freezed == editErrorMessage ? _self.editErrorMessage : editErrorMessage // ignore: cast_nullable_to_non_nullable
 as String?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,

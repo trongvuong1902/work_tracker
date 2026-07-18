@@ -72,4 +72,13 @@ abstract class ZentaoRepository {
     required String assignedTo,
     required String comment,
   });
+
+  /// Closes bug [bugId] in Zentao (typically after it's resolved), with an
+  /// optional [comment]. Throws on failure so the caller can block on it.
+  Future<void> closeBug(int bugId, {String comment = ''});
+
+  /// Activates (reopens) bug [bugId] in Zentao, assigning it back to the
+  /// connected account, with an optional [comment]. Throws on failure so the
+  /// caller can block on it.
+  Future<void> activateBug(int bugId, {String comment = ''});
 }

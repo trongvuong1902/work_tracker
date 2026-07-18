@@ -5,6 +5,7 @@ import 'package:work_tracker/components/card/shadow_card.dart';
 import 'package:work_tracker/core/core.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/task/domain/models/task.dart';
+import 'package:work_tracker/features/task/presentation/widgets/daily_report_sheet.dart';
 
 import 'cubit/today_tasks_cubit.dart';
 
@@ -35,9 +36,11 @@ class TodayTasksView extends StatelessWidget {
                     children: [
                       for (final item in state.items) ...[
                         _TaskTimeRow(
+                          idLabel: item.task.externalId,
                           title: item.task.title,
                           seconds: item.seconds,
                           running: item.task.isTimerRunning,
+                          done: item.task.done,
                           onTap: () => AppNavigator.pushTaskDetail(
                             context,
                             item.task.id,
@@ -57,44 +60,71 @@ class TodayTasksView extends StatelessWidget {
 
 class _TaskTimeRow extends StatelessWidget {
   const _TaskTimeRow({
+    required this.idLabel,
     required this.title,
     required this.seconds,
     required this.running,
+    required this.done,
     required this.onTap,
   });
 
+  final String? idLabel;
   final String title;
   final int seconds;
   final bool running;
+  final bool done;
   final VoidCallback onTap;
+
+  IconData get _statusIcon {
+    if (running) return Icons.play_circle;
+    if (done) return Icons.check_circle;
+    return Icons.timelapse;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final accent = running || done;
     return InkWell(
       onTap: onTap,
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            running ? Icons.play_circle : Icons.timelapse,
-            size: 18,
-            color: running ? context.colors.primary : context.colors.textSecondary,
+          // Line 1: status icon · #id · spacer · duration (Xh YYm).
+          Row(
+            children: [
+              Icon(
+                _statusIcon,
+                size: 18,
+                color: accent
+                    ? context.colors.primary
+                    : context.colors.textSecondary,
+              ),
+              if (idLabel != null) ...[
+                const SizedBox(width: AppSpacing.space8),
+                Text(
+                  '#$idLabel',
+                  style: AppTypography.caption(context)?.copyWith(
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+              ],
+              const Spacer(),
+              Text(
+                TimeFormat.hMm(seconds ~/ 60),
+                style: AppTypography.label(context)?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: running ? context.colors.primary : null,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: AppSpacing.space12),
-          Expanded(
-            child: Text(
-              title,
-              style: AppTypography.body(context),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.space8),
+          const SizedBox(height: AppSpacing.space4),
+          // Line 2: title.
           Text(
-            TimeFormat.clock(seconds),
-            style: AppTypography.label(context)?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: running ? context.colors.primary : null,
-            ),
+            title,
+            style: AppTypography.body(context),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -126,14 +156,38 @@ class _Card extends StatelessWidget {
                     letterSpacing: 0.5,
                   ),
                 ),
-                GestureDetector(
-                  onTap: () => AppNavigator.pushTaskTimes(context),
-                  child: Text(
-                    'See more →',
-                    style: AppTypography.caption(
-                      context,
-                    )?.copyWith(color: context.colors.primary),
-                  ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => showDailyReportSheet(context),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.summarize_outlined,
+                            size: 14,
+                            color: context.colors.primary,
+                          ),
+                          const SizedBox(width: AppSpacing.space4),
+                          Text(
+                            'Report',
+                            style: AppTypography.caption(
+                              context,
+                            )?.copyWith(color: context.colors.primary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.space16),
+                    GestureDetector(
+                      onTap: () => AppNavigator.pushTaskTimes(context),
+                      child: Text(
+                        'See more →',
+                        style: AppTypography.caption(
+                          context,
+                        )?.copyWith(color: context.colors.primary),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

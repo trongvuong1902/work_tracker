@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:work_tracker/app/router/app_navigator.dart';
 import 'package:work_tracker/app/theme/app_colors.dart';
 import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/task/presentation/cubit/bug_sync_products_cubit.dart';
+import 'package:work_tracker/features/task/presentation/widgets/bug_sync_runner.dart';
 
-/// "Choose products to sync" — the product multi-select step of the bulk
-/// "Bugs assigned to me" flow. Pops with `true` once the selection is saved,
-/// signalling the caller to (re)run the sync.
+/// "Choose products to sync" — the product multi-select step of the "Bugs
+/// assigned to me" flow. On confirm it saves the selection, runs the sync with
+/// a progress dialog, and lands on the Tasks tab with the synced data.
 class BugSyncProductsPage extends StatelessWidget {
   const BugSyncProductsPage({super.key});
 
@@ -25,9 +27,15 @@ class BugSyncProductsPage extends StatelessWidget {
 class _BugSyncProductsView extends StatelessWidget {
   const _BugSyncProductsView();
 
-  Future<void> _save(BuildContext context) async {
+  /// Saves the selection, runs the bulk sync with a progress dialog, reports a
+  /// summary, and navigates to the Tasks tab (which reactively shows the synced
+  /// rows).
+  Future<void> _confirmAndSync(BuildContext context) async {
     await context.read<BugSyncProductsCubit>().save();
-    if (context.mounted) Navigator.of(context).pop(true);
+    if (!context.mounted) return;
+    await runBugSyncWithProgress(context);
+    if (!context.mounted) return;
+    AppNavigator.goTasks(context);
   }
 
   @override
@@ -35,14 +43,17 @@ class _BugSyncProductsView extends StatelessWidget {
     return BlocBuilder<BugSyncProductsCubit, BugSyncProductsState>(
       builder: (context, state) {
         final cubit = context.read<BugSyncProductsCubit>();
+        final canSync = !state.isLoading &&
+            state.errorMessage == null &&
+            state.selectedIds.isNotEmpty;
         return Scaffold(
           appBar: AppBar(
             title: const Text('Products to sync'),
             actions: [
-              if (!state.isLoading && state.errorMessage == null)
+              if (canSync)
                 TextButton(
-                  onPressed: () => _save(context),
-                  child: const Text('Save'),
+                  onPressed: () => _confirmAndSync(context),
+                  child: const Text('Sync'),
                 ),
             ],
           ),

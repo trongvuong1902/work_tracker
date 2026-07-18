@@ -7,10 +7,11 @@ import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/task/domain/models/task.dart';
-import 'package:work_tracker/features/task/presentation/cubit/bug_sync_cubit.dart';
+import 'package:work_tracker/features/task/domain/models/task_source.dart';
 import 'package:work_tracker/features/task/presentation/cubit/task_list_cubit.dart';
+import 'package:work_tracker/features/task/presentation/widgets/priority_badge.dart';
 import 'package:work_tracker/features/task/presentation/widgets/add_task_sheet.dart';
-import 'package:work_tracker/features/task/presentation/widgets/bug_sync_progress_dialog.dart';
+import 'package:work_tracker/features/task/presentation/widgets/bug_sync_runner.dart';
 import 'package:work_tracker/features/zentao/data/zentao_sync_prefs.dart';
 import 'package:work_tracker/features/zentao/domain/zentao_repository.dart';
 
@@ -57,72 +58,33 @@ class _TaskListViewState extends State<_TaskListView> {
     if (mounted) cubit.load();
   }
 
-  /// Bulk "Bugs assigned to me" sync: ensure a Zentao connection and a product
-  /// selection, then run the sync with a progress dialog and report a summary.
+  /// Sync button: re-sync the already-selected products directly. First time
+  /// (not connected, or no product selection yet) routes into the connect /
+  /// product-select flow instead. The list reloads reactively after the sync.
   Future<void> _syncBugs() async {
-    final messenger = ScaffoldMessenger.of(context);
-    final listCubit = context.read<TaskListCubit>();
-
     final connection = await getIt<ZentaoRepository>().getConnection();
     if (!mounted) return;
     if (connection == null) {
       await AppNavigator.pushZentaoConnect(context);
       return;
     }
-
-    if (!getIt<ZentaoSyncPrefs>().hasSelection) {
-      final saved = await AppNavigator.pushBugSyncProducts(context);
-      if (!mounted || saved != true) return;
-    }
-
-    await _runSync(messenger, listCubit);
-  }
-
-  Future<void> _chooseSyncProducts() async {
-    final listCubit = context.read<TaskListCubit>();
-    final connection = await getIt<ZentaoRepository>().getConnection();
-    if (!mounted) return;
-    if (connection == null) {
-      await AppNavigator.pushZentaoConnect(context);
-      return;
-    }
-    final saved = await AppNavigator.pushBugSyncProducts(context);
-    if (!mounted || saved != true) return;
-    await _runSync(ScaffoldMessenger.of(context), listCubit);
-  }
-
-  Future<void> _runSync(
-    ScaffoldMessengerState messenger,
-    TaskListCubit listCubit,
-  ) async {
-    final cubit = getIt<BugSyncCubit>();
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => BlocProvider.value(
-        value: cubit,
-        child: const BugSyncProgressDialog(),
-      ),
-    );
-    final result = cubit.state;
-    await cubit.close();
-    if (!mounted) return;
-
-    if (result.errorMessage != null) {
-      messenger.showSnackBar(SnackBar(content: Text(result.errorMessage!)));
+    if (getIt<ZentaoSyncPrefs>().hasSelection) {
+      await runBugSyncWithProgress(context);
     } else {
-      final failed = result.failedProducts > 0
-          ? ' · ${result.failedProducts} product(s) failed'
-          : '';
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            'Added ${result.added} · Updated ${result.updated}$failed',
-          ),
-        ),
-      );
+      await AppNavigator.pushBugSyncProducts(context);
     }
-    listCubit.load();
+  }
+
+  /// "Choose products to sync" menu: always open the product picker to change
+  /// the selection (which then runs the sync).
+  Future<void> _chooseSyncProducts() async {
+    final connection = await getIt<ZentaoRepository>().getConnection();
+    if (!mounted) return;
+    if (connection == null) {
+      await AppNavigator.pushZentaoConnect(context);
+    } else {
+      await AppNavigator.pushBugSyncProducts(context);
+    }
   }
 
   @override
@@ -241,8 +203,9 @@ class _TaskRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final syncedAt = task.zentaoLastSyncedAt;
-    final meta = _bugMetaLabel(task);
+    final priority = task.priority;
+    final product = task.zentaoProductName;
+    final typeIcon = _typeIconData();
 
     return ShadowCard(
       margin: EdgeInsets.zero,
@@ -251,13 +214,24 @@ class _TaskRow extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.space16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                task.done ? Icons.check_circle : Icons.radio_button_unchecked,
-                color: task.done
-                    ? context.colors.primary
-                    : context.colors.textSecondary,
-              ),
+              // Leading: colored priority badge, or a done/open circle for
+              // tasks with no computed priority (e.g. manual tasks).
+              if (priority != null)
+                PriorityBadge(priority: priority, size: 34)
+              else
+                SizedBox(
+                  width: 34,
+                  child: Icon(
+                    task.done
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: task.done
+                        ? context.colors.primary
+                        : context.colors.textSecondary,
+                  ),
+                ),
               const SizedBox(width: AppSpacing.space12),
               Expanded(
                 child: Column(
@@ -265,52 +239,53 @@ class _TaskRow extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: Text(
-                            task.title,
-                            style: AppTypography.label(context)?.copyWith(
-                              decoration: task.done
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                              color: task.done
-                                  ? context.colors.textSecondary
-                                  : null,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        if (typeIcon != null) ...[
+                          Icon(
+                            typeIcon,
+                            size: 16,
+                            color: _typeIconColor(context),
                           ),
-                        ),
-                        if (task.isLinkedToZentao) ...[
-                          const SizedBox(width: AppSpacing.space8),
-                          _ZentaoChip(),
-                        ] else if (task.isLinkedToZentaoBug) ...[
-                          const SizedBox(width: AppSpacing.space8),
-                          _ZentaoBugChip(),
+                          const SizedBox(width: AppSpacing.space4),
                         ],
+                        if (task.externalId != null)
+                          Text(
+                            '#${task.externalId}',
+                            style: AppTypography.caption(context)?.copyWith(
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
+                        const Spacer(),
+                        _TaskStatusChip(task: task),
                       ],
                     ),
-                    if (meta != null) ...[
-                      const SizedBox(height: AppSpacing.space4),
-                      Text(
-                        meta,
-                        style: AppTypography.caption(
-                          context,
-                        )?.copyWith(color: context.colors.textSecondary),
+                    const SizedBox(height: AppSpacing.space4),
+                    Text(
+                      task.title,
+                      style: AppTypography.label(context)?.copyWith(
+                        decoration:
+                            task.done ? TextDecoration.lineThrough : null,
+                        color:
+                            task.done ? context.colors.textSecondary : null,
                       ),
-                    ],
-                    if (task.isLinkedToAnyZentao && syncedAt != null) ...[
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (product != null && product.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.space4),
                       Text(
-                        _syncedAgoLabel(syncedAt),
-                        style: AppTypography.caption(
-                          context,
-                        )?.copyWith(color: context.colors.textSecondary),
+                        product,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.caption(context)?.copyWith(
+                          color: context.colors.textSecondary,
+                        ),
                       ),
                     ],
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right),
+              const SizedBox(width: AppSpacing.space8),
+              Icon(Icons.chevron_right, color: context.colors.textSecondary),
             ],
           ),
         ),
@@ -318,69 +293,53 @@ class _TaskRow extends StatelessWidget {
     );
   }
 
-  /// A one-line "P{priority} · Product" summary for bug tasks (only the parts
-  /// that are present). Null for non-bug tasks.
-  String? _bugMetaLabel(Task task) {
-    if (!task.isLinkedToZentaoBug) return null;
-    final parts = <String>[
-      if (task.priority != null) 'P${task.priority}',
-      if (task.zentaoProductName != null) task.zentaoProductName!,
-    ];
-    return parts.isEmpty ? null : parts.join(' · ');
+  IconData? _typeIconData() {
+    switch (task.externalType) {
+      case ExternalItemType.bug:
+        return Icons.bug_report_outlined;
+      case ExternalItemType.task:
+        return Icons.assignment_outlined;
+      case null:
+        return null;
+    }
   }
 
-  String _syncedAgoLabel(DateTime syncedAt) {
-    final diff = DateTime.now().difference(syncedAt);
-    if (diff.inMinutes < 1) return 'synced just now';
-    if (diff.inMinutes < 60) return 'synced ${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return 'synced ${diff.inHours}h ago';
-    return 'synced ${diff.inDays}d ago';
-  }
+  Color _typeIconColor(BuildContext context) =>
+      task.externalType == ExternalItemType.bug
+      ? context.colors.warning
+      : context.colors.secondary;
 }
 
-class _ZentaoChip extends StatelessWidget {
-  const _ZentaoChip();
+/// A small Active / Done / Closed pill derived from the task's state.
+class _TaskStatusChip extends StatelessWidget {
+  const _TaskStatusChip({required this.task});
+
+  final Task task;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final isClosed = (task.externalStatus ?? '').trim().toLowerCase() == 'closed';
+    final (label, color) = isClosed
+        ? ('Closed', colors.textSecondary)
+        : task.done
+        ? ('Done', colors.primary)
+        : ('Active', colors.secondary);
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.space8,
         vertical: 2,
       ),
       decoration: BoxDecoration(
-        color: context.colors.primaryLight,
+        color: color.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        'Zentao',
+        label,
         style: AppTypography.caption(
           context,
-        )?.copyWith(color: context.colors.primary, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-}
-
-class _ZentaoBugChip extends StatelessWidget {
-  const _ZentaoBugChip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space8,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: context.colors.warning.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        'Bug',
-        style: AppTypography.caption(
-          context,
-        )?.copyWith(color: context.colors.warning, fontWeight: FontWeight.w600),
+        )?.copyWith(color: color, fontWeight: FontWeight.w600),
       ),
     );
   }
