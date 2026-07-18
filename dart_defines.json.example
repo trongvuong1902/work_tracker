@@ -1,6 +1,7 @@
 {
   "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_API_KEY_HERE",
   "AI_API_KEY": "YOUR_AI_API_KEY_HERE_INTERNAL_BUILDS_ONLY",
-  "AI_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai",
-  "AI_MODEL": "gemini-2.0-flash"
+  "AI_BASE_URL": "https://api.groq.com/openai/v1",
+  "AI_MODEL": "llama-3.3-70b-versatile",
+  "AI_VISION": "false"
 }

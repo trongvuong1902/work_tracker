@@ -30,6 +30,11 @@ const _supportedImageMediaTypes = {
 const _maxImageBytes = 4 * 1024 * 1024;
 const _maxImages = 5;
 
+// Only attach image attachments when the configured provider/model supports
+// vision (`--dart-define=AI_VISION=true`). Text-only providers (e.g. Groq)
+// reject `image_url` blocks, so this defaults off.
+const _visionEnabled = String.fromEnvironment('AI_VISION') == 'true';
+
 @LazySingleton(as: AiRepository)
 class AiRepositoryImpl implements AiRepository {
   AiRepositoryImpl(this._client, this._zentaoRepository);
@@ -43,7 +48,9 @@ class AiRepositoryImpl implements AiRepository {
   @override
   Stream<String> resolveBug(Task task) async* {
     final prompt = buildBugResolutionPrompt(task);
-    final images = await _buildImages(task.attachments);
+    final images = _visionEnabled
+        ? await _buildImages(task.attachments)
+        : const <AiImage>[];
     yield* _client.resolveBug(prompt: prompt, images: images);
   }
 

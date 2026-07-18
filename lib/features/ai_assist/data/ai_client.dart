@@ -116,9 +116,16 @@ class OpenAiCompatibleAiClient implements AiClient {
     final response = await http.Client().send(request).timeout(_requestTimeout);
 
     if (response.statusCode != 200) {
-      // Drain the body (without ever logging/including the api key).
-      await response.stream.bytesToString();
-      throw AiApiException('AI request failed (${response.statusCode})');
+      // Surface the provider's real error message (quota/model/etc.) — the
+      // body never contains the api key. Falls back to just the status if the
+      // body isn't the expected OpenAI-compatible error shape.
+      final body = await response.stream.bytesToString();
+      final detail = _extractError(body);
+      throw AiApiException(
+        detail == null
+            ? 'AI request failed (${response.statusCode})'
+            : 'AI request failed (${response.statusCode}): $detail',
+      );
     }
 
     final lines = response.stream
@@ -157,5 +164,23 @@ class OpenAiCompatibleAiClient implements AiClient {
         'The model returned no answer (it may have been blocked or rate-limited).',
       );
     }
+  }
+
+  /// Pulls `error.message` out of an OpenAI-compatible error body — handles the
+  /// plain `{"error": {...}}` object and the list-wrapped `[{"error": {...}}]`
+  /// shape some providers (e.g. Gemini) return. Null if it isn't that shape.
+  String? _extractError(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      final map = decoded is List && decoded.isNotEmpty ? decoded.first : decoded;
+      if (map is Map<String, dynamic>) {
+        final error = map['error'];
+        if (error is Map<String, dynamic>) return error['message']?.toString();
+        if (error is String) return error;
+      }
+    } catch (_) {
+      // Body wasn't JSON — fall back to the status-only message.
+    }
+    return null;
   }
 }
