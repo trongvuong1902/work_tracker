@@ -65,6 +65,16 @@ class TaskEntity {
   @Property(type: PropertyType.date)
   DateTime? timerStartedAt;
 
+  // Bug-only: whether the linked Zentao bug has been confirmed. Seeded from
+  // the server on sync and set to true after the app confirms it on the first
+  // Start-timer, so subsequent starts don't re-confirm. Always false for
+  // manual/task-linked rows.
+  bool zentaoConfirmed;
+
+  // Bug-only: the account of whoever opened (created) the Zentao bug — used as
+  // the resolve assignee. Null until enriched from the bug detail.
+  String? zentaoOpenedBy;
+
   TaskEntity({
     required this.title,
     this.description,
@@ -85,5 +95,7 @@ class TaskEntity {
     this.zentaoDetailSyncedAt,
     required this.elapsedSeconds,
     this.timerStartedAt,
+    this.zentaoConfirmed = false,
+    this.zentaoOpenedBy,
   });
 }

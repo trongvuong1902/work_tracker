@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ZentaoBug {
 
- int get id; String get title; String get status; String? get description; int? get priority; String? get assignedToAccount; String? get assignedToRealName; int? get severity; DateTime? get deadline;
+ int get id; String get title; String get status; String? get description; int? get priority; String? get assignedToAccount; String? get assignedToRealName; int? get severity; DateTime? get deadline; String? get openedByAccount; bool get confirmed;
 /// Create a copy of ZentaoBug
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $ZentaoBugCopyWith<ZentaoBug> get copyWith => _$ZentaoBugCopyWithImpl<ZentaoBug>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ZentaoBug&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assignedToAccount, assignedToAccount) || other.assignedToAccount == assignedToAccount)&&(identical(other.assignedToRealName, assignedToRealName) || other.assignedToRealName == assignedToRealName)&&(identical(other.severity, severity) || other.severity == severity)&&(identical(other.deadline, deadline) || other.deadline == deadline));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ZentaoBug&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assignedToAccount, assignedToAccount) || other.assignedToAccount == assignedToAccount)&&(identical(other.assignedToRealName, assignedToRealName) || other.assignedToRealName == assignedToRealName)&&(identical(other.severity, severity) || other.severity == severity)&&(identical(other.deadline, deadline) || other.deadline == deadline)&&(identical(other.openedByAccount, openedByAccount) || other.openedByAccount == openedByAccount)&&(identical(other.confirmed, confirmed) || other.confirmed == confirmed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,status,description,priority,assignedToAccount,assignedToRealName,severity,deadline);
+int get hashCode => Object.hash(runtimeType,id,title,status,description,priority,assignedToAccount,assignedToRealName,severity,deadline,openedByAccount,confirmed);
 
 @override
 String toString() {
-  return 'ZentaoBug(id: $id, title: $title, status: $status, description: $description, priority: $priority, assignedToAccount: $assignedToAccount, assignedToRealName: $assignedToRealName, severity: $severity, deadline: $deadline)';
+  return 'ZentaoBug(id: $id, title: $title, status: $status, description: $description, priority: $priority, assignedToAccount: $assignedToAccount, assignedToRealName: $assignedToRealName, severity: $severity, deadline: $deadline, openedByAccount: $openedByAccount, confirmed: $confirmed)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $ZentaoBugCopyWith<$Res>  {
   factory $ZentaoBugCopyWith(ZentaoBug value, $Res Function(ZentaoBug) _then) = _$ZentaoBugCopyWithImpl;
 @useResult
 $Res call({
- int id, String title, String status, String? description, int? priority, String? assignedToAccount, String? assignedToRealName, int? severity, DateTime? deadline
+ int id, String title, String status, String? description, int? priority, String? assignedToAccount, String? assignedToRealName, int? severity, DateTime? deadline, String? openedByAccount, bool confirmed
 });
 
 
@@ -62,7 +62,7 @@ class _$ZentaoBugCopyWithImpl<$Res>
 
 /// Create a copy of ZentaoBug
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? status = null,Object? description = freezed,Object? priority = freezed,Object? assignedToAccount = freezed,Object? assignedToRealName = freezed,Object? severity = freezed,Object? deadline = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? status = null,Object? description = freezed,Object? priority = freezed,Object? assignedToAccount = freezed,Object? assignedToRealName = freezed,Object? severity = freezed,Object? deadline = freezed,Object? openedByAccount = freezed,Object? confirmed = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -73,7 +73,9 @@ as int?,assignedToAccount: freezed == assignedToAccount ? _self.assignedToAccoun
 as String?,assignedToRealName: freezed == assignedToRealName ? _self.assignedToRealName : assignedToRealName // ignore: cast_nullable_to_non_nullable
 as String?,severity: freezed == severity ? _self.severity : severity // ignore: cast_nullable_to_non_nullable
 as int?,deadline: freezed == deadline ? _self.deadline : deadline // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,openedByAccount: freezed == openedByAccount ? _self.openedByAccount : openedByAccount // ignore: cast_nullable_to_non_nullable
+as String?,confirmed: null == confirmed ? _self.confirmed : confirmed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -158,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String status,  String? description,  int? priority,  String? assignedToAccount,  String? assignedToRealName,  int? severity,  DateTime? deadline)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String status,  String? description,  int? priority,  String? assignedToAccount,  String? assignedToRealName,  int? severity,  DateTime? deadline,  String? openedByAccount,  bool confirmed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ZentaoBug() when $default != null:
-return $default(_that.id,_that.title,_that.status,_that.description,_that.priority,_that.assignedToAccount,_that.assignedToRealName,_that.severity,_that.deadline);case _:
+return $default(_that.id,_that.title,_that.status,_that.description,_that.priority,_that.assignedToAccount,_that.assignedToRealName,_that.severity,_that.deadline,_that.openedByAccount,_that.confirmed);case _:
   return orElse();
 
 }
@@ -179,10 +181,10 @@ return $default(_that.id,_that.title,_that.status,_that.description,_that.priori
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String status,  String? description,  int? priority,  String? assignedToAccount,  String? assignedToRealName,  int? severity,  DateTime? deadline)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String status,  String? description,  int? priority,  String? assignedToAccount,  String? assignedToRealName,  int? severity,  DateTime? deadline,  String? openedByAccount,  bool confirmed)  $default,) {final _that = this;
 switch (_that) {
 case _ZentaoBug():
-return $default(_that.id,_that.title,_that.status,_that.description,_that.priority,_that.assignedToAccount,_that.assignedToRealName,_that.severity,_that.deadline);case _:
+return $default(_that.id,_that.title,_that.status,_that.description,_that.priority,_that.assignedToAccount,_that.assignedToRealName,_that.severity,_that.deadline,_that.openedByAccount,_that.confirmed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +201,10 @@ return $default(_that.id,_that.title,_that.status,_that.description,_that.priori
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String status,  String? description,  int? priority,  String? assignedToAccount,  String? assignedToRealName,  int? severity,  DateTime? deadline)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String status,  String? description,  int? priority,  String? assignedToAccount,  String? assignedToRealName,  int? severity,  DateTime? deadline,  String? openedByAccount,  bool confirmed)?  $default,) {final _that = this;
 switch (_that) {
 case _ZentaoBug() when $default != null:
-return $default(_that.id,_that.title,_that.status,_that.description,_that.priority,_that.assignedToAccount,_that.assignedToRealName,_that.severity,_that.deadline);case _:
+return $default(_that.id,_that.title,_that.status,_that.description,_that.priority,_that.assignedToAccount,_that.assignedToRealName,_that.severity,_that.deadline,_that.openedByAccount,_that.confirmed);case _:
   return null;
 
 }
@@ -214,7 +216,7 @@ return $default(_that.id,_that.title,_that.status,_that.description,_that.priori
 
 
 class _ZentaoBug implements ZentaoBug {
-  const _ZentaoBug({required this.id, required this.title, required this.status, this.description, this.priority, this.assignedToAccount, this.assignedToRealName, this.severity, this.deadline});
+  const _ZentaoBug({required this.id, required this.title, required this.status, this.description, this.priority, this.assignedToAccount, this.assignedToRealName, this.severity, this.deadline, this.openedByAccount, this.confirmed = false});
   
 
 @override final  int id;
@@ -226,6 +228,8 @@ class _ZentaoBug implements ZentaoBug {
 @override final  String? assignedToRealName;
 @override final  int? severity;
 @override final  DateTime? deadline;
+@override final  String? openedByAccount;
+@override@JsonKey() final  bool confirmed;
 
 /// Create a copy of ZentaoBug
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +241,16 @@ _$ZentaoBugCopyWith<_ZentaoBug> get copyWith => __$ZentaoBugCopyWithImpl<_Zentao
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ZentaoBug&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assignedToAccount, assignedToAccount) || other.assignedToAccount == assignedToAccount)&&(identical(other.assignedToRealName, assignedToRealName) || other.assignedToRealName == assignedToRealName)&&(identical(other.severity, severity) || other.severity == severity)&&(identical(other.deadline, deadline) || other.deadline == deadline));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ZentaoBug&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.status, status) || other.status == status)&&(identical(other.description, description) || other.description == description)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assignedToAccount, assignedToAccount) || other.assignedToAccount == assignedToAccount)&&(identical(other.assignedToRealName, assignedToRealName) || other.assignedToRealName == assignedToRealName)&&(identical(other.severity, severity) || other.severity == severity)&&(identical(other.deadline, deadline) || other.deadline == deadline)&&(identical(other.openedByAccount, openedByAccount) || other.openedByAccount == openedByAccount)&&(identical(other.confirmed, confirmed) || other.confirmed == confirmed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,status,description,priority,assignedToAccount,assignedToRealName,severity,deadline);
+int get hashCode => Object.hash(runtimeType,id,title,status,description,priority,assignedToAccount,assignedToRealName,severity,deadline,openedByAccount,confirmed);
 
 @override
 String toString() {
-  return 'ZentaoBug(id: $id, title: $title, status: $status, description: $description, priority: $priority, assignedToAccount: $assignedToAccount, assignedToRealName: $assignedToRealName, severity: $severity, deadline: $deadline)';
+  return 'ZentaoBug(id: $id, title: $title, status: $status, description: $description, priority: $priority, assignedToAccount: $assignedToAccount, assignedToRealName: $assignedToRealName, severity: $severity, deadline: $deadline, openedByAccount: $openedByAccount, confirmed: $confirmed)';
 }
 
 
@@ -257,7 +261,7 @@ abstract mixin class _$ZentaoBugCopyWith<$Res> implements $ZentaoBugCopyWith<$Re
   factory _$ZentaoBugCopyWith(_ZentaoBug value, $Res Function(_ZentaoBug) _then) = __$ZentaoBugCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String title, String status, String? description, int? priority, String? assignedToAccount, String? assignedToRealName, int? severity, DateTime? deadline
+ int id, String title, String status, String? description, int? priority, String? assignedToAccount, String? assignedToRealName, int? severity, DateTime? deadline, String? openedByAccount, bool confirmed
 });
 
 
@@ -274,7 +278,7 @@ class __$ZentaoBugCopyWithImpl<$Res>
 
 /// Create a copy of ZentaoBug
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? status = null,Object? description = freezed,Object? priority = freezed,Object? assignedToAccount = freezed,Object? assignedToRealName = freezed,Object? severity = freezed,Object? deadline = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? status = null,Object? description = freezed,Object? priority = freezed,Object? assignedToAccount = freezed,Object? assignedToRealName = freezed,Object? severity = freezed,Object? deadline = freezed,Object? openedByAccount = freezed,Object? confirmed = null,}) {
   return _then(_ZentaoBug(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -285,7 +289,9 @@ as int?,assignedToAccount: freezed == assignedToAccount ? _self.assignedToAccoun
 as String?,assignedToRealName: freezed == assignedToRealName ? _self.assignedToRealName : assignedToRealName // ignore: cast_nullable_to_non_nullable
 as String?,severity: freezed == severity ? _self.severity : severity // ignore: cast_nullable_to_non_nullable
 as int?,deadline: freezed == deadline ? _self.deadline : deadline // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,openedByAccount: freezed == openedByAccount ? _self.openedByAccount : openedByAccount // ignore: cast_nullable_to_non_nullable
+as String?,confirmed: null == confirmed ? _self.confirmed : confirmed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

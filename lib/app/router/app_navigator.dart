@@ -71,6 +71,11 @@ abstract final class AppNavigator {
   static Future<void> pushTaskDetail(BuildContext context, int taskId) =>
       context.push(AppRoutes.taskDetail, extra: taskId);
 
+  /// The "Manage task times" timesheet, grouped by date. Pushed from the home
+  /// "Today's tasks" section's "See more".
+  static Future<void> pushTaskTimes(BuildContext context) =>
+      context.push(AppRoutes.taskTimes);
+
   static Future<void> pushManualTaskForm(BuildContext context) =>
       context.push(AppRoutes.taskManualForm);
 

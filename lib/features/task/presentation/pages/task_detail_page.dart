@@ -144,7 +144,7 @@ class _TaskDetailViewState extends State<_TaskDetailView> {
           ),
           const SizedBox(height: AppSpacing.space16),
           PrimaryButton(
-            label: 'Resolve with AI',
+            label: 'Generate AI fix prompt',
             icon: Icons.auto_awesome,
             onPressed: () => _resolveWithAi(context, task),
           ),
@@ -336,19 +336,12 @@ class _TimerBar extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.space16),
             Expanded(
-              child: isLoading
-                  ? const Center(
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  : PrimaryButton(
-                      label: running ? 'Stop timer' : 'Start timer',
-                      icon: running ? Icons.stop : Icons.play_arrow,
-                      onPressed: onToggle,
-                    ),
+              child: PrimaryButton(
+                label: running ? 'Stop timer' : 'Start timer',
+                icon: running ? Icons.stop : Icons.play_arrow,
+                isLoading: isLoading,
+                onPressed: onToggle,
+              ),
             ),
           ],
         ),
@@ -366,7 +359,20 @@ class _TaskInfoSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TaskDetailCubit, TaskDetailState>(
+    return BlocConsumer<TaskDetailCubit, TaskDetailState>(
+      listenWhen: (prev, curr) =>
+          prev.task?.done == false &&
+          curr.task?.done == true &&
+          (curr.task?.isLinkedToZentaoBug ?? false),
+      listener: (context, state) {
+        // A bug task just transitioned to Done — that means the Zentao resolve
+        // succeeded. Confirm it and close the sheet.
+        final messenger = ScaffoldMessenger.of(context);
+        Navigator.of(context).pop();
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Bug resolved in Zentao')),
+        );
+      },
       builder: (context, state) {
         final task = state.task;
         if (task == null) return const SizedBox.shrink();
@@ -455,6 +461,25 @@ class _TaskInfoSheet extends StatelessWidget {
                       ),
                     ),
                   ],
+                ],
+                if (state.isTogglingDone) ...[
+                  const SizedBox(height: AppSpacing.space8),
+                  const Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                ],
+                if (state.errorMessage != null) ...[
+                  const SizedBox(height: AppSpacing.space8),
+                  Text(
+                    state.errorMessage!,
+                    style: AppTypography.body(
+                      context,
+                    )?.copyWith(color: context.colors.error),
+                  ),
                 ],
               ],
             ),

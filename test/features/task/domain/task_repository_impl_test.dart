@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:work_tracker/database/task/task_entity.dart';
 import 'package:work_tracker/features/task/data/task_dao.dart';
+import 'package:work_tracker/features/task/domain/models/task_time_log.dart';
 import 'package:work_tracker/features/task/domain/task_repository.dart';
 import 'package:work_tracker/features/task/domain/task_repository_impl.dart';
+import 'package:work_tracker/features/task/domain/task_time_log_repository.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug_attachment.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug_comment.dart';
@@ -94,8 +96,14 @@ class FakeZentaoRepository implements ZentaoRepository {
   Future<List<ZentaoBug>> getAssignedBugs(int productId) =>
       throw UnimplementedError();
 
+  ZentaoBug? refreshBugResult;
+  int refreshBugCallCount = 0;
+
   @override
-  Future<ZentaoBug?> refreshBug(int zentaoBugId) => throw UnimplementedError();
+  Future<ZentaoBug?> refreshBug(int zentaoBugId) async {
+    refreshBugCallCount++;
+    return refreshBugResult;
+  }
 
   ZentaoBugDetail? bugDetailResult;
   int getBugDetailCallCount = 0;
@@ -111,17 +119,90 @@ class FakeZentaoRepository implements ZentaoRepository {
   @override
   Future<File> downloadAttachment(ZentaoBugAttachment attachment) =>
       throw UnimplementedError();
+
+  bool confirmBugShouldThrow = false;
+  int confirmBugCallCount = 0;
+  int? lastConfirmBugId;
+  int? lastConfirmPri;
+
+  @override
+  Future<void> confirmBug(int bugId, {int? pri}) async {
+    confirmBugCallCount++;
+    lastConfirmBugId = bugId;
+    lastConfirmPri = pri;
+    if (confirmBugShouldThrow) throw Exception('confirm failed');
+  }
+
+  bool resolveBugShouldThrow = false;
+  int resolveBugCallCount = 0;
+  int? lastResolveBugId;
+  String? lastResolveResolution;
+  String? lastResolveBuild;
+  String? lastResolveAssignedTo;
+  String? lastResolveComment;
+
+  @override
+  Future<void> resolveBug(
+    int bugId, {
+    required String resolution,
+    required String resolvedBuild,
+    required DateTime resolvedDate,
+    required String assignedTo,
+    required String comment,
+  }) async {
+    resolveBugCallCount++;
+    lastResolveBugId = bugId;
+    lastResolveResolution = resolution;
+    lastResolveBuild = resolvedBuild;
+    lastResolveAssignedTo = assignedTo;
+    lastResolveComment = comment;
+    if (resolveBugShouldThrow) throw Exception('resolve failed');
+  }
+}
+
+/// Captures the segments the repository attributes to per-day logs so tests
+/// can assert the timer paths record time. Only [recordSegment] is exercised.
+class FakeTaskTimeLogRepository implements TaskTimeLogRepository {
+  final List<({int taskId, DateTime start, DateTime end})> recorded = [];
+
+  @override
+  Future<void> recordSegment(int taskId, DateTime start, DateTime end) async {
+    recorded.add((taskId: taskId, start: start, end: end));
+  }
+
+  @override
+  Future<void> addEntry(int taskId, DateTime day, int seconds) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> deleteEntry(int logId) => throw UnimplementedError();
+
+  @override
+  Future<void> updateSeconds(int logId, int newSeconds) =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<TaskTimeLog>> getAll() => throw UnimplementedError();
+
+  @override
+  Future<List<TaskTimeLog>> getByDay(DateTime day) =>
+      throw UnimplementedError();
+
+  @override
+  Stream<void> watchTimeLogsChanges() => const Stream.empty();
 }
 
 void main() {
   late FakeTaskDao dao;
   late FakeZentaoRepository zentaoRepository;
+  late FakeTaskTimeLogRepository timeLogRepository;
   late TaskRepositoryImpl repository;
 
   setUp(() {
     dao = FakeTaskDao();
     zentaoRepository = FakeZentaoRepository();
-    repository = TaskRepositoryImpl(dao, zentaoRepository);
+    timeLogRepository = FakeTaskTimeLogRepository();
+    repository = TaskRepositoryImpl(dao, zentaoRepository, timeLogRepository);
   });
 
   group('createManual', () {
@@ -267,6 +348,37 @@ void main() {
       await repository.stopTimer(task.id);
 
       expect(dao.getById(task.id)!.elapsedSeconds, inInclusiveRange(8, 9));
+    });
+
+    test('stopTimer records the finalized segment to the per-day time log', () async {
+      final task = await repository.createManual(title: 'Timed task');
+      await repository.startTimer(task.id);
+      final started = DateTime.now().subtract(const Duration(seconds: 5));
+      final entity = dao.getById(task.id)!;
+      entity.timerStartedAt = started;
+      dao.update(entity);
+
+      await repository.stopTimer(task.id);
+
+      expect(timeLogRepository.recorded, hasLength(1));
+      final segment = timeLogRepository.recorded.single;
+      expect(segment.taskId, task.id);
+      expect(segment.start, started);
+      expect(segment.end.isAfter(started), isTrue);
+    });
+
+    test('watchTasksChanges emits on startTimer and stopTimer', () async {
+      final task = await repository.createManual(title: 'Timed task');
+      final events = <void>[];
+      final sub = repository.watchTasksChanges().listen(events.add);
+      addTearDown(sub.cancel);
+
+      await repository.startTimer(task.id);
+      await repository.stopTimer(task.id);
+      // Let the broadcast microtasks flush.
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events.length, greaterThanOrEqualTo(2));
     });
 
     test('stopTimer is a safe no-op when the timer is not running', () async {
@@ -522,6 +634,150 @@ void main() {
     test('throws for an unknown task id', () async {
       expect(
         () => repository.refreshFromZentao(9999),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
+
+  group('confirmZentaoBug', () {
+    test('is a no-op for a non-bug task', () async {
+      final task = await repository.createManual(title: 'Manual');
+
+      await repository.confirmZentaoBug(task.id);
+
+      expect(zentaoRepository.confirmBugCallCount, 0);
+    });
+
+    test('is a no-op when the bug is already confirmed', () async {
+      final task = await repository.importBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active', confirmed: true),
+      );
+
+      await repository.confirmZentaoBug(task.id);
+
+      expect(zentaoRepository.confirmBugCallCount, 0);
+      expect(dao.getById(task.id)?.zentaoConfirmed, isTrue);
+    });
+
+    test('confirms via the repository and flips the local flag on success', () async {
+      final task = await repository.importBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active', priority: 2),
+      );
+      expect(dao.getById(task.id)?.zentaoConfirmed, isFalse);
+
+      await repository.confirmZentaoBug(task.id);
+
+      expect(zentaoRepository.confirmBugCallCount, 1);
+      expect(zentaoRepository.lastConfirmBugId, 7);
+      expect(zentaoRepository.lastConfirmPri, 2);
+      expect(dao.getById(task.id)?.zentaoConfirmed, isTrue);
+    });
+
+    test('propagates the error and leaves the flag unset on failure', () async {
+      final task = await repository.importBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      zentaoRepository.confirmBugShouldThrow = true;
+
+      await expectLater(
+        repository.confirmZentaoBug(task.id),
+        throwsA(isA<Exception>()),
+      );
+      expect(dao.getById(task.id)?.zentaoConfirmed, isFalse);
+    });
+  });
+
+  group('resolveZentaoBug', () {
+    test('resolves with fixed/trunk/opener + tracked-time comment, then marks done', () async {
+      final task = await repository.importBugFromZentao(
+        const ZentaoBug(
+          id: 7,
+          title: 'Crash',
+          status: 'active',
+          openedByAccount: 'creator_acc',
+        ),
+      );
+      // 83 minutes of tracked time -> "1h 23m".
+      dao.getById(task.id)!.elapsedSeconds = 83 * 60;
+
+      final result = await repository.resolveZentaoBug(task.id);
+
+      expect(zentaoRepository.resolveBugCallCount, 1);
+      expect(zentaoRepository.lastResolveBugId, 7);
+      expect(zentaoRepository.lastResolveResolution, 'fixed');
+      expect(zentaoRepository.lastResolveBuild, 'trunk');
+      expect(zentaoRepository.lastResolveAssignedTo, 'creator_acc');
+      expect(zentaoRepository.lastResolveComment, 'Tracked time: 1h 23m');
+      // Local state finalized only on success.
+      expect(result.done, isTrue);
+      expect(result.zentaoStatus, 'resolved');
+      expect(result.timerStartedAt, isNull);
+    });
+
+    test('stops a running timer as part of resolving', () async {
+      final task = await repository.importBugFromZentao(
+        const ZentaoBug(
+          id: 7,
+          title: 'Crash',
+          status: 'active',
+          openedByAccount: 'creator_acc',
+        ),
+      );
+      await repository.startTimer(task.id);
+      expect(dao.getById(task.id)?.timerStartedAt, isNotNull);
+
+      final result = await repository.resolveZentaoBug(task.id);
+
+      expect(result.timerStartedAt, isNull);
+      expect(result.done, isTrue);
+    });
+
+    test('fetches the opener via refreshBug when the entity lacks it', () async {
+      final task = await repository.importBugFromZentao(
+        const ZentaoBug(id: 7, title: 'Crash', status: 'active'),
+      );
+      // No openedBy captured locally; the on-demand fetch supplies it.
+      zentaoRepository.refreshBugResult = const ZentaoBug(
+        id: 7,
+        title: 'Crash',
+        status: 'active',
+        openedByAccount: 'fetched_acc',
+      );
+
+      await repository.resolveZentaoBug(task.id);
+
+      expect(zentaoRepository.refreshBugCallCount, 1);
+      expect(zentaoRepository.lastResolveAssignedTo, 'fetched_acc');
+      expect(dao.getById(task.id)?.zentaoOpenedBy, 'fetched_acc');
+    });
+
+    test('throws and leaves the task not-done when the resolve call fails', () async {
+      final task = await repository.importBugFromZentao(
+        const ZentaoBug(
+          id: 7,
+          title: 'Crash',
+          status: 'active',
+          openedByAccount: 'creator_acc',
+        ),
+      );
+      dao.getById(task.id)!.elapsedSeconds = 60;
+      zentaoRepository.resolveBugShouldThrow = true;
+
+      await expectLater(
+        repository.resolveZentaoBug(task.id),
+        throwsA(isA<Exception>()),
+      );
+      final entity = dao.getById(task.id);
+      expect(entity?.done, isFalse);
+      expect(entity?.zentaoStatus, 'active');
+      expect(entity?.elapsedSeconds, 60); // untouched on failure
+    });
+
+    test('throws for a non-bug task', () async {
+      final task = await repository.createManual(title: 'Manual');
+
+      await expectLater(
+        repository.resolveZentaoBug(task.id),
         throwsA(isA<Exception>()),
       );
     });

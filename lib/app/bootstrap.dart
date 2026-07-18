@@ -57,7 +57,9 @@ Future<void> bootstrap() async {
   try {
     await getIt<NotificationService>().initialize();
   } catch (error, stack) {
-    debugPrint('bootstrap: NotificationService.initialize() failed: $error\n$stack');
+    debugPrint(
+      'bootstrap: NotificationService.initialize() failed: $error\n$stack',
+    );
   }
 
   try {
@@ -66,7 +68,11 @@ Future<void> bootstrap() async {
     debugPrint('bootstrap: Workmanager().initialize() failed: $error\n$stack');
   }
 
-  unawaited(getIt<LeaveReminderRepository>().scheduleTodayReminders().catchError((_) {}));
+  unawaited(
+    getIt<LeaveReminderRepository>().scheduleTodayReminders().catchError(
+      (_) {},
+    ),
+  );
   // Force-construct so its constructor subscribes to the attendance stream
   // before any check-in/check-out can happen.
   getIt<CheckoutReminderRepository>();
@@ -78,7 +84,9 @@ Future<void> bootstrap() async {
       await orchestrator.scheduleNextArrivalWatch();
     }
   } catch (error, stack) {
-    debugPrint('bootstrap: location watch resume/schedule failed: $error\n$stack');
+    debugPrint(
+      'bootstrap: location watch resume/schedule failed: $error\n$stack',
+    );
   }
 
   Bloc.observer = AppBlocObserver();
@@ -119,7 +127,7 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
-    debugPrint('onChange -- ${bloc.runtimeType}, $change');
+    // debugPrint('onChange -- ${bloc.runtimeType}, $change');
   }
 
   @override

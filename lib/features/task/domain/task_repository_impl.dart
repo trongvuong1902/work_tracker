@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:injectable/injectable.dart';
 
 import '../../../core/text/html_format.dart';
+import '../../../core/time/time_format.dart';
 import '../../../database/task/task_entity.dart';
 import '../../zentao/domain/models/zentao_bug.dart';
 import '../../zentao/domain/models/zentao_bug_attachment.dart';
@@ -13,13 +15,25 @@ import '../../zentao/domain/zentao_repository.dart';
 import '../data/task_dao.dart';
 import 'models/task.dart';
 import 'task_repository.dart';
+import 'task_time_log_repository.dart';
 
 @LazySingleton(as: TaskRepository)
 class TaskRepositoryImpl implements TaskRepository {
-  TaskRepositoryImpl(this._dao, this._zentaoRepository);
+  TaskRepositoryImpl(this._dao, this._zentaoRepository, this._timeLogRepository);
 
   final TaskDao _dao;
   final ZentaoRepository _zentaoRepository;
+  final TaskTimeLogRepository _timeLogRepository;
+
+  // Broadcast on every mutation so reactive views (home "Today's tasks") can
+  // re-read. Never emit on reads — that would feed back into a listener that
+  // re-reads. App-scoped singleton, so it's never closed.
+  final _changesController = StreamController<void>.broadcast();
+
+  @override
+  Stream<void> watchTasksChanges() => _changesController.stream;
+
+  void _notifyChanged() => _changesController.add(null);
 
   @override
   Future<Task> createManual({
@@ -34,6 +48,7 @@ class TaskRepositoryImpl implements TaskRepository {
       elapsedSeconds: 0,
     );
     _dao.insert(entity);
+    _notifyChanged();
     return _toModel(entity);
   }
 
@@ -49,6 +64,7 @@ class TaskRepositoryImpl implements TaskRepository {
       elapsedSeconds: 0,
     );
     _dao.insert(entity);
+    _notifyChanged();
     return _toModel(entity);
   }
 
@@ -64,6 +80,7 @@ class TaskRepositoryImpl implements TaskRepository {
     );
     _applyBugFields(entity, bug, product);
     _dao.insert(entity);
+    _notifyChanged();
     return _toModel(entity);
   }
 
@@ -78,6 +95,7 @@ class TaskRepositoryImpl implements TaskRepository {
       // (done/elapsedSeconds/timerStartedAt/createdAt) untouched.
       _applyBugFields(existing, bug, product);
       _dao.update(existing);
+      _notifyChanged();
       return BugUpsertOutcome.updated;
     }
 
@@ -91,6 +109,7 @@ class TaskRepositoryImpl implements TaskRepository {
     );
     _applyBugFields(entity, bug, product);
     _dao.insert(entity);
+    _notifyChanged();
     return BugUpsertOutcome.added;
   }
 
@@ -112,6 +131,8 @@ class TaskRepositoryImpl implements TaskRepository {
     entity.zentaoProductId = product?.id;
     entity.zentaoProductName = product?.name;
     entity.zentaoProductPriority = product?.priority;
+    entity.zentaoConfirmed = bug.confirmed;
+    entity.zentaoOpenedBy = bug.openedByAccount ?? entity.zentaoOpenedBy;
     entity.zentaoLastSyncedAt = DateTime.now();
   }
 
@@ -202,6 +223,7 @@ class TaskRepositoryImpl implements TaskRepository {
     if (entity == null) return;
     entity.done = !entity.done;
     _dao.update(entity);
+    _notifyChanged();
   }
 
   @override
@@ -217,10 +239,12 @@ class TaskRepositoryImpl implements TaskRepository {
         other.elapsedSeconds += now.difference(startedAt).inSeconds;
         other.timerStartedAt = null;
         _dao.update(other);
+        await _timeLogRepository.recordSegment(other.id, startedAt, now);
       }
     }
     entity.timerStartedAt = now;
     _dao.update(entity);
+    _notifyChanged();
   }
 
   @override
@@ -228,9 +252,12 @@ class TaskRepositoryImpl implements TaskRepository {
     final entity = _dao.getById(id);
     final startedAt = entity?.timerStartedAt;
     if (entity == null || startedAt == null) return;
-    entity.elapsedSeconds += DateTime.now().difference(startedAt).inSeconds;
+    final now = DateTime.now();
+    entity.elapsedSeconds += now.difference(startedAt).inSeconds;
     entity.timerStartedAt = null;
     _dao.update(entity);
+    await _timeLogRepository.recordSegment(id, startedAt, now);
+    _notifyChanged();
   }
 
   @override
@@ -264,6 +291,8 @@ class TaskRepositoryImpl implements TaskRepository {
         entity.zentaoPriority = bug.priority;
         entity.zentaoSeverity = bug.severity;
         entity.priority = _computeTaskPriority(bug.severity, bug.priority);
+        entity.zentaoConfirmed = bug.confirmed;
+        entity.zentaoOpenedBy = bug.openedByAccount ?? entity.zentaoOpenedBy;
         entity.notes = _formatNotes(detail.comments);
         entity.zentaoAttachmentsJson = _encodeAttachments(detail.attachments);
         entity.zentaoLastSyncedAt = now;
@@ -273,6 +302,7 @@ class TaskRepositoryImpl implements TaskRepository {
     }
     // else: not linked to Zentao at all — no-op.
 
+    _notifyChanged();
     return _toModel(entity);
   }
 
@@ -297,5 +327,77 @@ class TaskRepositoryImpl implements TaskRepository {
     zentaoDetailSyncedAt: entity.zentaoDetailSyncedAt,
     elapsedSeconds: entity.elapsedSeconds,
     timerStartedAt: entity.timerStartedAt,
+    zentaoConfirmed: entity.zentaoConfirmed,
   );
+
+  @override
+  Future<void> confirmZentaoBug(int id) async {
+    final entity = _dao.getById(id);
+    if (entity == null) return;
+    final zentaoBugId = entity.zentaoBugId;
+    // Only bug-linked tasks confirm; skip if already confirmed.
+    if (zentaoBugId == null || entity.zentaoConfirmed) return;
+
+    // Throws on failure — the caller (cubit) blocks starting the timer.
+    await _zentaoRepository.confirmBug(zentaoBugId, pri: entity.zentaoPriority);
+
+    entity.zentaoConfirmed = true;
+    _dao.update(entity);
+    _notifyChanged();
+  }
+
+  @override
+  Future<Task> resolveZentaoBug(int id) async {
+    final entity = _dao.getById(id);
+    if (entity == null) throw Exception('Task not found: $id');
+    final zentaoBugId = entity.zentaoBugId;
+    if (zentaoBugId == null) {
+      throw Exception('Task $id is not linked to a Zentao bug');
+    }
+
+    // Final tracked total, including the in-progress segment — computed
+    // WITHOUT mutating, so nothing changes locally if the resolve call fails.
+    final now = DateTime.now();
+    final startedAt = entity.timerStartedAt;
+    final totalSeconds = entity.elapsedSeconds +
+        (startedAt == null ? 0 : now.difference(startedAt).inSeconds);
+    final comment = 'Tracked time: ${TimeFormat.hMm(totalSeconds ~/ 60)}';
+
+    // The resolve is reassigned to the bug's opener. Enrich it on demand if a
+    // stale/older import never captured it.
+    var openedBy = entity.zentaoOpenedBy;
+    if (openedBy == null) {
+      final bug = await _zentaoRepository.refreshBug(zentaoBugId);
+      openedBy = bug?.openedByAccount;
+      if (openedBy != null) {
+        entity.zentaoOpenedBy = openedBy;
+        _dao.update(entity);
+      }
+    }
+    if (openedBy == null) {
+      throw Exception("Couldn't determine the bug's creator to assign on resolve");
+    }
+
+    // Throws on failure — the caller (cubit) leaves the task not-done.
+    await _zentaoRepository.resolveBug(
+      zentaoBugId,
+      resolution: 'fixed', // Zentao code that displays as "Resolved".
+      resolvedBuild: 'trunk',
+      resolvedDate: DateTime.now(),
+      assignedTo: openedBy,
+      comment: comment,
+    );
+
+    // Success — finalize the timer and mark done locally.
+    entity.elapsedSeconds = totalSeconds;
+    entity.timerStartedAt = null;
+    entity.done = true;
+    entity.zentaoStatus = 'resolved';
+    _dao.update(entity);
+    if (startedAt != null) {
+      await _timeLogRepository.recordSegment(id, startedAt, now);
+    }
+    _notifyChanged();
+    return _toModel(entity);
+  }
 }

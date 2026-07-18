@@ -15,6 +15,8 @@ abstract final class AppRoutes {
 
   static const taskDetail = '/task_detail';
 
+  static const taskTimes = '/task_times';
+
   static const taskManualForm = '/task_manual_form';
 
   static const taskImportPlatformPicker = '/task_import_platform_picker';

@@ -42,6 +42,27 @@ class TaskDetailCubit extends Cubit<TaskDetailState> {
   Future<void> toggleDone() async {
     final task = state.task;
     if (task == null) return;
+
+    // Marking a bug-linked task Done resolves the bug in Zentao first; only on
+    // success is it marked done locally (and its timer stopped). A failure
+    // leaves it not-done so the user can retry.
+    if (!task.done && task.isLinkedToZentaoBug) {
+      emit(state.copyWith(isTogglingDone: true, errorMessage: null));
+      try {
+        final updated = await _repository.resolveZentaoBug(task.id);
+        emit(state.copyWith(isTogglingDone: false, task: updated));
+        _syncTicker();
+      } catch (_) {
+        emit(
+          state.copyWith(
+            isTogglingDone: false,
+            errorMessage: "Couldn't resolve in Zentao — try again.",
+          ),
+        );
+      }
+      return;
+    }
+
     emit(state.copyWith(isTogglingDone: true));
     await _repository.toggleDone(task.id);
     final updated = await _repository.getById(task.id);
@@ -51,10 +72,25 @@ class TaskDetailCubit extends Cubit<TaskDetailState> {
   Future<void> toggleTimer() async {
     final task = state.task;
     if (task == null) return;
-    emit(state.copyWith(isTogglingTimer: true));
+    emit(state.copyWith(isTogglingTimer: true, errorMessage: null));
     if (task.isTimerRunning) {
       await _repository.stopTimer(task.id);
     } else {
+      // Starting a bug-linked task confirms the bug in Zentao first; a failed
+      // confirm blocks the timer from starting.
+      if (task.isLinkedToZentaoBug && !task.zentaoConfirmed) {
+        try {
+          await _repository.confirmZentaoBug(task.id);
+        } catch (_) {
+          emit(
+            state.copyWith(
+              isTogglingTimer: false,
+              errorMessage: "Couldn't confirm the bug in Zentao — try again.",
+            ),
+          );
+          return;
+        }
+      }
       await _repository.startTimer(task.id);
     }
     final updated = await _repository.getById(task.id);

@@ -86,6 +86,30 @@ abstract class ZentaoClient {
     required String token,
     required int attachmentId,
   });
+
+  /// Confirms bug [bugId] (`POST bugs/:id/confirm`), assigning it to
+  /// [assignedTo]. Throws on failure so the caller can block on it.
+  Future<void> confirmBug({
+    required String domain,
+    required String token,
+    required int bugId,
+    required String assignedTo,
+    int? pri,
+  });
+
+  /// Resolves bug [bugId] (`POST bugs/:id/resolve`) with the given
+  /// resolution/build/date/assignee/comment. Throws on failure so the caller
+  /// can block on it.
+  Future<void> resolveBug({
+    required String domain,
+    required String token,
+    required int bugId,
+    required String resolution,
+    required String resolvedBuild,
+    required DateTime resolvedDate,
+    required String assignedTo,
+    required String comment,
+  });
 }
 
 /// Talks to the real Zentao REST API v1
@@ -132,6 +156,27 @@ class ZentaoRestClient implements ZentaoClient {
         'Zentao request unauthorized (status ${response.statusCode})',
       );
     }
+  }
+
+  /// Guards a write (POST) response: re-checks auth (so an expired token still
+  /// triggers a single re-login retry upstream) and treats anything outside
+  /// 2xx as a hard failure — unlike the read paths, write failures must
+  /// surface so the caller can block on them.
+  void _checkWrite(http.Response response, String action) {
+    _checkAuth(response);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'Zentao $action failed with status ${response.statusCode}',
+      );
+    }
+  }
+
+  /// `yyyy-MM-dd HH:mm:ss` — the datetime shape Zentao expects for fields
+  /// like a bug's resolvedDate.
+  String _formatDateTime(DateTime dt) {
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${dt.year}-${two(dt.month)}-${two(dt.day)} '
+        '${two(dt.hour)}:${two(dt.minute)}:${two(dt.second)}';
   }
 
   /// Zentao often serializes a PHP associative array as a JSON *object*
@@ -625,7 +670,21 @@ class ZentaoRestClient implements ZentaoClient {
       assignedToRealName: assignedToRealName,
       severity: _asIntOrNull(json['severity']),
       deadline: _asDateOrNull(json['deadline']),
+      // Creator's account — needed to reassign to the opener on resolve.
+      // Object-or-bare-string like assignedTo.
+      openedByAccount: _parseAccount(json['openedBy']),
+      // Zentao serializes the confirmed flag as 0/1 (or "0"/"1").
+      confirmed: (_asIntOrNull(json['confirmed']) ?? 0) != 0,
     );
+  }
+
+  /// Extracts an `account` from a Zentao user field that may be either an
+  /// object (`{account, realname}`) or a bare account string.
+  String? _parseAccount(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return _asNonEmptyString(value['account']);
+    }
+    return _asNonEmptyString(value);
   }
 
   @override
@@ -719,5 +778,53 @@ class ZentaoRestClient implements ZentaoClient {
       );
     }
     return response.bodyBytes;
+  }
+
+  @override
+  Future<void> confirmBug({
+    required String domain,
+    required String token,
+    required int bugId,
+    required String assignedTo,
+    int? pri,
+  }) async {
+    final response = await http
+        .post(
+          _uri(domain, 'bugs/$bugId/confirm'),
+          headers: {..._authHeaders(token), 'Content-Type': 'application/json'},
+          body: json.encode({
+            'assignedTo': assignedTo,
+            'pri': ?pri,
+          }),
+        )
+        .timeout(_requestTimeout);
+    _checkWrite(response, 'bug confirm');
+  }
+
+  @override
+  Future<void> resolveBug({
+    required String domain,
+    required String token,
+    required int bugId,
+    required String resolution,
+    required String resolvedBuild,
+    required DateTime resolvedDate,
+    required String assignedTo,
+    required String comment,
+  }) async {
+    final response = await http
+        .post(
+          _uri(domain, 'bugs/$bugId/resolve'),
+          headers: {..._authHeaders(token), 'Content-Type': 'application/json'},
+          body: json.encode({
+            'resolution': resolution,
+            'resolvedBuild': resolvedBuild,
+            'resolvedDate': _formatDateTime(resolvedDate),
+            'assignedTo': assignedTo,
+            'comment': comment,
+          }),
+        )
+        .timeout(_requestTimeout);
+    _checkWrite(response, 'bug resolve');
   }
 }

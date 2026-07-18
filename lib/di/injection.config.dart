@@ -38,6 +38,7 @@ import 'package:work_tracker/database/location_log/location_log_settings_entity.
     as _i624;
 import 'package:work_tracker/database/objectbox.g.dart' as _i625;
 import 'package:work_tracker/database/task/task_entity.dart' as _i911;
+import 'package:work_tracker/database/task/task_time_log_entity.dart' as _i1031;
 import 'package:work_tracker/database/work_schedule/work_schedule_entity.dart'
     as _i911;
 import 'package:work_tracker/di/register_module.dart' as _i61;
@@ -45,6 +46,7 @@ import 'package:work_tracker/domain/repository/app_repository.dart' as _i204;
 import 'package:work_tracker/domain/repository/app_repository_impl.dart'
     as _i927;
 import 'package:work_tracker/features/ai_assist/data/ai_client.dart' as _i692;
+import 'package:work_tracker/features/ai_assist/data/ai_prefs.dart' as _i723;
 import 'package:work_tracker/features/ai_assist/domain/ai_repository.dart'
     as _i913;
 import 'package:work_tracker/features/ai_assist/presentation/cubit/bug_ai_cubit.dart'
@@ -77,6 +79,8 @@ import 'package:work_tracker/features/home/presentation/widgets/hero_card/cubit/
     as _i629;
 import 'package:work_tracker/features/home/presentation/widgets/today_activity_timeline/cubit/today_activity_timeline_cubit.dart'
     as _i524;
+import 'package:work_tracker/features/home/presentation/widgets/today_tasks/cubit/today_tasks_cubit.dart'
+    as _i660;
 import 'package:work_tracker/features/home/presentation/widgets/tomorrow_preview/cubit/tomorrow_preview_cubit.dart'
     as _i299;
 import 'package:work_tracker/features/leave_reminder/data/commute_routing_client.dart'
@@ -140,10 +144,14 @@ import 'package:work_tracker/features/schedule/domain/work_schedule_repository_i
 import 'package:work_tracker/features/schedule/presentation/cubit/setting_schedule_cubit.dart'
     as _i542;
 import 'package:work_tracker/features/task/data/task_dao.dart' as _i344;
+import 'package:work_tracker/features/task/data/task_time_log_dao.dart'
+    as _i179;
 import 'package:work_tracker/features/task/domain/task_repository.dart'
     as _i1026;
 import 'package:work_tracker/features/task/domain/task_repository_impl.dart'
     as _i383;
+import 'package:work_tracker/features/task/domain/task_time_log_repository.dart'
+    as _i374;
 import 'package:work_tracker/features/task/presentation/cubit/bug_sync_cubit.dart'
     as _i987;
 import 'package:work_tracker/features/task/presentation/cubit/bug_sync_products_cubit.dart'
@@ -152,6 +160,8 @@ import 'package:work_tracker/features/task/presentation/cubit/task_detail_cubit.
     as _i629;
 import 'package:work_tracker/features/task/presentation/cubit/task_list_cubit.dart'
     as _i482;
+import 'package:work_tracker/features/task/presentation/cubit/task_time_log_cubit.dart'
+    as _i687;
 import 'package:work_tracker/features/zentao/data/zentao_client.dart' as _i376;
 import 'package:work_tracker/features/zentao/data/zentao_credentials_store.dart'
     as _i1;
@@ -213,13 +223,22 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i557.GoogleDistanceMatrix>(),
       ),
     );
+    gh.lazySingleton<_i723.AiPrefs>(
+      () => _i723.AiPrefs(gh<_i460.SharedPreferences>()),
+    );
     gh.lazySingleton<_i522.ZentaoSyncPrefs>(
       () => _i522.ZentaoSyncPrefs(gh<_i460.SharedPreferences>()),
+    );
+    gh.lazySingleton<_i913.AiRepository>(
+      () => _i913.AiRepositoryImpl(gh<_i692.AiClient>(), gh<_i723.AiPrefs>()),
     );
     gh.lazySingleton<_i43.NotificationService>(
       () => _i807.NotificationServiceImpl(
         gh<_i163.FlutterLocalNotificationsPlugin>(),
       ),
+    );
+    gh.factory<_i167.BugAiCubit>(
+      () => _i167.BugAiCubit(gh<_i913.AiRepository>()),
     );
     gh.lazySingleton<_i298.ZentaoRepository>(
       () => _i1023.ZentaoRepositoryImpl(
@@ -254,6 +273,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i625.Box<_i911.TaskEntity>>(
       () => registerModule.taskBox(gh<_i625.Store>()),
     );
+    gh.singleton<_i625.Box<_i1031.TaskTimeLogEntity>>(
+      () => registerModule.taskTimeLogBox(gh<_i625.Store>()),
+    );
     gh.lazySingleton<_i616.AttendanceDao>(
       () => _i616.AttendanceDaoImpl(gh<_i625.Box<_i602.AttendanceEntity>>()),
     );
@@ -263,12 +285,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i522.ZentaoSyncPrefs>(),
       ),
     );
-    gh.lazySingleton<_i913.AiRepository>(
-      () => _i913.AiRepositoryImpl(
-        gh<_i692.AiClient>(),
-        gh<_i298.ZentaoRepository>(),
-      ),
-    );
     gh.lazySingleton<_i150.CommuteSampleDao>(
       () => _i150.CommuteSampleDaoImpl(
         gh<_i625.Box<_i793.CommuteSampleEntity>>(),
@@ -276,6 +292,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i344.TaskDao>(
       () => _i344.TaskDaoImpl(gh<_i625.Box<_i911.TaskEntity>>()),
+    );
+    gh.lazySingleton<_i179.TaskTimeLogDao>(
+      () => _i179.TaskTimeLogDaoImpl(gh<_i625.Box<_i1031.TaskTimeLogEntity>>()),
     );
     gh.lazySingleton<_i635.LocationLogSettingsDao>(
       () => _i635.LocationLogSettingsDaoImpl(
@@ -307,15 +326,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i762.WorkScheduleDatasource>(
       () => _i339.WorkScheduleDatasourceImpl(gh<_i196.WorkScheduleDao>()),
     );
-    gh.lazySingleton<_i1026.TaskRepository>(
-      () => _i383.TaskRepositoryImpl(
-        gh<_i344.TaskDao>(),
-        gh<_i298.ZentaoRepository>(),
-      ),
-    );
-    gh.factory<_i167.BugAiCubit>(
-      () => _i167.BugAiCubit(gh<_i913.AiRepository>()),
-    );
     gh.lazySingleton<_i697.LocationLogSettingsDatasource>(
       () => _i552.LocationLogSettingsDatasourceImpl(
         gh<_i635.LocationLogSettingsDao>(),
@@ -331,6 +341,12 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i625.WorkScheduleRepositoryImpl(gh<_i762.WorkScheduleDatasource>()),
     );
+    gh.lazySingleton<_i374.TaskTimeLogRepository>(
+      () => _i374.TaskTimeLogRepositoryImpl(
+        gh<_i179.TaskTimeLogDao>(),
+        gh<_i344.TaskDao>(),
+      ),
+    );
     gh.lazySingleton<_i654.CheckoutReminderDatasource>(
       () =>
           _i900.CheckoutReminderDatasourceImpl(gh<_i226.CheckoutReminderDao>()),
@@ -343,13 +359,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i307.LocationLogDao>(),
         gh<_i697.LocationLogSettingsDatasource>(),
         gh<_i43.NotificationService>(),
-      ),
-    );
-    gh.factory<_i987.BugSyncCubit>(
-      () => _i987.BugSyncCubit(
-        gh<_i298.ZentaoRepository>(),
-        gh<_i1026.TaskRepository>(),
-        gh<_i522.ZentaoSyncPrefs>(),
       ),
     );
     gh.lazySingleton<_i707.LeaveReminderDatasource>(
@@ -378,12 +387,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i331.AttendanceRepository>(),
         gh<_i513.WorkScheduleRepository>(),
       ),
-    );
-    gh.factory<_i629.TaskDetailCubit>(
-      () => _i629.TaskDetailCubit(gh<_i1026.TaskRepository>()),
-    );
-    gh.factory<_i482.TaskListCubit>(
-      () => _i482.TaskListCubit(gh<_i1026.TaskRepository>()),
     );
     gh.singleton<_i108.AppCubit>(
       () => _i108.AppCubit(
@@ -419,6 +422,13 @@ extension GetItInjectableX on _i174.GetIt {
         workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
       ),
     );
+    gh.lazySingleton<_i1026.TaskRepository>(
+      () => _i383.TaskRepositoryImpl(
+        gh<_i344.TaskDao>(),
+        gh<_i298.ZentaoRepository>(),
+        gh<_i374.TaskTimeLogRepository>(),
+      ),
+    );
     gh.lazySingleton<_i530.CheckoutReminderRepository>(
       () => _i308.CheckoutReminderRepositoryImpl(
         gh<_i654.CheckoutReminderDatasource>(),
@@ -438,6 +448,19 @@ extension GetItInjectableX on _i174.GetIt {
         leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
       ),
     );
+    gh.factory<_i987.BugSyncCubit>(
+      () => _i987.BugSyncCubit(
+        gh<_i298.ZentaoRepository>(),
+        gh<_i1026.TaskRepository>(),
+        gh<_i522.ZentaoSyncPrefs>(),
+      ),
+    );
+    gh.factory<_i687.TaskTimeLogCubit>(
+      () => _i687.TaskTimeLogCubit(
+        gh<_i374.TaskTimeLogRepository>(),
+        gh<_i1026.TaskRepository>(),
+      ),
+    );
     gh.factory<_i262.LeaveReminderSetupCubit>(
       () => _i262.LeaveReminderSetupCubit(
         gh<_i468.LeaveReminderRepository>(),
@@ -451,6 +474,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1034.LocationWatchOrchestrator>(),
       ),
     );
+    gh.factory<_i629.TaskDetailCubit>(
+      () => _i629.TaskDetailCubit(gh<_i1026.TaskRepository>()),
+    );
+    gh.factory<_i482.TaskListCubit>(
+      () => _i482.TaskListCubit(gh<_i1026.TaskRepository>()),
+    );
     gh.factory<_i629.HeroCardCubit>(
       () => _i629.HeroCardCubit(
         attendanceRepository: gh<_i331.AttendanceRepository>(),
@@ -461,6 +490,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i299.TomorrowPreviewCubit(
         attendanceRepository: gh<_i331.AttendanceRepository>(),
         leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
+      ),
+    );
+    gh.factory<_i660.TodayTasksCubit>(
+      () => _i660.TodayTasksCubit(
+        gh<_i1026.TaskRepository>(),
+        gh<_i374.TaskTimeLogRepository>(),
       ),
     );
     return this;

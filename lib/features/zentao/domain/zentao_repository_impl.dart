@@ -167,6 +167,47 @@ class ZentaoRepositoryImpl implements ZentaoRepository {
     return file;
   }
 
+  @override
+  Future<void> confirmBug(int bugId, {int? pri}) {
+    return _withToken((domain, token) async {
+      final credentials = await _credentialsStore.read();
+      if (credentials == null) {
+        throw Exception('Not connected to Zentao');
+      }
+      // Confirming keeps the bug on the connected (self) account.
+      return _client.confirmBug(
+        domain: domain,
+        token: token,
+        bugId: bugId,
+        assignedTo: credentials.account,
+        pri: pri,
+      );
+    });
+  }
+
+  @override
+  Future<void> resolveBug(
+    int bugId, {
+    required String resolution,
+    required String resolvedBuild,
+    required DateTime resolvedDate,
+    required String assignedTo,
+    required String comment,
+  }) {
+    return _withToken(
+      (domain, token) => _client.resolveBug(
+        domain: domain,
+        token: token,
+        bugId: bugId,
+        resolution: resolution,
+        resolvedBuild: resolvedBuild,
+        resolvedDate: resolvedDate,
+        assignedTo: assignedTo,
+        comment: comment,
+      ),
+    );
+  }
+
   Future<Directory> _attachmentCacheDir() async {
     final base = await getApplicationCacheDirectory();
     final dir = Directory('${base.path}/zentao_attachments');

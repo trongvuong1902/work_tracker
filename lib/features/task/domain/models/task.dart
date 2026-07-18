@@ -27,6 +27,7 @@ abstract class Task with _$Task {
     DateTime? zentaoDetailSyncedAt,
     required int elapsedSeconds,
     DateTime? timerStartedAt,
+    @Default(false) bool zentaoConfirmed,
   }) = _Task;
 }
 

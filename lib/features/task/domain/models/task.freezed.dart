@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Task {
 
- int get id; String get title; String? get description; bool get done; DateTime get createdAt; int? get zentaoTaskId; int? get zentaoBugId; String? get zentaoStatus; int? get priority; String? get notes; List<ZentaoBugAttachment> get attachments; int? get zentaoPriority; int? get zentaoSeverity; int? get zentaoProductId; String? get zentaoProductName; int? get zentaoProductPriority; DateTime? get zentaoLastSyncedAt; DateTime? get zentaoDetailSyncedAt; int get elapsedSeconds; DateTime? get timerStartedAt;
+ int get id; String get title; String? get description; bool get done; DateTime get createdAt; int? get zentaoTaskId; int? get zentaoBugId; String? get zentaoStatus; int? get priority; String? get notes; List<ZentaoBugAttachment> get attachments; int? get zentaoPriority; int? get zentaoSeverity; int? get zentaoProductId; String? get zentaoProductName; int? get zentaoProductPriority; DateTime? get zentaoLastSyncedAt; DateTime? get zentaoDetailSyncedAt; int get elapsedSeconds; DateTime? get timerStartedAt; bool get zentaoConfirmed;
 /// Create a copy of Task
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $TaskCopyWith<Task> get copyWith => _$TaskCopyWithImpl<Task>(this as Task, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Task&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.done, done) || other.done == done)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.zentaoTaskId, zentaoTaskId) || other.zentaoTaskId == zentaoTaskId)&&(identical(other.zentaoBugId, zentaoBugId) || other.zentaoBugId == zentaoBugId)&&(identical(other.zentaoStatus, zentaoStatus) || other.zentaoStatus == zentaoStatus)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.zentaoPriority, zentaoPriority) || other.zentaoPriority == zentaoPriority)&&(identical(other.zentaoSeverity, zentaoSeverity) || other.zentaoSeverity == zentaoSeverity)&&(identical(other.zentaoProductId, zentaoProductId) || other.zentaoProductId == zentaoProductId)&&(identical(other.zentaoProductName, zentaoProductName) || other.zentaoProductName == zentaoProductName)&&(identical(other.zentaoProductPriority, zentaoProductPriority) || other.zentaoProductPriority == zentaoProductPriority)&&(identical(other.zentaoLastSyncedAt, zentaoLastSyncedAt) || other.zentaoLastSyncedAt == zentaoLastSyncedAt)&&(identical(other.zentaoDetailSyncedAt, zentaoDetailSyncedAt) || other.zentaoDetailSyncedAt == zentaoDetailSyncedAt)&&(identical(other.elapsedSeconds, elapsedSeconds) || other.elapsedSeconds == elapsedSeconds)&&(identical(other.timerStartedAt, timerStartedAt) || other.timerStartedAt == timerStartedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Task&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.done, done) || other.done == done)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.zentaoTaskId, zentaoTaskId) || other.zentaoTaskId == zentaoTaskId)&&(identical(other.zentaoBugId, zentaoBugId) || other.zentaoBugId == zentaoBugId)&&(identical(other.zentaoStatus, zentaoStatus) || other.zentaoStatus == zentaoStatus)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other.attachments, attachments)&&(identical(other.zentaoPriority, zentaoPriority) || other.zentaoPriority == zentaoPriority)&&(identical(other.zentaoSeverity, zentaoSeverity) || other.zentaoSeverity == zentaoSeverity)&&(identical(other.zentaoProductId, zentaoProductId) || other.zentaoProductId == zentaoProductId)&&(identical(other.zentaoProductName, zentaoProductName) || other.zentaoProductName == zentaoProductName)&&(identical(other.zentaoProductPriority, zentaoProductPriority) || other.zentaoProductPriority == zentaoProductPriority)&&(identical(other.zentaoLastSyncedAt, zentaoLastSyncedAt) || other.zentaoLastSyncedAt == zentaoLastSyncedAt)&&(identical(other.zentaoDetailSyncedAt, zentaoDetailSyncedAt) || other.zentaoDetailSyncedAt == zentaoDetailSyncedAt)&&(identical(other.elapsedSeconds, elapsedSeconds) || other.elapsedSeconds == elapsedSeconds)&&(identical(other.timerStartedAt, timerStartedAt) || other.timerStartedAt == timerStartedAt)&&(identical(other.zentaoConfirmed, zentaoConfirmed) || other.zentaoConfirmed == zentaoConfirmed));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,description,done,createdAt,zentaoTaskId,zentaoBugId,zentaoStatus,priority,notes,const DeepCollectionEquality().hash(attachments),zentaoPriority,zentaoSeverity,zentaoProductId,zentaoProductName,zentaoProductPriority,zentaoLastSyncedAt,zentaoDetailSyncedAt,elapsedSeconds,timerStartedAt]);
+int get hashCode => Object.hashAll([runtimeType,id,title,description,done,createdAt,zentaoTaskId,zentaoBugId,zentaoStatus,priority,notes,const DeepCollectionEquality().hash(attachments),zentaoPriority,zentaoSeverity,zentaoProductId,zentaoProductName,zentaoProductPriority,zentaoLastSyncedAt,zentaoDetailSyncedAt,elapsedSeconds,timerStartedAt,zentaoConfirmed]);
 
 @override
 String toString() {
-  return 'Task(id: $id, title: $title, description: $description, done: $done, createdAt: $createdAt, zentaoTaskId: $zentaoTaskId, zentaoBugId: $zentaoBugId, zentaoStatus: $zentaoStatus, priority: $priority, notes: $notes, attachments: $attachments, zentaoPriority: $zentaoPriority, zentaoSeverity: $zentaoSeverity, zentaoProductId: $zentaoProductId, zentaoProductName: $zentaoProductName, zentaoProductPriority: $zentaoProductPriority, zentaoLastSyncedAt: $zentaoLastSyncedAt, zentaoDetailSyncedAt: $zentaoDetailSyncedAt, elapsedSeconds: $elapsedSeconds, timerStartedAt: $timerStartedAt)';
+  return 'Task(id: $id, title: $title, description: $description, done: $done, createdAt: $createdAt, zentaoTaskId: $zentaoTaskId, zentaoBugId: $zentaoBugId, zentaoStatus: $zentaoStatus, priority: $priority, notes: $notes, attachments: $attachments, zentaoPriority: $zentaoPriority, zentaoSeverity: $zentaoSeverity, zentaoProductId: $zentaoProductId, zentaoProductName: $zentaoProductName, zentaoProductPriority: $zentaoProductPriority, zentaoLastSyncedAt: $zentaoLastSyncedAt, zentaoDetailSyncedAt: $zentaoDetailSyncedAt, elapsedSeconds: $elapsedSeconds, timerStartedAt: $timerStartedAt, zentaoConfirmed: $zentaoConfirmed)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $TaskCopyWith<$Res>  {
   factory $TaskCopyWith(Task value, $Res Function(Task) _then) = _$TaskCopyWithImpl;
 @useResult
 $Res call({
- int id, String title, String? description, bool done, DateTime createdAt, int? zentaoTaskId, int? zentaoBugId, String? zentaoStatus, int? priority, String? notes, List<ZentaoBugAttachment> attachments, int? zentaoPriority, int? zentaoSeverity, int? zentaoProductId, String? zentaoProductName, int? zentaoProductPriority, DateTime? zentaoLastSyncedAt, DateTime? zentaoDetailSyncedAt, int elapsedSeconds, DateTime? timerStartedAt
+ int id, String title, String? description, bool done, DateTime createdAt, int? zentaoTaskId, int? zentaoBugId, String? zentaoStatus, int? priority, String? notes, List<ZentaoBugAttachment> attachments, int? zentaoPriority, int? zentaoSeverity, int? zentaoProductId, String? zentaoProductName, int? zentaoProductPriority, DateTime? zentaoLastSyncedAt, DateTime? zentaoDetailSyncedAt, int elapsedSeconds, DateTime? timerStartedAt, bool zentaoConfirmed
 });
 
 
@@ -62,7 +62,7 @@ class _$TaskCopyWithImpl<$Res>
 
 /// Create a copy of Task
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = freezed,Object? done = null,Object? createdAt = null,Object? zentaoTaskId = freezed,Object? zentaoBugId = freezed,Object? zentaoStatus = freezed,Object? priority = freezed,Object? notes = freezed,Object? attachments = null,Object? zentaoPriority = freezed,Object? zentaoSeverity = freezed,Object? zentaoProductId = freezed,Object? zentaoProductName = freezed,Object? zentaoProductPriority = freezed,Object? zentaoLastSyncedAt = freezed,Object? zentaoDetailSyncedAt = freezed,Object? elapsedSeconds = null,Object? timerStartedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = freezed,Object? done = null,Object? createdAt = null,Object? zentaoTaskId = freezed,Object? zentaoBugId = freezed,Object? zentaoStatus = freezed,Object? priority = freezed,Object? notes = freezed,Object? attachments = null,Object? zentaoPriority = freezed,Object? zentaoSeverity = freezed,Object? zentaoProductId = freezed,Object? zentaoProductName = freezed,Object? zentaoProductPriority = freezed,Object? zentaoLastSyncedAt = freezed,Object? zentaoDetailSyncedAt = freezed,Object? elapsedSeconds = null,Object? timerStartedAt = freezed,Object? zentaoConfirmed = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -84,7 +84,8 @@ as int?,zentaoLastSyncedAt: freezed == zentaoLastSyncedAt ? _self.zentaoLastSync
 as DateTime?,zentaoDetailSyncedAt: freezed == zentaoDetailSyncedAt ? _self.zentaoDetailSyncedAt : zentaoDetailSyncedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,elapsedSeconds: null == elapsedSeconds ? _self.elapsedSeconds : elapsedSeconds // ignore: cast_nullable_to_non_nullable
 as int,timerStartedAt: freezed == timerStartedAt ? _self.timerStartedAt : timerStartedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,zentaoConfirmed: null == zentaoConfirmed ? _self.zentaoConfirmed : zentaoConfirmed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -169,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String? description,  bool done,  DateTime createdAt,  int? zentaoTaskId,  int? zentaoBugId,  String? zentaoStatus,  int? priority,  String? notes,  List<ZentaoBugAttachment> attachments,  int? zentaoPriority,  int? zentaoSeverity,  int? zentaoProductId,  String? zentaoProductName,  int? zentaoProductPriority,  DateTime? zentaoLastSyncedAt,  DateTime? zentaoDetailSyncedAt,  int elapsedSeconds,  DateTime? timerStartedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String? description,  bool done,  DateTime createdAt,  int? zentaoTaskId,  int? zentaoBugId,  String? zentaoStatus,  int? priority,  String? notes,  List<ZentaoBugAttachment> attachments,  int? zentaoPriority,  int? zentaoSeverity,  int? zentaoProductId,  String? zentaoProductName,  int? zentaoProductPriority,  DateTime? zentaoLastSyncedAt,  DateTime? zentaoDetailSyncedAt,  int elapsedSeconds,  DateTime? timerStartedAt,  bool zentaoConfirmed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Task() when $default != null:
-return $default(_that.id,_that.title,_that.description,_that.done,_that.createdAt,_that.zentaoTaskId,_that.zentaoBugId,_that.zentaoStatus,_that.priority,_that.notes,_that.attachments,_that.zentaoPriority,_that.zentaoSeverity,_that.zentaoProductId,_that.zentaoProductName,_that.zentaoProductPriority,_that.zentaoLastSyncedAt,_that.zentaoDetailSyncedAt,_that.elapsedSeconds,_that.timerStartedAt);case _:
+return $default(_that.id,_that.title,_that.description,_that.done,_that.createdAt,_that.zentaoTaskId,_that.zentaoBugId,_that.zentaoStatus,_that.priority,_that.notes,_that.attachments,_that.zentaoPriority,_that.zentaoSeverity,_that.zentaoProductId,_that.zentaoProductName,_that.zentaoProductPriority,_that.zentaoLastSyncedAt,_that.zentaoDetailSyncedAt,_that.elapsedSeconds,_that.timerStartedAt,_that.zentaoConfirmed);case _:
   return orElse();
 
 }
@@ -190,10 +191,10 @@ return $default(_that.id,_that.title,_that.description,_that.done,_that.createdA
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String? description,  bool done,  DateTime createdAt,  int? zentaoTaskId,  int? zentaoBugId,  String? zentaoStatus,  int? priority,  String? notes,  List<ZentaoBugAttachment> attachments,  int? zentaoPriority,  int? zentaoSeverity,  int? zentaoProductId,  String? zentaoProductName,  int? zentaoProductPriority,  DateTime? zentaoLastSyncedAt,  DateTime? zentaoDetailSyncedAt,  int elapsedSeconds,  DateTime? timerStartedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String? description,  bool done,  DateTime createdAt,  int? zentaoTaskId,  int? zentaoBugId,  String? zentaoStatus,  int? priority,  String? notes,  List<ZentaoBugAttachment> attachments,  int? zentaoPriority,  int? zentaoSeverity,  int? zentaoProductId,  String? zentaoProductName,  int? zentaoProductPriority,  DateTime? zentaoLastSyncedAt,  DateTime? zentaoDetailSyncedAt,  int elapsedSeconds,  DateTime? timerStartedAt,  bool zentaoConfirmed)  $default,) {final _that = this;
 switch (_that) {
 case _Task():
-return $default(_that.id,_that.title,_that.description,_that.done,_that.createdAt,_that.zentaoTaskId,_that.zentaoBugId,_that.zentaoStatus,_that.priority,_that.notes,_that.attachments,_that.zentaoPriority,_that.zentaoSeverity,_that.zentaoProductId,_that.zentaoProductName,_that.zentaoProductPriority,_that.zentaoLastSyncedAt,_that.zentaoDetailSyncedAt,_that.elapsedSeconds,_that.timerStartedAt);case _:
+return $default(_that.id,_that.title,_that.description,_that.done,_that.createdAt,_that.zentaoTaskId,_that.zentaoBugId,_that.zentaoStatus,_that.priority,_that.notes,_that.attachments,_that.zentaoPriority,_that.zentaoSeverity,_that.zentaoProductId,_that.zentaoProductName,_that.zentaoProductPriority,_that.zentaoLastSyncedAt,_that.zentaoDetailSyncedAt,_that.elapsedSeconds,_that.timerStartedAt,_that.zentaoConfirmed);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +211,10 @@ return $default(_that.id,_that.title,_that.description,_that.done,_that.createdA
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String? description,  bool done,  DateTime createdAt,  int? zentaoTaskId,  int? zentaoBugId,  String? zentaoStatus,  int? priority,  String? notes,  List<ZentaoBugAttachment> attachments,  int? zentaoPriority,  int? zentaoSeverity,  int? zentaoProductId,  String? zentaoProductName,  int? zentaoProductPriority,  DateTime? zentaoLastSyncedAt,  DateTime? zentaoDetailSyncedAt,  int elapsedSeconds,  DateTime? timerStartedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String? description,  bool done,  DateTime createdAt,  int? zentaoTaskId,  int? zentaoBugId,  String? zentaoStatus,  int? priority,  String? notes,  List<ZentaoBugAttachment> attachments,  int? zentaoPriority,  int? zentaoSeverity,  int? zentaoProductId,  String? zentaoProductName,  int? zentaoProductPriority,  DateTime? zentaoLastSyncedAt,  DateTime? zentaoDetailSyncedAt,  int elapsedSeconds,  DateTime? timerStartedAt,  bool zentaoConfirmed)?  $default,) {final _that = this;
 switch (_that) {
 case _Task() when $default != null:
-return $default(_that.id,_that.title,_that.description,_that.done,_that.createdAt,_that.zentaoTaskId,_that.zentaoBugId,_that.zentaoStatus,_that.priority,_that.notes,_that.attachments,_that.zentaoPriority,_that.zentaoSeverity,_that.zentaoProductId,_that.zentaoProductName,_that.zentaoProductPriority,_that.zentaoLastSyncedAt,_that.zentaoDetailSyncedAt,_that.elapsedSeconds,_that.timerStartedAt);case _:
+return $default(_that.id,_that.title,_that.description,_that.done,_that.createdAt,_that.zentaoTaskId,_that.zentaoBugId,_that.zentaoStatus,_that.priority,_that.notes,_that.attachments,_that.zentaoPriority,_that.zentaoSeverity,_that.zentaoProductId,_that.zentaoProductName,_that.zentaoProductPriority,_that.zentaoLastSyncedAt,_that.zentaoDetailSyncedAt,_that.elapsedSeconds,_that.timerStartedAt,_that.zentaoConfirmed);case _:
   return null;
 
 }
@@ -225,7 +226,7 @@ return $default(_that.id,_that.title,_that.description,_that.done,_that.createdA
 
 
 class _Task implements Task {
-  const _Task({required this.id, required this.title, this.description, required this.done, required this.createdAt, this.zentaoTaskId, this.zentaoBugId, this.zentaoStatus, this.priority, this.notes, final  List<ZentaoBugAttachment> attachments = const <ZentaoBugAttachment>[], this.zentaoPriority, this.zentaoSeverity, this.zentaoProductId, this.zentaoProductName, this.zentaoProductPriority, this.zentaoLastSyncedAt, this.zentaoDetailSyncedAt, required this.elapsedSeconds, this.timerStartedAt}): _attachments = attachments;
+  const _Task({required this.id, required this.title, this.description, required this.done, required this.createdAt, this.zentaoTaskId, this.zentaoBugId, this.zentaoStatus, this.priority, this.notes, final  List<ZentaoBugAttachment> attachments = const <ZentaoBugAttachment>[], this.zentaoPriority, this.zentaoSeverity, this.zentaoProductId, this.zentaoProductName, this.zentaoProductPriority, this.zentaoLastSyncedAt, this.zentaoDetailSyncedAt, required this.elapsedSeconds, this.timerStartedAt, this.zentaoConfirmed = false}): _attachments = attachments;
   
 
 @override final  int id;
@@ -254,6 +255,7 @@ class _Task implements Task {
 @override final  DateTime? zentaoDetailSyncedAt;
 @override final  int elapsedSeconds;
 @override final  DateTime? timerStartedAt;
+@override@JsonKey() final  bool zentaoConfirmed;
 
 /// Create a copy of Task
 /// with the given fields replaced by the non-null parameter values.
@@ -265,16 +267,16 @@ _$TaskCopyWith<_Task> get copyWith => __$TaskCopyWithImpl<_Task>(this, _$identit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Task&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.done, done) || other.done == done)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.zentaoTaskId, zentaoTaskId) || other.zentaoTaskId == zentaoTaskId)&&(identical(other.zentaoBugId, zentaoBugId) || other.zentaoBugId == zentaoBugId)&&(identical(other.zentaoStatus, zentaoStatus) || other.zentaoStatus == zentaoStatus)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other._attachments, _attachments)&&(identical(other.zentaoPriority, zentaoPriority) || other.zentaoPriority == zentaoPriority)&&(identical(other.zentaoSeverity, zentaoSeverity) || other.zentaoSeverity == zentaoSeverity)&&(identical(other.zentaoProductId, zentaoProductId) || other.zentaoProductId == zentaoProductId)&&(identical(other.zentaoProductName, zentaoProductName) || other.zentaoProductName == zentaoProductName)&&(identical(other.zentaoProductPriority, zentaoProductPriority) || other.zentaoProductPriority == zentaoProductPriority)&&(identical(other.zentaoLastSyncedAt, zentaoLastSyncedAt) || other.zentaoLastSyncedAt == zentaoLastSyncedAt)&&(identical(other.zentaoDetailSyncedAt, zentaoDetailSyncedAt) || other.zentaoDetailSyncedAt == zentaoDetailSyncedAt)&&(identical(other.elapsedSeconds, elapsedSeconds) || other.elapsedSeconds == elapsedSeconds)&&(identical(other.timerStartedAt, timerStartedAt) || other.timerStartedAt == timerStartedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Task&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.done, done) || other.done == done)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.zentaoTaskId, zentaoTaskId) || other.zentaoTaskId == zentaoTaskId)&&(identical(other.zentaoBugId, zentaoBugId) || other.zentaoBugId == zentaoBugId)&&(identical(other.zentaoStatus, zentaoStatus) || other.zentaoStatus == zentaoStatus)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other._attachments, _attachments)&&(identical(other.zentaoPriority, zentaoPriority) || other.zentaoPriority == zentaoPriority)&&(identical(other.zentaoSeverity, zentaoSeverity) || other.zentaoSeverity == zentaoSeverity)&&(identical(other.zentaoProductId, zentaoProductId) || other.zentaoProductId == zentaoProductId)&&(identical(other.zentaoProductName, zentaoProductName) || other.zentaoProductName == zentaoProductName)&&(identical(other.zentaoProductPriority, zentaoProductPriority) || other.zentaoProductPriority == zentaoProductPriority)&&(identical(other.zentaoLastSyncedAt, zentaoLastSyncedAt) || other.zentaoLastSyncedAt == zentaoLastSyncedAt)&&(identical(other.zentaoDetailSyncedAt, zentaoDetailSyncedAt) || other.zentaoDetailSyncedAt == zentaoDetailSyncedAt)&&(identical(other.elapsedSeconds, elapsedSeconds) || other.elapsedSeconds == elapsedSeconds)&&(identical(other.timerStartedAt, timerStartedAt) || other.timerStartedAt == timerStartedAt)&&(identical(other.zentaoConfirmed, zentaoConfirmed) || other.zentaoConfirmed == zentaoConfirmed));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,description,done,createdAt,zentaoTaskId,zentaoBugId,zentaoStatus,priority,notes,const DeepCollectionEquality().hash(_attachments),zentaoPriority,zentaoSeverity,zentaoProductId,zentaoProductName,zentaoProductPriority,zentaoLastSyncedAt,zentaoDetailSyncedAt,elapsedSeconds,timerStartedAt]);
+int get hashCode => Object.hashAll([runtimeType,id,title,description,done,createdAt,zentaoTaskId,zentaoBugId,zentaoStatus,priority,notes,const DeepCollectionEquality().hash(_attachments),zentaoPriority,zentaoSeverity,zentaoProductId,zentaoProductName,zentaoProductPriority,zentaoLastSyncedAt,zentaoDetailSyncedAt,elapsedSeconds,timerStartedAt,zentaoConfirmed]);
 
 @override
 String toString() {
-  return 'Task(id: $id, title: $title, description: $description, done: $done, createdAt: $createdAt, zentaoTaskId: $zentaoTaskId, zentaoBugId: $zentaoBugId, zentaoStatus: $zentaoStatus, priority: $priority, notes: $notes, attachments: $attachments, zentaoPriority: $zentaoPriority, zentaoSeverity: $zentaoSeverity, zentaoProductId: $zentaoProductId, zentaoProductName: $zentaoProductName, zentaoProductPriority: $zentaoProductPriority, zentaoLastSyncedAt: $zentaoLastSyncedAt, zentaoDetailSyncedAt: $zentaoDetailSyncedAt, elapsedSeconds: $elapsedSeconds, timerStartedAt: $timerStartedAt)';
+  return 'Task(id: $id, title: $title, description: $description, done: $done, createdAt: $createdAt, zentaoTaskId: $zentaoTaskId, zentaoBugId: $zentaoBugId, zentaoStatus: $zentaoStatus, priority: $priority, notes: $notes, attachments: $attachments, zentaoPriority: $zentaoPriority, zentaoSeverity: $zentaoSeverity, zentaoProductId: $zentaoProductId, zentaoProductName: $zentaoProductName, zentaoProductPriority: $zentaoProductPriority, zentaoLastSyncedAt: $zentaoLastSyncedAt, zentaoDetailSyncedAt: $zentaoDetailSyncedAt, elapsedSeconds: $elapsedSeconds, timerStartedAt: $timerStartedAt, zentaoConfirmed: $zentaoConfirmed)';
 }
 
 
@@ -285,7 +287,7 @@ abstract mixin class _$TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
   factory _$TaskCopyWith(_Task value, $Res Function(_Task) _then) = __$TaskCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String title, String? description, bool done, DateTime createdAt, int? zentaoTaskId, int? zentaoBugId, String? zentaoStatus, int? priority, String? notes, List<ZentaoBugAttachment> attachments, int? zentaoPriority, int? zentaoSeverity, int? zentaoProductId, String? zentaoProductName, int? zentaoProductPriority, DateTime? zentaoLastSyncedAt, DateTime? zentaoDetailSyncedAt, int elapsedSeconds, DateTime? timerStartedAt
+ int id, String title, String? description, bool done, DateTime createdAt, int? zentaoTaskId, int? zentaoBugId, String? zentaoStatus, int? priority, String? notes, List<ZentaoBugAttachment> attachments, int? zentaoPriority, int? zentaoSeverity, int? zentaoProductId, String? zentaoProductName, int? zentaoProductPriority, DateTime? zentaoLastSyncedAt, DateTime? zentaoDetailSyncedAt, int elapsedSeconds, DateTime? timerStartedAt, bool zentaoConfirmed
 });
 
 
@@ -302,7 +304,7 @@ class __$TaskCopyWithImpl<$Res>
 
 /// Create a copy of Task
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = freezed,Object? done = null,Object? createdAt = null,Object? zentaoTaskId = freezed,Object? zentaoBugId = freezed,Object? zentaoStatus = freezed,Object? priority = freezed,Object? notes = freezed,Object? attachments = null,Object? zentaoPriority = freezed,Object? zentaoSeverity = freezed,Object? zentaoProductId = freezed,Object? zentaoProductName = freezed,Object? zentaoProductPriority = freezed,Object? zentaoLastSyncedAt = freezed,Object? zentaoDetailSyncedAt = freezed,Object? elapsedSeconds = null,Object? timerStartedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = freezed,Object? done = null,Object? createdAt = null,Object? zentaoTaskId = freezed,Object? zentaoBugId = freezed,Object? zentaoStatus = freezed,Object? priority = freezed,Object? notes = freezed,Object? attachments = null,Object? zentaoPriority = freezed,Object? zentaoSeverity = freezed,Object? zentaoProductId = freezed,Object? zentaoProductName = freezed,Object? zentaoProductPriority = freezed,Object? zentaoLastSyncedAt = freezed,Object? zentaoDetailSyncedAt = freezed,Object? elapsedSeconds = null,Object? timerStartedAt = freezed,Object? zentaoConfirmed = null,}) {
   return _then(_Task(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -324,7 +326,8 @@ as int?,zentaoLastSyncedAt: freezed == zentaoLastSyncedAt ? _self.zentaoLastSync
 as DateTime?,zentaoDetailSyncedAt: freezed == zentaoDetailSyncedAt ? _self.zentaoDetailSyncedAt : zentaoDetailSyncedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,elapsedSeconds: null == elapsedSeconds ? _self.elapsedSeconds : elapsedSeconds // ignore: cast_nullable_to_non_nullable
 as int,timerStartedAt: freezed == timerStartedAt ? _self.timerStartedAt : timerStartedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,zentaoConfirmed: null == zentaoConfirmed ? _self.zentaoConfirmed : zentaoConfirmed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

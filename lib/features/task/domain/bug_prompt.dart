@@ -16,6 +16,25 @@ String buildBugResolutionPrompt(Task task) {
   );
   buffer.writeln();
 
+  buffer.write(buildBugContext(task));
+  buffer.writeln();
+
+  buffer.writeln('## What I need');
+  buffer.writeln('1. The most likely root cause.');
+  buffer.writeln('2. A concrete fix (code or steps).');
+  buffer.writeln('3. How to verify the fix.');
+
+  return buffer.toString();
+}
+
+/// Renders just the bug's facts (title, metadata, description, history,
+/// attachment names) as Markdown — no resolution ask. Reused both by
+/// [buildBugResolutionPrompt] and by the AI meta-prompt that asks a model to
+/// generate a platform-tailored fix prompt. Sections with null/empty backing
+/// data are omitted entirely.
+String buildBugContext(Task task) {
+  final buffer = StringBuffer();
+
   buffer.writeln('## Bug #${task.zentaoBugId}: ${task.title}');
   buffer.writeln();
 
@@ -52,11 +71,6 @@ String buildBugResolutionPrompt(Task task) {
     );
     buffer.writeln();
   }
-
-  buffer.writeln('## What I need');
-  buffer.writeln('1. The most likely root cause.');
-  buffer.writeln('2. A concrete fix (code or steps).');
-  buffer.writeln('3. How to verify the fix.');
 
   return buffer.toString();
 }

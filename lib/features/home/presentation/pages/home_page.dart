@@ -8,6 +8,7 @@ import 'package:work_tracker/features/home/presentation/cubit/home_page_cubit.da
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/attendance_card.dart';
 import 'package:work_tracker/features/home/presentation/widgets/hero_card/hero_card_view.dart';
 import 'package:work_tracker/features/home/presentation/widgets/today_activity_timeline/today_activity_timeline_view.dart';
+import 'package:work_tracker/features/home/presentation/widgets/today_tasks/today_tasks_view.dart';
 import 'package:work_tracker/features/home/presentation/widgets/tomorrow_preview/tomorrow_preview_view.dart';
 import 'package:work_tracker/features/leave_reminder/presentation/widgets/leave_reminder_setup_sheet.dart';
 
@@ -67,6 +68,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const HeroCardView(),
+                      const TodayTasksView(),
                       const AttendanceCardView(),
                       const TodayActivityTimelineView(),
                       const TomorrowPreviewView(),

@@ -5,22 +5,27 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000243">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000479">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: firebase_app_distribution_get_latest_release" time="1.060037">
+      <testcase classname="fastlane.lanes" name="1: Switch to android next_android_version_code lane" time="0.000103">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: /Volumes/M2-SATA/work_trackier/work_tracker/scripts/build_release_apk.sh" time="60.904418">
+      <testcase classname="fastlane.lanes" name="2: firebase_app_distribution_get_latest_release" time="0.993452">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: firebase_app_distribution" time="24.001431">
+      <testcase classname="fastlane.lanes" name="3: /Volumes/M2-SATA/work_trackier/work_tracker/scripts/build_release_apk.sh" time="250.807285">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: firebase_app_distribution" time="27.157356">
         
       </testcase>
     

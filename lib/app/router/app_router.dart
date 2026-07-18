@@ -25,6 +25,7 @@ import 'package:work_tracker/features/task/presentation/pages/bug_sync_products_
 import 'package:work_tracker/features/task/presentation/pages/manual_task_form_page.dart';
 import 'package:work_tracker/features/task/presentation/pages/platform_picker_page.dart';
 import 'package:work_tracker/features/task/presentation/pages/task_detail_page.dart';
+import 'package:work_tracker/features/task/presentation/pages/task_time_log_page.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug_attachment.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_import_kind.dart';
 import 'package:work_tracker/features/zentao/presentation/pages/zentao_connect_page.dart';
@@ -128,6 +129,10 @@ final appRouter = GoRouter(
         final taskId = state.extra as int;
         return TaskDetailPage(taskId: taskId);
       },
+    ),
+    GoRoute(
+      path: AppRoutes.taskTimes,
+      builder: (context, state) => const TaskTimeLogPage(),
     ),
     GoRoute(
       path: AppRoutes.taskManualForm,

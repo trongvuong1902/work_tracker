@@ -56,4 +56,20 @@ abstract class ZentaoRepository {
   /// file keyed by attachment id, returning that file. Re-uses the cached file
   /// on subsequent calls instead of re-downloading.
   Future<File> downloadAttachment(ZentaoBugAttachment attachment);
+
+  /// Confirms bug [bugId] in Zentao, assigning it to the connected account.
+  /// Throws on failure (unlike the read paths) so the caller can block on it.
+  Future<void> confirmBug(int bugId, {int? pri});
+
+  /// Resolves bug [bugId] in Zentao with the given resolution/build/date,
+  /// reassigning it to [assignedTo] and attaching [comment]. Throws on failure
+  /// so the caller can block on it.
+  Future<void> resolveBug(
+    int bugId, {
+    required String resolution,
+    required String resolvedBuild,
+    required DateTime resolvedDate,
+    required String assignedTo,
+    required String comment,
+  });
 }

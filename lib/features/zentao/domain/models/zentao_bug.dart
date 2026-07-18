@@ -14,5 +14,7 @@ abstract class ZentaoBug with _$ZentaoBug {
     String? assignedToRealName,
     int? severity,
     DateTime? deadline,
+    String? openedByAccount,
+    @Default(false) bool confirmed,
   }) = _ZentaoBug;
 }
