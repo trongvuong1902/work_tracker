@@ -31,6 +31,22 @@ Build the release IPA (via repo build script) and upload it to TestFlight
 
 Build the release IPA and submit it to the App Store for review (production)
 
+### ios beta_external
+
+```sh
+[bundle exec] fastlane ios beta_external
+```
+
+Build the release IPA, upload to TestFlight, and distribute it to the External Testers group
+
+### ios submit_review
+
+```sh
+[bundle exec] fastlane ios submit_review
+```
+
+Submit an already-uploaded TestFlight build to the App Store for review (no rebuild)
+
 ### ios distribute_beta
 
 ```sh
