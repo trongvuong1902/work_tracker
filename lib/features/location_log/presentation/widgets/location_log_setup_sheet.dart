@@ -51,7 +51,13 @@ class _LocationLogSetupSheet extends StatelessWidget {
                 const SizedBox(height: AppSpacing.space8),
                 Text(
                   'Automatically logs when you arrive at and leave work, '
-                  'and fills in your check-in/check-out if not set yet.',
+                  'and fills in your check-in/check-out if not set yet.\n\n'
+                  'To do this, WorkTracker collects your location in the '
+                  'background — even when the app is closed or not in use — '
+                  'during a short window around your scheduled work hours. '
+                  'Location is only used to detect arrival at and departure '
+                  'from your saved work location. It is stored on your device '
+                  'and never sold or shared.',
                   style: AppTypography.body(
                     context,
                   )?.copyWith(color: context.colors.textSecondary),
