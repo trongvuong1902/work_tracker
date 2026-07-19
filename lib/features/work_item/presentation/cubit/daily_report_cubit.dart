@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:work_tracker/features/attendance/domain/attendance_repository.dart';
+import 'package:work_tracker/features/attendance/domain/models/attendance.dart';
 
 import '../../domain/daily_report.dart';
 import '../../domain/models/work_item_time_session.dart';
@@ -13,14 +15,20 @@ part 'daily_report_cubit.freezed.dart';
 
 /// Builds the on-demand daily report for a given day (default: today) from the
 /// tasks worked that day — real work sessions plus the currently-running task's
-/// ongoing session up to now.
+/// ongoing session up to now. Also loads today's attendance (when the target
+/// day is today) so callers can render/copy the extended report with the
+/// Attendance block (see [renderDailyReportText]).
 @injectable
 class DailyReportCubit extends Cubit<DailyReportState> {
-  DailyReportCubit(this._taskRepository, this._timeLogRepository)
-    : super(const DailyReportState());
+  DailyReportCubit(
+    this._taskRepository,
+    this._timeLogRepository,
+    this._attendanceRepository,
+  ) : super(const DailyReportState());
 
   final WorkItemRepository _taskRepository;
   final WorkItemTimeLogRepository _timeLogRepository;
+  final AttendanceRepository _attendanceRepository;
 
   Future<void> load([DateTime? day]) async {
     final target = day ?? DateTime.now();
@@ -37,6 +45,11 @@ class DailyReportCubit extends Cubit<DailyReportState> {
       final now = DateTime.now();
       final isToday = dayStart ==
           DateTime(now.year, now.month, now.day);
+      // Attendance is only tracked for today — there's no per-day lookup
+      // beyond that yet, so past-day reports simply carry no Attendance block.
+      final attendance = isToday
+          ? await _attendanceRepository.getTodayAttendance()
+          : null;
       final mutableSessions = [...sessions];
       if (isToday) {
         for (final task in tasks) {
@@ -64,7 +77,13 @@ class DailyReportCubit extends Cubit<DailyReportState> {
         sessions: mutableSessions,
         secondsByTask: secondsByTask,
       );
-      emit(DailyReportState(isLoading: false, report: report));
+      emit(
+        DailyReportState(
+          isLoading: false,
+          report: report,
+          attendance: attendance,
+        ),
+      );
     } catch (e) {
       debugPrint('Failed to build daily report: $e');
       emit(const DailyReportState(isLoading: false));

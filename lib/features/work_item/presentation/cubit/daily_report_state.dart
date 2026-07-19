@@ -5,5 +5,6 @@ abstract class DailyReportState with _$DailyReportState {
   const factory DailyReportState({
     @Default(true) bool isLoading,
     DailyReport? report,
+    Attendance? attendance,
   }) = _DailyReportState;
 }

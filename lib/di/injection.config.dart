@@ -457,10 +457,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i498.WorkItemTimeLogRepository>(),
       ),
     );
-    gh.factory<_i778.DailyReportCubit>(
-      () => _i778.DailyReportCubit(
-        gh<_i526.WorkItemRepository>(),
-        gh<_i498.WorkItemTimeLogRepository>(),
+    gh.factory<_i629.HeroCardCubit>(
+      () => _i629.HeroCardCubit(
+        attendanceRepository: gh<_i331.AttendanceRepository>(),
+        leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
+        workScheduleRepository: gh<_i513.WorkScheduleRepository>(),
       ),
     );
     gh.lazySingleton<_i530.CheckoutReminderRepository>(
@@ -491,6 +492,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i839.WorkItemListCubit>(
       () => _i839.WorkItemListCubit(gh<_i526.WorkItemRepository>()),
     );
+    gh.factory<_i778.DailyReportCubit>(
+      () => _i778.DailyReportCubit(
+        gh<_i526.WorkItemRepository>(),
+        gh<_i498.WorkItemTimeLogRepository>(),
+        gh<_i331.AttendanceRepository>(),
+      ),
+    );
     gh.factory<_i474.CalendarCubit>(
       () => _i474.CalendarCubit(
         gh<_i331.AttendanceRepository>(),
@@ -516,12 +524,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i461.WorkItemTimeLogCubit(
         gh<_i498.WorkItemTimeLogRepository>(),
         gh<_i526.WorkItemRepository>(),
-      ),
-    );
-    gh.factory<_i629.HeroCardCubit>(
-      () => _i629.HeroCardCubit(
-        attendanceRepository: gh<_i331.AttendanceRepository>(),
-        leaveReminderRepository: gh<_i468.LeaveReminderRepository>(),
       ),
     );
     gh.factory<_i299.TomorrowPreviewCubit>(

@@ -8,6 +8,7 @@ import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/features/home/presentation/cubit/home_page_cubit.dart';
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/attendance_card_model.dart';
+import 'package:work_tracker/features/work_item/presentation/widgets/daily_report_sheet.dart';
 
 class TodaySummaryView extends StatelessWidget {
   const TodaySummaryView({
@@ -65,27 +66,54 @@ class TodaySummaryView extends StatelessWidget {
                     letterSpacing: 0.5,
                   ),
                 ),
-                if (onViewDetails != null)
-                  InkWell(
-                    onTap: onViewDetails,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'View details',
-                          style: AppTypography.label(context)?.copyWith(
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: () => copyDailyReportToClipboard(context),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.copy,
+                            size: 14,
                             color: context.colors.primary,
-                            fontWeight: FontWeight.w600,
                           ),
-                        ),
-                        Icon(
-                          Icons.chevron_right,
-                          size: 16,
-                          color: context.colors.primary,
-                        ),
-                      ],
+                          const SizedBox(width: AppSpacing.space4),
+                          Text(
+                            'Copy report',
+                            style: AppTypography.caption(
+                              context,
+                            )?.copyWith(color: context.colors.primary),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    if (onViewDetails != null) ...[
+                      const SizedBox(width: AppSpacing.space16),
+                      InkWell(
+                        onTap: onViewDetails,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'View details',
+                              style: AppTypography.label(context)?.copyWith(
+                                color: context.colors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 16,
+                              color: context.colors.primary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.space16),

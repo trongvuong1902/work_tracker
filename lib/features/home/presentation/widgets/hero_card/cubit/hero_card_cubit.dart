@@ -7,6 +7,7 @@ import 'package:work_tracker/features/attendance/domain/attendance_repository.da
 import 'package:work_tracker/features/attendance/domain/models/attendance.dart';
 import 'package:work_tracker/features/home/presentation/widgets/hero_card/hero_card_model.dart';
 import 'package:work_tracker/features/leave_reminder/domain/leave_reminder_repository.dart';
+import 'package:work_tracker/features/schedule/domain/work_schedule_repository.dart';
 
 part 'hero_card_state.dart';
 part 'hero_card_cubit.freezed.dart';
@@ -16,10 +17,12 @@ class HeroCardCubit extends Cubit<HeroCardState> {
   HeroCardCubit({
     required this._attendanceRepository,
     required this._leaveReminderRepository,
+    required this._workScheduleRepository,
   }) : super(HeroCardState());
 
   final AttendanceRepository _attendanceRepository;
   final LeaveReminderRepository _leaveReminderRepository;
+  final WorkScheduleRepository _workScheduleRepository;
   late final StreamSubscription<Attendance?> _attendanceSubscription;
   late final StreamSubscription<void> _leaveInfoSubscription;
 
@@ -51,11 +54,28 @@ class HeroCardCubit extends Cubit<HeroCardState> {
       final leaveHomeAt = await _leaveReminderRepository.getLeaveTime();
       final arriveAtWorkAt = await _leaveReminderRepository
           .getEstimatedArrivalTime();
+
+      LeaveReminderCtaKind? ctaKind;
+      if (leaveHomeAt == null) {
+        final settings = await _leaveReminderRepository.getSettings();
+        final schedule = await _workScheduleRepository
+            .getCurrentActiveSchedule();
+        final averageCommuteMinutes = await _leaveReminderRepository
+            .getAverageCommuteMinutes();
+        ctaKind = resolveLeaveReminderCtaKind(
+          schedule: schedule,
+          isWorkingDay: _workScheduleRepository.isWorkingDay(DateTime.now()),
+          settings: settings,
+          averageCommuteMinutes: averageCommuteMinutes,
+        );
+      }
+
       emit(
         HeroCardState(
           heroCardModel: HeroCardModel.beforeCheckIn(
             leaveHomeAt: leaveHomeAt,
             arriveAtWorkAt: arriveAtWorkAt,
+            ctaKind: ctaKind,
           ),
         ),
       );

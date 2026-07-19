@@ -55,12 +55,13 @@ extension HeroCardModelPatterns on HeroCardModel {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _BeforeCheckIn value)?  beforeCheckIn,TResult Function( _Working value)?  working,TResult Function( _AfterCheckOut value)?  afterCheckOut,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _BeforeCheckIn value)?  beforeCheckIn,TResult Function( _Working value)?  working,TResult Function( _ApproachingCheckOut value)?  approachingCheckOut,TResult Function( _AfterCheckOut value)?  afterCheckOut,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _BeforeCheckIn() when beforeCheckIn != null:
 return beforeCheckIn(_that);case _Working() when working != null:
-return working(_that);case _AfterCheckOut() when afterCheckOut != null:
+return working(_that);case _ApproachingCheckOut() when approachingCheckOut != null:
+return approachingCheckOut(_that);case _AfterCheckOut() when afterCheckOut != null:
 return afterCheckOut(_that);case _:
   return orElse();
 
@@ -79,12 +80,13 @@ return afterCheckOut(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _BeforeCheckIn value)  beforeCheckIn,required TResult Function( _Working value)  working,required TResult Function( _AfterCheckOut value)  afterCheckOut,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _BeforeCheckIn value)  beforeCheckIn,required TResult Function( _Working value)  working,required TResult Function( _ApproachingCheckOut value)  approachingCheckOut,required TResult Function( _AfterCheckOut value)  afterCheckOut,}){
 final _that = this;
 switch (_that) {
 case _BeforeCheckIn():
 return beforeCheckIn(_that);case _Working():
-return working(_that);case _AfterCheckOut():
+return working(_that);case _ApproachingCheckOut():
+return approachingCheckOut(_that);case _AfterCheckOut():
 return afterCheckOut(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -102,12 +104,13 @@ return afterCheckOut(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _BeforeCheckIn value)?  beforeCheckIn,TResult? Function( _Working value)?  working,TResult? Function( _AfterCheckOut value)?  afterCheckOut,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _BeforeCheckIn value)?  beforeCheckIn,TResult? Function( _Working value)?  working,TResult? Function( _ApproachingCheckOut value)?  approachingCheckOut,TResult? Function( _AfterCheckOut value)?  afterCheckOut,}){
 final _that = this;
 switch (_that) {
 case _BeforeCheckIn() when beforeCheckIn != null:
 return beforeCheckIn(_that);case _Working() when working != null:
-return working(_that);case _AfterCheckOut() when afterCheckOut != null:
+return working(_that);case _ApproachingCheckOut() when approachingCheckOut != null:
+return approachingCheckOut(_that);case _AfterCheckOut() when afterCheckOut != null:
 return afterCheckOut(_that);case _:
   return null;
 
@@ -125,12 +128,13 @@ return afterCheckOut(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( DateTime? leaveHomeAt,  DateTime? arriveAtWorkAt)?  beforeCheckIn,TResult Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)?  working,TResult Function()?  afterCheckOut,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( DateTime? leaveHomeAt,  DateTime? arriveAtWorkAt,  LeaveReminderCtaKind? ctaKind)?  beforeCheckIn,TResult Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)?  working,TResult Function( DateTime checkIn,  DateTime scheduledEnd)?  approachingCheckOut,TResult Function( DateTime checkOutAt)?  afterCheckOut,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn() when beforeCheckIn != null:
-return beforeCheckIn(_that.leaveHomeAt,_that.arriveAtWorkAt);case _Working() when working != null:
-return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _AfterCheckOut() when afterCheckOut != null:
-return afterCheckOut();case _:
+return beforeCheckIn(_that.leaveHomeAt,_that.arriveAtWorkAt,_that.ctaKind);case _Working() when working != null:
+return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _ApproachingCheckOut() when approachingCheckOut != null:
+return approachingCheckOut(_that.checkIn,_that.scheduledEnd);case _AfterCheckOut() when afterCheckOut != null:
+return afterCheckOut(_that.checkOutAt);case _:
   return orElse();
 
 }
@@ -148,12 +152,13 @@ return afterCheckOut();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( DateTime? leaveHomeAt,  DateTime? arriveAtWorkAt)  beforeCheckIn,required TResult Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)  working,required TResult Function()  afterCheckOut,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( DateTime? leaveHomeAt,  DateTime? arriveAtWorkAt,  LeaveReminderCtaKind? ctaKind)  beforeCheckIn,required TResult Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)  working,required TResult Function( DateTime checkIn,  DateTime scheduledEnd)  approachingCheckOut,required TResult Function( DateTime checkOutAt)  afterCheckOut,}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn():
-return beforeCheckIn(_that.leaveHomeAt,_that.arriveAtWorkAt);case _Working():
-return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _AfterCheckOut():
-return afterCheckOut();case _:
+return beforeCheckIn(_that.leaveHomeAt,_that.arriveAtWorkAt,_that.ctaKind);case _Working():
+return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _ApproachingCheckOut():
+return approachingCheckOut(_that.checkIn,_that.scheduledEnd);case _AfterCheckOut():
+return afterCheckOut(_that.checkOutAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -170,12 +175,13 @@ return afterCheckOut();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( DateTime? leaveHomeAt,  DateTime? arriveAtWorkAt)?  beforeCheckIn,TResult? Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)?  working,TResult? Function()?  afterCheckOut,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( DateTime? leaveHomeAt,  DateTime? arriveAtWorkAt,  LeaveReminderCtaKind? ctaKind)?  beforeCheckIn,TResult? Function( DateTime checkIn,  DateTime leaveAt,  DateTime breakStart,  DateTime breakEnd)?  working,TResult? Function( DateTime checkIn,  DateTime scheduledEnd)?  approachingCheckOut,TResult? Function( DateTime checkOutAt)?  afterCheckOut,}) {final _that = this;
 switch (_that) {
 case _BeforeCheckIn() when beforeCheckIn != null:
-return beforeCheckIn(_that.leaveHomeAt,_that.arriveAtWorkAt);case _Working() when working != null:
-return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _AfterCheckOut() when afterCheckOut != null:
-return afterCheckOut();case _:
+return beforeCheckIn(_that.leaveHomeAt,_that.arriveAtWorkAt,_that.ctaKind);case _Working() when working != null:
+return working(_that.checkIn,_that.leaveAt,_that.breakStart,_that.breakEnd);case _ApproachingCheckOut() when approachingCheckOut != null:
+return approachingCheckOut(_that.checkIn,_that.scheduledEnd);case _AfterCheckOut() when afterCheckOut != null:
+return afterCheckOut(_that.checkOutAt);case _:
   return null;
 
 }
@@ -187,11 +193,12 @@ return afterCheckOut();case _:
 
 
 class _BeforeCheckIn implements HeroCardModel {
-  const _BeforeCheckIn({this.leaveHomeAt, this.arriveAtWorkAt});
+  const _BeforeCheckIn({this.leaveHomeAt, this.arriveAtWorkAt, this.ctaKind});
   
 
  final  DateTime? leaveHomeAt;
  final  DateTime? arriveAtWorkAt;
+ final  LeaveReminderCtaKind? ctaKind;
 
 /// Create a copy of HeroCardModel
 /// with the given fields replaced by the non-null parameter values.
@@ -203,16 +210,16 @@ _$BeforeCheckInCopyWith<_BeforeCheckIn> get copyWith => __$BeforeCheckInCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BeforeCheckIn&&(identical(other.leaveHomeAt, leaveHomeAt) || other.leaveHomeAt == leaveHomeAt)&&(identical(other.arriveAtWorkAt, arriveAtWorkAt) || other.arriveAtWorkAt == arriveAtWorkAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BeforeCheckIn&&(identical(other.leaveHomeAt, leaveHomeAt) || other.leaveHomeAt == leaveHomeAt)&&(identical(other.arriveAtWorkAt, arriveAtWorkAt) || other.arriveAtWorkAt == arriveAtWorkAt)&&(identical(other.ctaKind, ctaKind) || other.ctaKind == ctaKind));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,leaveHomeAt,arriveAtWorkAt);
+int get hashCode => Object.hash(runtimeType,leaveHomeAt,arriveAtWorkAt,ctaKind);
 
 @override
 String toString() {
-  return 'HeroCardModel.beforeCheckIn(leaveHomeAt: $leaveHomeAt, arriveAtWorkAt: $arriveAtWorkAt)';
+  return 'HeroCardModel.beforeCheckIn(leaveHomeAt: $leaveHomeAt, arriveAtWorkAt: $arriveAtWorkAt, ctaKind: $ctaKind)';
 }
 
 
@@ -223,7 +230,7 @@ abstract mixin class _$BeforeCheckInCopyWith<$Res> implements $HeroCardModelCopy
   factory _$BeforeCheckInCopyWith(_BeforeCheckIn value, $Res Function(_BeforeCheckIn) _then) = __$BeforeCheckInCopyWithImpl;
 @useResult
 $Res call({
- DateTime? leaveHomeAt, DateTime? arriveAtWorkAt
+ DateTime? leaveHomeAt, DateTime? arriveAtWorkAt, LeaveReminderCtaKind? ctaKind
 });
 
 
@@ -240,11 +247,12 @@ class __$BeforeCheckInCopyWithImpl<$Res>
 
 /// Create a copy of HeroCardModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? leaveHomeAt = freezed,Object? arriveAtWorkAt = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? leaveHomeAt = freezed,Object? arriveAtWorkAt = freezed,Object? ctaKind = freezed,}) {
   return _then(_BeforeCheckIn(
 leaveHomeAt: freezed == leaveHomeAt ? _self.leaveHomeAt : leaveHomeAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,arriveAtWorkAt: freezed == arriveAtWorkAt ? _self.arriveAtWorkAt : arriveAtWorkAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,ctaKind: freezed == ctaKind ? _self.ctaKind : ctaKind // ignore: cast_nullable_to_non_nullable
+as LeaveReminderCtaKind?,
   ));
 }
 
@@ -326,33 +334,135 @@ as DateTime,
 /// @nodoc
 
 
-class _AfterCheckOut implements HeroCardModel {
-  const _AfterCheckOut();
+class _ApproachingCheckOut implements HeroCardModel {
+  const _ApproachingCheckOut({required this.checkIn, required this.scheduledEnd});
   
 
+ final  DateTime checkIn;
+ final  DateTime scheduledEnd;
 
-
+/// Create a copy of HeroCardModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ApproachingCheckOutCopyWith<_ApproachingCheckOut> get copyWith => __$ApproachingCheckOutCopyWithImpl<_ApproachingCheckOut>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AfterCheckOut);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ApproachingCheckOut&&(identical(other.checkIn, checkIn) || other.checkIn == checkIn)&&(identical(other.scheduledEnd, scheduledEnd) || other.scheduledEnd == scheduledEnd));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,checkIn,scheduledEnd);
 
 @override
 String toString() {
-  return 'HeroCardModel.afterCheckOut()';
+  return 'HeroCardModel.approachingCheckOut(checkIn: $checkIn, scheduledEnd: $scheduledEnd)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class _$ApproachingCheckOutCopyWith<$Res> implements $HeroCardModelCopyWith<$Res> {
+  factory _$ApproachingCheckOutCopyWith(_ApproachingCheckOut value, $Res Function(_ApproachingCheckOut) _then) = __$ApproachingCheckOutCopyWithImpl;
+@useResult
+$Res call({
+ DateTime checkIn, DateTime scheduledEnd
+});
 
 
+
+
+}
+/// @nodoc
+class __$ApproachingCheckOutCopyWithImpl<$Res>
+    implements _$ApproachingCheckOutCopyWith<$Res> {
+  __$ApproachingCheckOutCopyWithImpl(this._self, this._then);
+
+  final _ApproachingCheckOut _self;
+  final $Res Function(_ApproachingCheckOut) _then;
+
+/// Create a copy of HeroCardModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? checkIn = null,Object? scheduledEnd = null,}) {
+  return _then(_ApproachingCheckOut(
+checkIn: null == checkIn ? _self.checkIn : checkIn // ignore: cast_nullable_to_non_nullable
+as DateTime,scheduledEnd: null == scheduledEnd ? _self.scheduledEnd : scheduledEnd // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _AfterCheckOut implements HeroCardModel {
+  const _AfterCheckOut({required this.checkOutAt});
+  
+
+ final  DateTime checkOutAt;
+
+/// Create a copy of HeroCardModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AfterCheckOutCopyWith<_AfterCheckOut> get copyWith => __$AfterCheckOutCopyWithImpl<_AfterCheckOut>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AfterCheckOut&&(identical(other.checkOutAt, checkOutAt) || other.checkOutAt == checkOutAt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,checkOutAt);
+
+@override
+String toString() {
+  return 'HeroCardModel.afterCheckOut(checkOutAt: $checkOutAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AfterCheckOutCopyWith<$Res> implements $HeroCardModelCopyWith<$Res> {
+  factory _$AfterCheckOutCopyWith(_AfterCheckOut value, $Res Function(_AfterCheckOut) _then) = __$AfterCheckOutCopyWithImpl;
+@useResult
+$Res call({
+ DateTime checkOutAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$AfterCheckOutCopyWithImpl<$Res>
+    implements _$AfterCheckOutCopyWith<$Res> {
+  __$AfterCheckOutCopyWithImpl(this._self, this._then);
+
+  final _AfterCheckOut _self;
+  final $Res Function(_AfterCheckOut) _then;
+
+/// Create a copy of HeroCardModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? checkOutAt = null,}) {
+  return _then(_AfterCheckOut(
+checkOutAt: null == checkOutAt ? _self.checkOutAt : checkOutAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
 
 // dart format on

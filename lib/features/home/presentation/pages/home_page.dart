@@ -6,6 +6,8 @@ import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/home/presentation/cubit/home_page_cubit.dart';
 import 'package:work_tracker/features/home/presentation/widgets/attendance_card/attendance_card.dart';
+import 'package:work_tracker/features/home/presentation/widgets/hero_card/cubit/hero_card_cubit.dart';
+import 'package:work_tracker/features/home/presentation/widgets/hero_card/hero_card_model.dart';
 import 'package:work_tracker/features/home/presentation/widgets/hero_card/hero_card_view.dart';
 import 'package:work_tracker/features/home/presentation/widgets/today_activity_timeline/today_activity_timeline_view.dart';
 import 'package:work_tracker/features/home/presentation/widgets/today_work_items/today_work_items_view.dart';
@@ -39,8 +41,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<HomePageCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<HomePageCubit>()),
+        BlocProvider(lazy: false, create: (_) => getIt<HeroCardCubit>()..init()),
+      ],
       child: BlocListener<HomePageCubit, HomePageState>(
         listenWhen: (previous, current) =>
             current.pendingLeaveReminderTrigger != null,
@@ -53,29 +58,46 @@ class _HomePageState extends State<HomePage> {
         },
         child: BlocBuilder<HomePageCubit, HomePageState>(
           builder: (context, state) {
-            return Scaffold(
-              body: SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(AppSpacing.space16),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: AppSpacing.space16),
-                      const Text(
-                        'Work Tracker',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+            return BlocBuilder<HeroCardCubit, HeroCardState>(
+              builder: (context, heroState) {
+                // State B (working, comfortably ahead of check-out) shifts
+                // the page's focus to today's tasks, so they're promoted
+                // ahead of the attendance section; every other lifecycle
+                // state keeps attendance (schedule/report/summary) first.
+                final isWorking =
+                    heroState.heroCardModel?.maybeWhen(
+                      working: (_, _, _, _) => true,
+                      orElse: () => false,
+                    ) ??
+                    false;
+                final middleSections = isWorking
+                    ? const [TodayTasksView(), AttendanceCardView()]
+                    : const [AttendanceCardView(), TodayTasksView()];
+
+                return Scaffold(
+                  body: SafeArea(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(AppSpacing.space16),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: AppSpacing.space16),
+                          const Text(
+                            'Work Tracker',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const HeroCardView(),
+                          ...middleSections,
+                          const TodayActivityTimelineView(),
+                          const TomorrowPreviewView(),
+                        ],
                       ),
-                      const HeroCardView(),
-                      const TodayTasksView(),
-                      const AttendanceCardView(),
-                      const TodayActivityTimelineView(),
-                      const TomorrowPreviewView(),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
         ),

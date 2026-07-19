@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/core.dart';
 import 'package:work_tracker/di/injection.dart';
+import 'package:work_tracker/features/attendance/domain/models/attendance.dart';
 import 'package:work_tracker/features/work_item/domain/daily_report.dart';
 import 'package:work_tracker/features/work_item/presentation/cubit/daily_report_cubit.dart';
 
@@ -20,6 +21,26 @@ void showDailyReportSheet(BuildContext context, {DateTime? day}) {
       child: const _DailyReportView(),
     ),
   );
+}
+
+/// Loads [day]'s (default: today's) daily report — including the Attendance
+/// block, when available — and copies it straight to the clipboard, for
+/// surfaces that offer a "Copy report" shortcut without opening
+/// [showDailyReportSheet] itself (e.g. the checked-out summary).
+Future<void> copyDailyReportToClipboard(BuildContext context, {DateTime? day}) async {
+  final cubit = getIt<DailyReportCubit>();
+  await cubit.load(day);
+  final report = cubit.state.report;
+  if (!context.mounted || report == null || report.isEmpty) return;
+
+  Clipboard.setData(
+    ClipboardData(
+      text: renderDailyReportText(report, attendance: cubit.state.attendance),
+    ),
+  );
+  ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(const SnackBar(content: Text('Report copied')));
 }
 
 class _DailyReportView extends StatelessWidget {
@@ -103,7 +124,7 @@ class _DailyReportView extends StatelessWidget {
                     icon: Icons.copy,
                     onPressed: (report == null || report.isEmpty)
                         ? null
-                        : () => _copy(context, report),
+                        : () => _copy(context, report, state.attendance),
                   ),
                 ],
               ),
@@ -114,8 +135,12 @@ class _DailyReportView extends StatelessWidget {
     );
   }
 
-  void _copy(BuildContext context, DailyReport report) {
-    Clipboard.setData(ClipboardData(text: renderDailyReportText(report)));
+  void _copy(BuildContext context, DailyReport report, Attendance? attendance) {
+    Clipboard.setData(
+      ClipboardData(
+        text: renderDailyReportText(report, attendance: attendance),
+      ),
+    );
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Report copied')),
     );

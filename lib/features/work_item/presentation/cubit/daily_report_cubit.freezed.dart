@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DailyReportState implements DiagnosticableTreeMixin {
 
- bool get isLoading; DailyReport? get report;
+ bool get isLoading; DailyReport? get report; Attendance? get attendance;
 /// Create a copy of DailyReportState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,21 +26,21 @@ $DailyReportStateCopyWith<DailyReportState> get copyWith => _$DailyReportStateCo
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'DailyReportState'))
-    ..add(DiagnosticsProperty('isLoading', isLoading))..add(DiagnosticsProperty('report', report));
+    ..add(DiagnosticsProperty('isLoading', isLoading))..add(DiagnosticsProperty('report', report))..add(DiagnosticsProperty('attendance', attendance));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DailyReportState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.report, report) || other.report == report));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DailyReportState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.report, report) || other.report == report)&&(identical(other.attendance, attendance) || other.attendance == attendance));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,report);
+int get hashCode => Object.hash(runtimeType,isLoading,report,attendance);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'DailyReportState(isLoading: $isLoading, report: $report)';
+  return 'DailyReportState(isLoading: $isLoading, report: $report, attendance: $attendance)';
 }
 
 
@@ -51,11 +51,11 @@ abstract mixin class $DailyReportStateCopyWith<$Res>  {
   factory $DailyReportStateCopyWith(DailyReportState value, $Res Function(DailyReportState) _then) = _$DailyReportStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, DailyReport? report
+ bool isLoading, DailyReport? report, Attendance? attendance
 });
 
 
-
+$AttendanceCopyWith<$Res>? get attendance;
 
 }
 /// @nodoc
@@ -68,14 +68,27 @@ class _$DailyReportStateCopyWithImpl<$Res>
 
 /// Create a copy of DailyReportState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? report = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? report = freezed,Object? attendance = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
-as DailyReport?,
+as DailyReport?,attendance: freezed == attendance ? _self.attendance : attendance // ignore: cast_nullable_to_non_nullable
+as Attendance?,
   ));
 }
+/// Create a copy of DailyReportState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AttendanceCopyWith<$Res>? get attendance {
+    if (_self.attendance == null) {
+    return null;
+  }
 
+  return $AttendanceCopyWith<$Res>(_self.attendance!, (value) {
+    return _then(_self.copyWith(attendance: value));
+  });
+}
 }
 
 
@@ -157,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  DailyReport? report)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  DailyReport? report,  Attendance? attendance)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DailyReportState() when $default != null:
-return $default(_that.isLoading,_that.report);case _:
+return $default(_that.isLoading,_that.report,_that.attendance);case _:
   return orElse();
 
 }
@@ -178,10 +191,10 @@ return $default(_that.isLoading,_that.report);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  DailyReport? report)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  DailyReport? report,  Attendance? attendance)  $default,) {final _that = this;
 switch (_that) {
 case _DailyReportState():
-return $default(_that.isLoading,_that.report);case _:
+return $default(_that.isLoading,_that.report,_that.attendance);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +211,10 @@ return $default(_that.isLoading,_that.report);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  DailyReport? report)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  DailyReport? report,  Attendance? attendance)?  $default,) {final _that = this;
 switch (_that) {
 case _DailyReportState() when $default != null:
-return $default(_that.isLoading,_that.report);case _:
+return $default(_that.isLoading,_that.report,_that.attendance);case _:
   return null;
 
 }
@@ -213,11 +226,12 @@ return $default(_that.isLoading,_that.report);case _:
 
 
 class _DailyReportState with DiagnosticableTreeMixin implements DailyReportState {
-  const _DailyReportState({this.isLoading = true, this.report});
+  const _DailyReportState({this.isLoading = true, this.report, this.attendance});
   
 
 @override@JsonKey() final  bool isLoading;
 @override final  DailyReport? report;
+@override final  Attendance? attendance;
 
 /// Create a copy of DailyReportState
 /// with the given fields replaced by the non-null parameter values.
@@ -230,21 +244,21 @@ _$DailyReportStateCopyWith<_DailyReportState> get copyWith => __$DailyReportStat
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'DailyReportState'))
-    ..add(DiagnosticsProperty('isLoading', isLoading))..add(DiagnosticsProperty('report', report));
+    ..add(DiagnosticsProperty('isLoading', isLoading))..add(DiagnosticsProperty('report', report))..add(DiagnosticsProperty('attendance', attendance));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DailyReportState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.report, report) || other.report == report));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DailyReportState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.report, report) || other.report == report)&&(identical(other.attendance, attendance) || other.attendance == attendance));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,report);
+int get hashCode => Object.hash(runtimeType,isLoading,report,attendance);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'DailyReportState(isLoading: $isLoading, report: $report)';
+  return 'DailyReportState(isLoading: $isLoading, report: $report, attendance: $attendance)';
 }
 
 
@@ -255,11 +269,11 @@ abstract mixin class _$DailyReportStateCopyWith<$Res> implements $DailyReportSta
   factory _$DailyReportStateCopyWith(_DailyReportState value, $Res Function(_DailyReportState) _then) = __$DailyReportStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, DailyReport? report
+ bool isLoading, DailyReport? report, Attendance? attendance
 });
 
 
-
+@override $AttendanceCopyWith<$Res>? get attendance;
 
 }
 /// @nodoc
@@ -272,15 +286,28 @@ class __$DailyReportStateCopyWithImpl<$Res>
 
 /// Create a copy of DailyReportState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? report = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? report = freezed,Object? attendance = freezed,}) {
   return _then(_DailyReportState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,report: freezed == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
-as DailyReport?,
+as DailyReport?,attendance: freezed == attendance ? _self.attendance : attendance // ignore: cast_nullable_to_non_nullable
+as Attendance?,
   ));
 }
 
+/// Create a copy of DailyReportState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AttendanceCopyWith<$Res>? get attendance {
+    if (_self.attendance == null) {
+    return null;
+  }
 
+  return $AttendanceCopyWith<$Res>(_self.attendance!, (value) {
+    return _then(_self.copyWith(attendance: value));
+  });
+}
 }
 
 // dart format on

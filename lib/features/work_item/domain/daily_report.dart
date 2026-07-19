@@ -1,4 +1,5 @@
 import '../../../core/time/time_format.dart';
+import '../../attendance/domain/models/attendance.dart';
 import 'models/work_item.dart';
 import 'models/work_item_time_session.dart';
 
@@ -93,9 +94,36 @@ DailyReport buildDailyReport({
 ///
 /// A task with logged time but no recorded sessions gets a single line with
 /// just its total duration.
-String renderDailyReportText(DailyReport report) {
+///
+/// When [attendance] is given, an Attendance block is prepended above a
+/// "Tasks" header, e.g.:
+///
+///     [2026-07-19] Daily report
+///
+///     Attendance
+///     Check-in:  09:12 (12m late)
+///     Check-out: 18:05 (35m overtime)
+///     Worked:    8h 05m of 8h 00m
+///
+///     Tasks
+///     #1234 Fix crash on save · 09:20–10:35 · 1h 15m
+///     Total: 1h 15m
+///
+/// The check-out line is omitted while [Attendance.checkOut] is still null
+/// (not yet checked out today).
+String renderDailyReportText(DailyReport report, {Attendance? attendance}) {
   final buffer = StringBuffer();
   buffer.writeln(dailyReportTitle(report.day));
+
+  if (attendance != null) {
+    buffer.writeln();
+    buffer.writeln('Attendance');
+    for (final line in _attendanceReportLines(attendance)) {
+      buffer.writeln(line);
+    }
+    buffer.writeln();
+    buffer.writeln('Tasks');
+  }
 
   if (report.isEmpty) {
     buffer.writeln('No time tracked.');
@@ -128,4 +156,57 @@ String dailyReportTitle(DateTime day) {
   final m = day.month.toString().padLeft(2, '0');
   final d = day.day.toString().padLeft(2, '0');
   return '[$y-$m-$d] Daily report';
+}
+
+/// The "Attendance" block's body lines for [renderDailyReportText] — check-in
+/// (with a late label when late), check-out (omitted while still null, with
+/// an overtime/early label when applicable), and worked-vs-planned time.
+/// [Attendance.checkIn] is assumed non-null: a row only exists once checked in.
+List<String> _attendanceReportLines(Attendance attendance) {
+  final checkIn = attendance.checkIn;
+  if (checkIn == null) return const [];
+
+  final lines = <String>[];
+
+  final lateSuffix = attendance.lateMinutes > 0
+      ? ' (${TimeFormat.hMm(attendance.lateMinutes)} late)'
+      : '';
+  lines.add('Check-in:  ${TimeFormat.hhMmFromDateTime(checkIn)}$lateSuffix');
+
+  final checkOut = attendance.checkOut;
+  if (checkOut != null) {
+    final String checkOutSuffix;
+    if (attendance.overtimeMinutes > 0) {
+      checkOutSuffix = ' (${TimeFormat.hMm(attendance.overtimeMinutes)} overtime)';
+    } else if (attendance.earlyLeaveMinutes > 0) {
+      checkOutSuffix = ' (${TimeFormat.hMm(attendance.earlyLeaveMinutes)} early)';
+    } else {
+      checkOutSuffix = '';
+    }
+    lines.add('Check-out: ${TimeFormat.hhMmFromDateTime(checkOut)}$checkOutSuffix');
+  }
+
+  final plannedMinutes =
+      attendance.expectedEndMinute -
+      attendance.expectedStartMinute -
+      attendance.lunchMinutes;
+  final workedMinutes = checkOut != null
+      ? attendance.workedMinutes
+      : _workedSoFarMinutes(attendance);
+  lines.add(
+    'Worked:    ${TimeFormat.hMm(workedMinutes)} of ${TimeFormat.hMm(plannedMinutes)}',
+  );
+
+  return lines;
+}
+
+/// A live estimate of minutes worked so far today while still checked in
+/// (i.e. before [Attendance.workedMinutes] itself gets computed at
+/// check-out) — elapsed time since check-in, minus the scheduled lunch.
+int _workedSoFarMinutes(Attendance attendance) {
+  final checkIn = attendance.checkIn;
+  if (checkIn == null) return 0;
+  final elapsed = DateTime.now().difference(checkIn).inMinutes -
+      attendance.lunchMinutes;
+  return elapsed > 0 ? elapsed : 0;
 }
