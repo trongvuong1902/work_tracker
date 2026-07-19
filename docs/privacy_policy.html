@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WorkTracker — Privacy Policy</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.65; margin: 0; padding: 40px 20px; color: #111827; background: #ffffff;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin: 0 0 4px; letter-spacing: -0.5px; }
+  .updated { color: #6b7280; font-size: 0.9rem; margin: 0 0 28px; }
+  h2 { font-size: 1.15rem; margin: 32px 0 8px; color: #15803d; }
+  p { margin: 0 0 14px; }
+  ul { margin: 0 0 14px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  a { color: #16a34a; }
+  .bar { height: 4px; width: 56px; background: #22c55e; border-radius: 4px; margin: 12px 0 0; }
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 0.85rem; }
+  @media (prefers-color-scheme: dark) {
+    body { color: #f1f5f9; background: #0b0f14; }
+    .updated, footer { color: #94a3b8; }
+    h2 { color: #4ade80; }
+    a { color: #4ade80; }
+    footer { border-top-color: #1f2937; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy for WorkTracker</h1>
+  <div class="bar"></div>
+  <p class="updated">Last updated: July 19, 2026</p>
+
+  <p>WorkTracker is a personal productivity app for tracking attendance, task time, and leave reminders. This policy explains what data the app uses and how it&rsquo;s handled.</p>
+
+  <h2>1. Data Storage</h2>
+  <p>All data you enter into WorkTracker &mdash; attendance records, work schedules, task logs, and leave-reminder settings &mdash; is stored locally on your device using an on-device database. WorkTracker does not require an account, and none of this data is uploaded to any server or cloud service operated by us.</p>
+
+  <h2>2. Location Data</h2>
+  <p>If you enable Leave Reminders, you will set a Home and Work location using the in-app map picker. These coordinates, and the address text described below, are stored locally on your device and used to:</p>
+  <ul>
+    <li>Estimate your commute time via Google&rsquo;s Distance Matrix API (only latitude/longitude coordinates are sent, not your name or any other identifying information).</li>
+    <li>Fetch local weather conditions for your work location via the Open-Meteo weather service (a free, keyless public API), used only to phrase the leave-reminder notification.</li>
+    <li>Search for an address by name, if you use the picker&rsquo;s search field: the text you type is sent to Google&rsquo;s Places Autocomplete service to look up matching suggestions as you type.</li>
+    <li>Look up a human-readable address for a picked location via Google&rsquo;s Geocoding API, which converts the coordinates you&rsquo;ve chosen (whether by search, tapping the map, or your device&rsquo;s current position) into an address for display. The resulting address text is stored locally alongside your Home/Work coordinates so it can be shown again without repeating the lookup.</li>
+  </ul>
+  <p>Location data and search text are only sent to these third-party services when performing the specific action described (searching, picking a point, or refreshing a commute/weather estimate), and only if you have enabled Leave Reminders.</p>
+  <p>If you enable the optional Location Activity Log, WorkTracker watches for you arriving at or leaving your work location (including while the app is in the background) so it can log those events. This watching happens entirely on your device &mdash; only the fact that you crossed into or out of the area is recorded locally; your continuous location is never transmitted anywhere.</p>
+
+  <h2>3. Notifications</h2>
+  <p>WorkTracker schedules local notifications on your device (e.g. heads-up and leave-now alerts) using your device&rsquo;s own notification system. These notifications are generated and delivered entirely on-device &mdash; no push notification server is involved, and no notification content is sent anywhere.</p>
+
+  <h2>4. Crash Reporting and Diagnostics</h2>
+  <p>WorkTracker uses Google Firebase Crashlytics to collect crash reports and error diagnostics (such as the type of error and a technical stack trace) so we can find and fix problems. This diagnostic data is processed by Google on our behalf. It does not include the attendance, task, schedule, or location data you enter into the app.</p>
+
+  <h2>5. Zentao Integration (Optional)</h2>
+  <p>If you choose to connect WorkTracker to your own Zentao instance, the account name and password you enter are stored encrypted on your device and are sent only to the Zentao server you specify &mdash; never to us or any other party. The tasks and bugs you import (including their text, comments, and attachment information) are stored locally on your device and are exchanged only with your Zentao server to keep them in sync.</p>
+
+  <h2>6. AI Assistant (Optional)</h2>
+  <p>If the AI bug-fix assistant is enabled in your build, and you choose to use it on a task linked to a Zentao bug, the text describing that bug (such as its title, description, steps to reproduce, and comment history) is sent over a secure connection to the AI provider configured for the app &mdash; by default Google&rsquo;s Gemini API. Only text is sent; image or file attachments are not transmitted. This happens only when you actively invoke the feature. If no AI provider is configured, the feature is disabled and no data is sent.</p>
+
+  <h2>7. Third-Party Services</h2>
+  <ul>
+    <li>Google Distance Matrix API &mdash; commute time estimates (coordinates only).</li>
+    <li>Google Places API &mdash; address search suggestions while picking a Home/Work location (the text you type, plus coordinates).</li>
+    <li>Google Geocoding API &mdash; converts a picked coordinate into a human-readable address (coordinates only).</li>
+    <li>Google Maps &mdash; renders the map used to pick your Home/Work location.</li>
+    <li>Open-Meteo &mdash; weather forecast for the leave-reminder notification (coordinates only).</li>
+    <li>Google Firebase Crashlytics &mdash; crash reports and error diagnostics.</li>
+    <li>Your Zentao server &mdash; only if you connect one; receives your login and the task/bug data you sync.</li>
+    <li>AI provider (Google Gemini by default) &mdash; only if the AI assistant is enabled and used; receives the text of the bug you ask it about.</li>
+  </ul>
+  <p>These services process only the data needed to answer a single request and are not used for advertising or tracking. WorkTracker contains no advertising and no analytics tracking.</p>
+
+  <h2>8. Data You Control</h2>
+  <p>Because all app data lives on your device, uninstalling the app or clearing its storage permanently deletes it. WorkTracker does not provide cloud backup; if you switch devices, your data will not carry over automatically. You can disconnect a Zentao instance at any time from the app&rsquo;s settings, which removes the stored credentials from your device.</p>
+
+  <h2>9. Children&rsquo;s Privacy</h2>
+  <p>WorkTracker is not directed at children and does not knowingly collect data from children.</p>
+
+  <h2>10. Changes to This Policy</h2>
+  <p>We may update this policy as the app evolves. Continued use of the app after an update constitutes acceptance of the revised policy.</p>
+
+  <h2>11. Contact</h2>
+  <p>Questions about this policy can be sent to <a href="mailto:trongvuong1902@gmail.com">trongvuong1902@gmail.com</a>.</p>
+
+  <footer>WorkTracker &middot; Privacy Policy</footer>
+</main>
+</body>
+</html>
