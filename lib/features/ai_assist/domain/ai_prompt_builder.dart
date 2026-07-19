@@ -1,5 +1,5 @@
-import '../../task/domain/bug_prompt.dart';
-import '../../task/domain/models/task.dart';
+import '../../work_item/domain/bug_prompt.dart';
+import '../../work_item/domain/models/work_item.dart';
 import 'ai_target.dart';
 
 /// The machine-readable marker the model emits as the first output line when
@@ -34,7 +34,7 @@ String stripFrameworkMarker(String output) {
 /// infer the stack and emit a leading `FRAMEWORK: <name>` line; when known it
 /// is told to assume that stack and skip the marker.
 String buildAiPromptRequest(
-  Task task,
+  WorkItem task,
   AiTarget target, {
   String? cachedFramework,
 }) {

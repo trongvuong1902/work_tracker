@@ -32,7 +32,7 @@ class DaySummaryView extends StatelessWidget {
     return ShadowCard(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.space16),
+        padding: const EdgeInsets.all(AppSpacing.space12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -88,7 +88,7 @@ class DaySummaryView extends StatelessWidget {
                 ],
               ),
             ],
-            const SizedBox(height: AppSpacing.space12),
+            const SizedBox(height: AppSpacing.space8),
             _buildBody(context),
           ],
         ),
@@ -383,7 +383,7 @@ class _DetailItem extends StatelessWidget {
       children: [
         Text(
           value,
-          style: AppTypography.title(
+          style: AppTypography.subtitle(
             context,
           )?.copyWith(fontWeight: FontWeight.w700),
         ),

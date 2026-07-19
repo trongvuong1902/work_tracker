@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:work_tracker/features/task/domain/models/task.dart';
-import 'package:work_tracker/features/task/domain/task_repository.dart';
+import 'package:work_tracker/features/work_item/domain/models/work_item.dart';
+import 'package:work_tracker/features/work_item/domain/work_item_repository.dart';
 
 import '../../domain/models/zentao_bug.dart';
 import '../../domain/models/zentao_import_kind.dart';
@@ -36,7 +36,7 @@ class ZentaoProductPickerCubit extends Cubit<ZentaoProductPickerState> {
   }
 
   final ZentaoRepository _zentaoRepository;
-  final TaskRepository _taskRepository;
+  final WorkItemRepository _taskRepository;
   final ZentaoImportKind kind;
 
   Future<void> loadProducts() async {
@@ -101,10 +101,10 @@ class ZentaoProductPickerCubit extends Cubit<ZentaoProductPickerState> {
     );
   }
 
-  /// Imports [task] into the local Task store. Returns the created `Task`
-  /// on success (the page then pops the whole flow back to the Task List),
+  /// Imports [task] into the local WorkItem store. Returns the created `WorkItem`
+  /// on success (the page then pops the whole flow back to the WorkItem List),
   /// or `null` on failure (stays on the list with an inline error).
-  Future<Task?> importTask(ZentaoTask task) async {
+  Future<WorkItem?> importTask(ZentaoTask task) async {
     emit(state.copyWith(importingId: task.id, itemsError: null));
     try {
       final imported = await _taskRepository.importFromZentao(task);
@@ -124,8 +124,8 @@ class ZentaoProductPickerCubit extends Cubit<ZentaoProductPickerState> {
     }
   }
 
-  /// Imports [bug] into the local Task store, mirroring [importTask].
-  Future<Task?> importBug(ZentaoBug bug) async {
+  /// Imports [bug] into the local WorkItem store, mirroring [importTask].
+  Future<WorkItem?> importBug(ZentaoBug bug) async {
     emit(state.copyWith(importingId: bug.id, itemsError: null));
     try {
       final imported = await _taskRepository.importBugFromZentao(

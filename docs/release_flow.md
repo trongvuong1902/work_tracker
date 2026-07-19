@@ -84,13 +84,13 @@ git checkout master && git pull
 git merge --no-ff release/1.2
 # ensure pubspec.yaml version name is final (e.g. 1.2.0), commit if needed
 git tag v1.2.0 && git push origin master --tags
-./scripts/ship_production.sh                 # iOS App Store submit + Play production track
+./scripts/ship_production.sh                 # iOS App Store submit (Android: Firebase only)
 git checkout develop && git merge --no-ff master && git push   # don't lose release fixes
 ```
 `ship_production.sh` refuses to run off `master` without confirmation and requires
 `dart_defines.prod.json`. It submits the iOS build for review with `automatic_release: false`, so you
-tap **Release** in App Store Connect after approval. To ship the *exact* build already on Play's
-internal track instead of rebuilding, use `cd android && bundle exec fastlane promote_to_production`.
+tap **Release** in App Store Connect after approval. Android has no production store lane — Android
+distribution is Firebase App Distribution only (internal/beta).
 
 ### Hotfix a production bug
 ```bash

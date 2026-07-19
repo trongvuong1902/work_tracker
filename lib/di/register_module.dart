@@ -14,8 +14,9 @@ import '../database/leave_reminder/notification_log_entity.dart';
 import '../database/location_log/location_log_entity.dart';
 import '../database/location_log/location_log_settings_entity.dart';
 import '../database/objectbox.g.dart';
-import '../database/task/task_entity.dart';
-import '../database/task/task_time_log_entity.dart';
+import '../database/work_item/work_item_entity.dart';
+import '../database/work_item/work_item_time_log_entity.dart';
+import '../database/work_item/work_item_time_session_entity.dart';
 import '../database/work_schedule/work_schedule_entity.dart';
 
 @module
@@ -70,11 +71,15 @@ abstract class RegisterModule {
       store.box<LocationLogSettingsEntity>();
 
   @singleton
-  Box<TaskEntity> taskBox(Store store) => store.box<TaskEntity>();
+  Box<WorkItemEntity> taskBox(Store store) => store.box<WorkItemEntity>();
 
   @singleton
-  Box<TaskTimeLogEntity> taskTimeLogBox(Store store) =>
-      store.box<TaskTimeLogEntity>();
+  Box<WorkItemTimeLogEntity> taskTimeLogBox(Store store) =>
+      store.box<WorkItemTimeLogEntity>();
+
+  @singleton
+  Box<WorkItemTimeSessionEntity> taskTimeSessionBox(Store store) =>
+      store.box<WorkItemTimeSessionEntity>();
 
   @lazySingleton
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin() =>

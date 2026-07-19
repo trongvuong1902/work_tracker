@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../task/domain/models/task.dart';
+import '../../../work_item/domain/models/work_item.dart';
 import '../../data/ai_client.dart';
 import '../../domain/ai_prompt_builder.dart';
 import '../../domain/ai_repository.dart';
@@ -15,7 +15,7 @@ part 'bug_ai_state.dart';
 part 'bug_ai_cubit.freezed.dart';
 
 /// Drives the "AI fix prompt" bottom sheet: streams a model-generated,
-/// platform-tailored fix prompt for [Task]'s linked bug into
+/// platform-tailored fix prompt for [WorkItem]'s linked bug into
 /// [BugAiState.text] as it arrives, and caches the detected framework.
 @injectable
 class BugAiCubit extends Cubit<BugAiState> {
@@ -24,11 +24,11 @@ class BugAiCubit extends Cubit<BugAiState> {
 
   final AiRepository _repository;
   StreamSubscription<String>? _subscription;
-  Task? _task;
+  WorkItem? _task;
 
   /// Generates a prompt for [task] tailored to [target]. Pass no [target] to
   /// reuse the last-selected one (used for the initial run).
-  Future<void> generate(Task task, [AiTarget? target]) async {
+  Future<void> generate(WorkItem task, [AiTarget? target]) async {
     _task = task;
     final resolved = target ?? state.target;
     await _subscription?.cancel();

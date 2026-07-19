@@ -29,12 +29,9 @@ builds.
 
 - **iOS (TestFlight → App Store):** one counter — `latest_testflight_build_number + 1`
   (`ios/fastlane/Fastfile` `beta`).
-- **Android — one unified counter across Firebase AND every Play track.** All lanes draw from
-  `max(latest Firebase buildVersion, max Play versionCode across the internal / closed-`alpha` /
-  production tracks) + 1` via the `next_android_version_code` private_lane in
-  `android/fastlane/Fastfile`. Spanning every track is required because Play version codes must be
-  globally unique per app; keeping them unified also means a Firebase tester is never blocked from a
-  Play upgrade (Android refuses `versionCode` downgrades).
+- **Android — one Firebase counter.** Both the `beta` and `internal` lanes draw from
+  `latest Firebase buildVersion + 1` via the `next_android_version_code` private_lane in
+  `android/fastlane/Fastfile`, so every upload gets a strictly higher, distinct `versionCode`.
 
 ### Why a new Firebase upload must have a higher versionCode
 
@@ -65,8 +62,8 @@ For **internal testers only** (iOS TestFlight internal testers + Firebase `inter
 ./scripts/ship_internal.sh
 ```
 
-iOS internal testers auto-receive every uploaded build (no review/group); the Android lane is run
-with `FIREBASE_GROUP=internal`.
+iOS internal testers auto-receive every uploaded build (no review/group); the Android `internal`
+lane distributes to the Firebase `internal` group.
 
 To ship a single channel, run that lane directly:
 
@@ -78,7 +75,7 @@ cd android && bundle exec fastlane closed    # Play Store Closed testing track (
 cd android && bundle exec fastlane internal  # Play Store internal track (AAB)
 ```
 
-For a **production** release to both stores (App Store submit + Play `production` track):
+For a **production** release (iOS App Store submit; Android is Firebase-only, no store lane):
 
 ```bash
 ./scripts/ship_production.sh
@@ -96,7 +93,7 @@ See [release_flow.md](release_flow.md) for the full tag-and-promote runbook.
 
 ## Release builds always start from a clean state
 
-`scripts/build_release_apk.sh`, `build_release_aab.sh`, and `build_release_ipa.sh` each run
+`scripts/build_release_apk.sh` and `build_release_ipa.sh` each run
 `fvm flutter clean` before building. Without it the Android Gradle/Flutter build could reuse a cached
 `libapp.so` and ship a **stale Dart snapshot under a freshly-bumped version** — the manifest reads
 the new version (name/code are injected at the Gradle layer) while the app runs old code. Correctness
@@ -106,7 +103,7 @@ matters more than build speed for releases, so every release build recompiles fr
 
 - The Firebase release object exposes the build number as `buildVersion` (name is `displayVersion`).
   If a future plugin version renames this, update `next_android_version_code`.
-- Play Store release notes are **not** wired into the `internal` lane (it skips metadata); only the
-  Firebase `beta` lane applies release notes (`FIREBASE_RELEASE_NOTES`).
+- Both Android lanes (`beta`, `internal`) apply release notes (`FIREBASE_RELEASE_NOTES`) via the
+  shared `distribute_firebase` lane.
 - Prerequisites and credentials for each lane are covered by the release-engineer agent contract and
-  `docs/fastlane_*`/`docs/play_store_setup.md`.
+  `docs/fastlane_*`.

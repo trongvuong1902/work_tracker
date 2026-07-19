@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 #
-# Ship a PRODUCTION release to both stores in one statement:
-#   - iOS   -> App Store        (ios/fastlane   lane :release — TestFlight + submit for review)
-#   - Android -> Play Store production track (android/fastlane lane :production)
+# Ship a PRODUCTION release:
+#   - iOS -> App Store (ios/fastlane lane :release — TestFlight + submit for review)
+#
+# Android production is NOT automated: this project distributes Android via
+# Firebase App Distribution only (see scripts/ship_internal.sh / ship_beta.sh);
+# there is no Play Store lane.
 #
 # Uses the prod config (dart_defines.prod.json), which OMITS AI_API_KEY so the
 # in-app AI self-disables in production builds (AiClient.isConfigured is false
-# when the key is empty). Both lanes read the version NAME from pubspec.yaml and
-# auto-increment their own build NUMBER (see docs/versioning.md).
+# when the key is empty). The lane reads the version NAME from pubspec.yaml and
+# auto-increments its own build NUMBER (see docs/versioning.md).
 #
 # PRECONDITIONS (see docs/release_flow.md):
 #   - You are releasing from `master`, with the release merged in.
 #   - You have bumped pubspec.yaml `version:` and tagged `vX.Y.Z` on master.
-#   - App Store Connect + Play Console listings already exist (these lanes skip
-#     metadata/screenshots and only submit the binary).
+#   - The App Store Connect listing already exists (the lane skips
+#     metadata/screenshots and only submits the binary).
 #
 # Usage: ./scripts/ship_production.sh
 
@@ -42,8 +45,6 @@ fi
 echo "==> iOS: building IPA, uploading to TestFlight, and submitting to the App Store for review"
 ( cd ios && bundle exec fastlane release )
 
-echo "==> Android: building AAB and uploading to the Play Store production track"
-( cd android && bundle exec fastlane production )
-
-echo "==> Done: submitted a production release to the App Store and Play Store."
-echo "    Verify: App Store Connect shows the build in review; Play Console production track shows the new AAB."
+echo "==> Done: submitted a production release to the App Store."
+echo "    Verify: App Store Connect shows the build in review."
+echo "    Note: Android has no production store lane — distribute via Firebase (scripts/ship_internal.sh)."

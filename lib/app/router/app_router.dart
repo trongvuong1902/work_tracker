@@ -20,19 +20,18 @@ import 'package:work_tracker/features/onboard/presentation/pages/onboard_page.da
 import 'package:work_tracker/features/schedule/presentation/pages/setting_schedule_page.dart';
 import 'package:work_tracker/features/setting/presentation/pages/privacy_policy_page.dart';
 import 'package:work_tracker/features/splash/presentation/pages/splash_page.dart';
-import 'package:work_tracker/features/task/presentation/pages/attachment_viewer_page.dart';
-import 'package:work_tracker/features/task/presentation/pages/bug_sync_products_page.dart';
-import 'package:work_tracker/features/task/presentation/pages/manual_task_form_page.dart';
-import 'package:work_tracker/features/task/presentation/pages/platform_picker_page.dart';
-import 'package:work_tracker/features/task/presentation/pages/task_detail_page.dart';
-import 'package:work_tracker/features/task/presentation/pages/task_time_log_page.dart';
+import 'package:work_tracker/features/work_item/presentation/pages/attachment_viewer_page.dart';
+import 'package:work_tracker/features/work_item/presentation/pages/bug_sync_products_page.dart';
+import 'package:work_tracker/features/work_item/presentation/pages/manual_task_form_page.dart';
+import 'package:work_tracker/features/work_item/presentation/pages/platform_picker_page.dart';
+import 'package:work_tracker/features/work_item/presentation/pages/work_item_detail_page.dart';
+import 'package:work_tracker/features/work_item/presentation/pages/work_item_time_log_page.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug_attachment.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_import_kind.dart';
 import 'package:work_tracker/features/zentao/presentation/pages/zentao_connect_page.dart';
 import 'package:work_tracker/features/zentao/presentation/pages/zentao_product_picker_page.dart';
-import 'package:work_tracker/features/zentao/presentation/pages/zentao_select_option_page.dart';
 
-import 'task_branch.dart';
+import 'work_item_branch.dart';
 
 /// Typed `state.extra` payload for [AppRoutes.leaveReminderLocationPicker].
 class LocationPickerArgs {
@@ -127,12 +126,12 @@ final appRouter = GoRouter(
       path: AppRoutes.taskDetail,
       builder: (context, state) {
         final taskId = state.extra as int;
-        return TaskDetailPage(taskId: taskId);
+        return WorkItemDetailPage(taskId: taskId);
       },
     ),
     GoRoute(
       path: AppRoutes.taskTimes,
-      builder: (context, state) => const TaskTimeLogPage(),
+      builder: (context, state) => const WorkItemTimeLogPage(),
     ),
     GoRoute(
       path: AppRoutes.taskManualForm,
@@ -145,10 +144,6 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.zentaoConnect,
       builder: (context, state) => const ZentaoConnectPage(),
-    ),
-    GoRoute(
-      path: AppRoutes.zentaoSelectOption,
-      builder: (context, state) => const ZentaoSelectOptionPage(),
     ),
     GoRoute(
       path: AppRoutes.zentaoProductPicker,

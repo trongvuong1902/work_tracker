@@ -110,6 +110,26 @@ abstract class ZentaoClient {
     required String assignedTo,
     required String comment,
   });
+
+  /// Closes bug [bugId] (`POST bugs/:id/close`) with an optional [comment].
+  /// Throws on failure so the caller can block on it.
+  Future<void> closeBug({
+    required String domain,
+    required String token,
+    required int bugId,
+    required String comment,
+  });
+
+  /// Activates (reopens) bug [bugId] (`POST bugs/:id/activate`), assigning it to
+  /// [assignedTo], with an optional [comment]. Throws on failure so the caller
+  /// can block on it.
+  Future<void> activateBug({
+    required String domain,
+    required String token,
+    required int bugId,
+    required String assignedTo,
+    required String comment,
+  });
 }
 
 /// Talks to the real Zentao REST API v1
@@ -165,8 +185,14 @@ class ZentaoRestClient implements ZentaoClient {
   void _checkWrite(http.Response response, String action) {
     _checkAuth(response);
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      // Include the server's message (never contains the token) so failures
+      // like a missing required field are diagnosable, not just a bare status.
+      final body = response.body.trim();
+      final detail = body.isEmpty
+          ? ''
+          : ': ${body.length > 300 ? '${body.substring(0, 300)}…' : body}';
       throw Exception(
-        'Zentao $action failed with status ${response.statusCode}',
+        'Zentao $action failed (status ${response.statusCode})$detail',
       );
     }
   }
@@ -826,5 +852,82 @@ class ZentaoRestClient implements ZentaoClient {
         )
         .timeout(_requestTimeout);
     _checkWrite(response, 'bug resolve');
+  }
+
+  @override
+  Future<void> closeBug({
+    required String domain,
+    required String token,
+    required int bugId,
+    required String comment,
+  }) async {
+    final response = await http
+        .post(
+          _uri(domain, 'bugs/$bugId/close'),
+          headers: {..._authHeaders(token), 'Content-Type': 'application/json'},
+          body: json.encode({'comment': comment}),
+        )
+        .timeout(_requestTimeout);
+    _checkWrite(response, 'bug close');
+  }
+
+  @override
+  Future<void> activateBug({
+    required String domain,
+    required String token,
+    required int bugId,
+    required String assignedTo,
+    required String comment,
+  }) async {
+    // Zentao's activate action requires the build the bug reappears in
+    // (mirrors resolve's required resolvedBuild); omit it and the API rejects
+    // the request. Reuse the bug's own current openedBuild rather than a
+    // hardcoded guess — an instance rejects a build that isn't valid for the
+    // bug. Fall back to 'trunk' only when the bug has no build recorded.
+    final openedBuild = await _fetchOpenedBuild(domain, token, bugId);
+    final response = await http
+        .post(
+          _uri(domain, 'bugs/$bugId/activate'),
+          headers: {..._authHeaders(token), 'Content-Type': 'application/json'},
+          body: json.encode({
+            'assignedTo': assignedTo,
+            'openedBuild': openedBuild,
+            'comment': comment,
+          }),
+        )
+        .timeout(_requestTimeout);
+    _checkWrite(response, 'bug activate');
+  }
+
+  /// Reads the bug's current `openedBuild` from `GET bugs/:id` so activate can
+  /// send a build the instance actually accepts. Zentao serializes this as a
+  /// comma-separated string ("trunk", "123,124") or a list; normalize to the
+  /// comma-separated string the write endpoints expect. Best-effort — any
+  /// failure falls back to 'trunk' and lets the activate call surface its own
+  /// error.
+  Future<String> _fetchOpenedBuild(
+    String domain,
+    String token,
+    int bugId,
+  ) async {
+    try {
+      final response = await http
+          .get(_uri(domain, 'bugs/$bugId'), headers: _authHeaders(token))
+          .timeout(_requestTimeout);
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        final body = decoded is Map<String, dynamic>
+            ? (decoded['bug'] as Map<String, dynamic>? ?? decoded)
+            : null;
+        final raw = body?['openedBuild'];
+        final value = raw is List
+            ? raw.map((e) => e.toString()).where((e) => e.isNotEmpty).join(',')
+            : _asNonEmptyString(raw);
+        if (value != null && value.isNotEmpty) return value;
+      }
+    } catch (_) {
+      // Fall through to the default below.
+    }
+    return 'trunk';
   }
 }

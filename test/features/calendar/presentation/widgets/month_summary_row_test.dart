@@ -24,24 +24,60 @@ Future<void> _pumpNarrow(WidgetTester tester, MonthSummary summary) async {
 void main() {
   group('MonthSummaryRow', () {
     testWidgets(
-      'renders default/zero-state summary without exceptions and shows labels',
+      'renders zero-state as a compact inline summary without exceptions',
       (tester) async {
         await _pumpNarrow(tester, const MonthSummary());
 
         expect(tester.takeException(), isNull);
 
-        expect(find.text('Late time'), findsOneWidget);
-        expect(find.text('Late days'), findsOneWidget);
-        expect(find.text('Overtime'), findsOneWidget);
+        expect(find.text('late time'), findsOneWidget);
+        expect(find.text('late days'), findsOneWidget);
+        expect(find.text('overtime'), findsOneWidget);
 
-        expect(find.text('0h 00m'), findsNWidgets(2));
+        // Compact format: under an hour shows "Xm".
+        expect(find.text('0m'), findsNWidgets(2));
         expect(find.text('0'), findsOneWidget);
       },
     );
 
     testWidgets(
-      'renders stress-test large values on a narrow (iPhone SE width) screen '
-      'without a RenderFlex overflow exception',
+      'uses compact durations and a singular "late day" label',
+      (tester) async {
+        const summary = MonthSummary(
+          totalLateMinutes: 11,
+          lateDayCount: 1,
+          totalOvertimeMinutes: 45,
+        );
+
+        await _pumpNarrow(tester, summary);
+
+        expect(find.text('11m'), findsOneWidget);
+        expect(find.text('45m'), findsOneWidget);
+        expect(find.text('1'), findsOneWidget);
+        expect(find.text('late day'), findsOneWidget);
+        expect(find.text('late days'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'formats values over an hour as "Hh Mm"',
+      (tester) async {
+        const summary = MonthSummary(
+          totalLateMinutes: 245,
+          lateDayCount: 3,
+          totalOvertimeMinutes: 90,
+        );
+
+        await _pumpNarrow(tester, summary);
+
+        expect(find.text('4h 5m'), findsOneWidget);
+        expect(find.text('1h 30m'), findsOneWidget);
+        expect(find.text('3'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'renders stress-test large values on a narrow screen without overflow',
       (tester) async {
         const stressSummary = MonthSummary(
           totalLateMinutes: 99999,
@@ -51,92 +87,12 @@ void main() {
 
         await _pumpNarrow(tester, stressSummary);
 
-        // The concrete regression guard: a "RenderFlex overflowed" (or any
-        // other) exception thrown during layout/paint would be captured
-        // here by the test framework rather than surfacing as a passing
-        // test.
         expect(tester.takeException(), isNull);
-
-        expect(find.text('Late time'), findsOneWidget);
-        expect(find.text('Late days'), findsOneWidget);
-        expect(find.text('Overtime'), findsOneWidget);
-
-        // 99999 minutes -> 1666h 39m via TimeFormat.hMm.
+        expect(find.text('late time'), findsOneWidget);
+        expect(find.text('overtime'), findsOneWidget);
         expect(find.text('1666h 39m'), findsNWidgets(2));
         expect(find.text('31'), findsOneWidget);
       },
     );
-
-    testWidgets(
-      'tapping the Late time tile toggles only its own format, independent '
-      'of the Overtime tile',
-      (tester) async {
-        const summary = MonthSummary(
-          totalLateMinutes: 245,
-          lateDayCount: 3,
-          totalOvertimeMinutes: 90,
-        );
-
-        await _pumpNarrow(tester, summary);
-
-        expect(find.text('4h 05m'), findsOneWidget);
-        expect(find.text('1h 30m'), findsOneWidget);
-
-        await tester.tap(find.text('4h 05m'));
-        await tester.pump();
-
-        expect(find.text('245m'), findsOneWidget);
-        expect(find.text('4h 05m'), findsNothing);
-        // Overtime tile is unaffected by tapping the Late time tile.
-        expect(find.text('1h 30m'), findsOneWidget);
-
-        // Tapping again toggles back.
-        await tester.tap(find.text('245m'));
-        await tester.pump();
-
-        expect(find.text('4h 05m'), findsOneWidget);
-        expect(find.text('245m'), findsNothing);
-      },
-    );
-
-    testWidgets(
-      'tapping the Overtime tile toggles only its own format, independent '
-      'of the Late time tile',
-      (tester) async {
-        const summary = MonthSummary(
-          totalLateMinutes: 245,
-          lateDayCount: 3,
-          totalOvertimeMinutes: 90,
-        );
-
-        await _pumpNarrow(tester, summary);
-
-        await tester.tap(find.text('1h 30m'));
-        await tester.pump();
-
-        expect(find.text('90m'), findsOneWidget);
-        expect(find.text('1h 30m'), findsNothing);
-        // Late time tile is unaffected by tapping the Overtime tile.
-        expect(find.text('4h 05m'), findsOneWidget);
-      },
-    );
-
-    testWidgets('Late days tile is not tappable and stays a plain count', (
-      tester,
-    ) async {
-      const summary = MonthSummary(
-        totalLateMinutes: 245,
-        lateDayCount: 3,
-        totalOvertimeMinutes: 90,
-      );
-
-      await _pumpNarrow(tester, summary);
-
-      await tester.tap(find.text('3'));
-      await tester.pump();
-
-      expect(find.text('3'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
   });
 }
