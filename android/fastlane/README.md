@@ -31,6 +31,14 @@ Build the release APK (via repo build script) and distribute it via Firebase App
 
 Build the release APK (via repo build script) and distribute it via Firebase App Distribution to the 'internal' testers group
 
+### android closed
+
+```sh
+[bundle exec] fastlane android closed
+```
+
+Build the release AAB (via repo build script) and upload it to the Play Store Closed testing track
+
 ### android add_internal_testers
 
 ```sh

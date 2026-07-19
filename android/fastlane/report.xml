@@ -5,32 +5,42 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000242">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000246">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: Switch to android distribute_firebase lane" time="8.2e-05">
+      <testcase classname="fastlane.lanes" name="1: Switch to android next_android_version_code lane" time="0.000103">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: Switch to android next_android_version_code lane" time="7.3e-05">
+      <testcase classname="fastlane.lanes" name="2: firebase_app_distribution_get_latest_release" time="1.025078">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: firebase_app_distribution_get_latest_release" time="1.045702">
+      <testcase classname="fastlane.lanes" name="3: google_play_track_version_codes" time="2.014971">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="4: /Volumes/M2-SATA/work_trackier/work_tracker/scripts/build_release_apk.sh" time="272.088768">
+      <testcase classname="fastlane.lanes" name="4: google_play_track_version_codes" time="1.993194">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="5: firebase_app_distribution" time="50.399091">
+      <testcase classname="fastlane.lanes" name="5: google_play_track_version_codes" time="2.281996">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: /Volumes/M2-SATA/work_trackier/work_tracker/scripts/build_release_aab.sh" time="341.753316">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="7: upload_to_play_store" time="53.875855">
         
       </testcase>
     
