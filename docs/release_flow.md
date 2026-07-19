@@ -10,8 +10,8 @@ How WorkTracker moves code through three audience tiers — **internal**, **publ
 | Tier | Who | Git source | iOS channel | Android channel | Config |
 |------|-----|-----------|-------------|-----------------|--------|
 | **Internal** | You + trusted teammates | `develop` | TestFlight internal (auto-receive) | Firebase App Distribution, group `internal` | `dart_defines.internal.json` — **AI key baked in** |
-| **Public testers** | External beta group | `release/X.Y` | TestFlight External group | Firebase group `beta-testers` + Play `internal` track | `dart_defines.prod.json` — **AI key omitted** |
-| **Production** | Everyone (stores) | `master` @ tag `vX.Y.Z` | App Store | Play `production` track | `dart_defines.prod.json` |
+| **Public testers** | External beta group | `release/X.Y` | TestFlight External group | Firebase group `beta-testers` | `dart_defines.prod.json` — **AI key omitted** |
+| **Production** | Everyone (stores) | `master` @ tag `vX.Y.Z` | App Store | — (Firebase only; no Play Store lane) | `dart_defines.prod.json` |
 
 The only build difference between tiers is **config, not code**: internal builds carry `AI_API_KEY`
 so the in-app "Resolve with AI" works; public/prod builds leave it empty, so `AiClient.isConfigured`
@@ -61,7 +61,6 @@ git checkout -b release/1.2                 # X.Y for the version you're stabili
 # bump pubspec.yaml version: 1.2.0+<n>  (MINOR for new features — see versioning.md), commit
 ./scripts/ship_beta.sh                       # TestFlight (upload) + Firebase beta-testers
 cd ios && bundle exec fastlane distribute_beta   # promote to TestFlight External group (Apple review)
-cd android && bundle exec fastlane internal      # (optional) also push AAB to Play internal track
 ```
 Land only bugfixes on `release/1.2` afterward, and merge them back into `develop`.
 
@@ -71,13 +70,13 @@ git checkout master && git pull
 git merge --no-ff release/1.2
 # ensure pubspec.yaml version name is final (e.g. 1.2.0), commit if needed
 git tag v1.2.0 && git push origin master --tags
-./scripts/ship_production.sh                 # iOS App Store submit + Play production track
+./scripts/ship_production.sh                 # iOS App Store submit (Android: Firebase only)
 git checkout develop && git merge --no-ff master && git push   # don't lose release fixes
 ```
 `ship_production.sh` refuses to run off `master` without confirmation and requires
 `dart_defines.prod.json`. It submits the iOS build for review with `automatic_release: false`, so you
-tap **Release** in App Store Connect after approval. To ship the *exact* build already on Play's
-internal track instead of rebuilding, use `cd android && bundle exec fastlane promote_to_production`.
+tap **Release** in App Store Connect after approval. Android has no production store lane — Android
+distribution is Firebase App Distribution only (internal/beta).
 
 ### Hotfix a production bug
 ```bash
@@ -111,6 +110,4 @@ before a public release:
 | iOS | `distribute_beta` | promote latest build to the External Testers group |
 | iOS | `release` | build IPA + submit to the App Store (production) |
 | Android | `beta` | build APK + Firebase App Distribution (`FIREBASE_GROUP`) |
-| Android | `internal` | build AAB + Play `internal` track |
-| Android | `production` | build AAB + Play `production` track |
-| Android | `promote_to_production` | promote the latest internal-track build to production (no rebuild) |
+| Android | `internal` | build APK + Firebase App Distribution (group `internal`) |

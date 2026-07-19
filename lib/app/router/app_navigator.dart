@@ -65,7 +65,7 @@ abstract final class AppNavigator {
     ),
   );
 
-  /// Pushes the Task Detail page for [taskId]. The task list always
+  /// Pushes the WorkItem Detail page for [taskId]. The task list always
   /// refreshes itself on return, whether the task changed or the page was
   /// just dismissed, so no return value is needed here.
   static Future<void> pushTaskDetail(BuildContext context, int taskId) =>

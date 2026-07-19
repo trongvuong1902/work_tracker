@@ -3,26 +3,12 @@ default_platform(:android)
 platform :android do
   desc "Build the release APK (via repo build script) and distribute it via Firebase App Distribution"
   lane :beta do
-    repo_root = File.expand_path("../..", __dir__)
+    distribute_firebase(group: ENV.fetch("FIREBASE_GROUP", "beta-testers"))
+  end
 
-    # versionName comes from pubspec.yaml — a deliberate human decision (see
-    # docs/versioning.md). CI only ever sets the build NUMBER, drawn from the
-    # unified Android counter so successive betas of the same version read as
-    # "1.1.0 (11)", "1.1.0 (12)", … rather than bumping the semantic version.
-    ENV["BUILD_NUMBER"] = next_android_version_code.to_s
-
-    sh("#{repo_root}/scripts/build_release_apk.sh")
-
-    apk_path = Dir.glob("#{repo_root}/build/app/outputs/flutter-apk/*-release.apk").max_by { |f| File.mtime(f) }
-    UI.user_error!("No release .apk found in build/app/outputs/flutter-apk after build_release_apk.sh") unless apk_path
-
-    firebase_app_distribution(
-      app: ENV.fetch("FIREBASE_APP_ID"),
-      service_credentials_file: File.expand_path(ENV.fetch("FIREBASE_SERVICE_ACCOUNT_FILEPATH"), __dir__),
-      apk_path: apk_path,
-      groups: ENV.fetch("FIREBASE_GROUP", "beta-testers"),
-      release_notes: ENV.fetch("FIREBASE_RELEASE_NOTES", "Bug fixes and improvements.")
-    )
+  desc "Build the release APK (via repo build script) and distribute it via Firebase App Distribution to the 'internal' testers group"
+  lane :internal do
+    distribute_firebase(group: "internal")
   end
 
   desc "Add/update testers from android/fastlane/internal_testers.txt into the Firebase 'internal' testers group"
@@ -35,88 +21,38 @@ platform :android do
     add_testers_from_file(file: "nexsoft_testers.txt", group: "Nexsoft")
   end
 
-  desc "Build the release AAB (via repo build script) and upload it to the Play Store Internal testing track"
-  lane :internal do
+  # Builds the release APK via the repo build script and uploads it to Firebase
+  # App Distribution, notifying the given tester [group]. Shared by `beta` and
+  # `internal` so their build/upload behaviour never diverges — the only
+  # difference is which tester group is notified.
+  private_lane :distribute_firebase do |options|
     repo_root = File.expand_path("../..", __dir__)
-    package_name = ENV.fetch("PLAY_STORE_PACKAGE_NAME")
-    json_key = File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__)
-    track = ENV.fetch("PLAY_STORE_TRACK", "internal")
 
-    # Same unified counter as `beta`, so Play and Firebase codes never diverge.
+    # versionName comes from pubspec.yaml — a deliberate human decision (see
+    # docs/versioning.md). CI only ever sets the build NUMBER, drawn from the
+    # Firebase counter so successive builds of the same version read as
+    # "1.1.0 (11)", "1.1.0 (12)", … rather than bumping the semantic version.
     ENV["BUILD_NUMBER"] = next_android_version_code.to_s
 
-    sh("#{repo_root}/scripts/build_release_aab.sh")
+    sh("#{repo_root}/scripts/build_release_apk.sh")
 
-    aab_path = Dir.glob("#{repo_root}/build/app/outputs/bundle/prodRelease/*.aab").max_by { |f| File.mtime(f) }
-    UI.user_error!("No release .aab found in build/app/outputs/bundle/prodRelease after build_release_aab.sh") unless aab_path
+    apk_path = Dir.glob("#{repo_root}/build/app/outputs/flutter-apk/*-release.apk").max_by { |f| File.mtime(f) }
+    UI.user_error!("No release .apk found in build/app/outputs/flutter-apk after build_release_apk.sh") unless apk_path
 
-    upload_to_play_store(
-      package_name: package_name,
-      json_key: json_key,
-      aab: aab_path,
-      track: track,
-      release_status: "completed",
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
+    firebase_app_distribution(
+      app: ENV.fetch("FIREBASE_APP_ID"),
+      service_credentials_file: File.expand_path(ENV.fetch("FIREBASE_SERVICE_ACCOUNT_FILEPATH"), __dir__),
+      apk_path: apk_path,
+      groups: options[:group],
+      release_notes: ENV.fetch("FIREBASE_RELEASE_NOTES", "Bug fixes and improvements.")
     )
   end
 
-  desc "Build the release AAB (via repo build script) and upload it to the Play Store production track"
-  lane :production do
-    repo_root = File.expand_path("../..", __dir__)
-    package_name = ENV.fetch("PLAY_STORE_PACKAGE_NAME")
-    json_key = File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__)
-
-    # Same unified counter as `beta`/`internal`, so Play and Firebase codes never diverge.
-    ENV["BUILD_NUMBER"] = next_android_version_code.to_s
-
-    # DART_DEFINES_FILE is inherited from the caller (ship_production.sh sets it
-    # to dart_defines.prod.json — AI key omitted). See docs/release_flow.md.
-    sh("#{repo_root}/scripts/build_release_aab.sh")
-
-    aab_path = Dir.glob("#{repo_root}/build/app/outputs/bundle/prodRelease/*.aab").max_by { |f| File.mtime(f) }
-    UI.user_error!("No release .aab found in build/app/outputs/bundle/prodRelease after build_release_aab.sh") unless aab_path
-
-    upload_to_play_store(
-      package_name: package_name,
-      json_key: json_key,
-      aab: aab_path,
-      track: "production",
-      release_status: "completed",
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
-  end
-
-  desc "Promote the latest build on the internal track to production without rebuilding"
-  lane :promote_to_production do
-    package_name = ENV.fetch("PLAY_STORE_PACKAGE_NAME")
-    json_key = File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__)
-
-    upload_to_play_store(
-      package_name: package_name,
-      json_key: json_key,
-      track: "internal",
-      track_promote_to: "production",
-      release_status: "completed",
-      skip_upload_apk: true,
-      skip_upload_aab: true,
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
-  end
-
-  # Next Android versionCode: unified across Firebase App Distribution AND the
-  # Play Store track. Drawing from max(Firebase, Play) + 1 guarantees every
-  # build is a strictly-higher, distinct release — so a Firebase upload always
-  # lands as a NEW/latest release (Firebase keys releases by
-  # versionName+versionCode; a repeated code just updates the existing one),
-  # and a Firebase tester is never blocked from upgrading to a lower-coded Play
-  # build (Android refuses versionCode downgrades). Both `beta` and `internal`
-  # use this so their counters never diverge.
+  # Next Android versionCode, drawn from the latest Firebase App Distribution
+  # release + 1 so every build is a strictly-higher, distinct release (Firebase
+  # keys releases by versionName+versionCode; a repeated code just updates the
+  # existing one). Both `beta` and `internal` use this so their counters never
+  # diverge.
   private_lane :next_android_version_code do
     firebase_latest = firebase_app_distribution_get_latest_release(
       app: ENV.fetch("FIREBASE_APP_ID"),
@@ -125,19 +61,7 @@ platform :android do
     # The release object exposes the build number as `buildVersion` (the
     # version name is `displayVersion`).
     firebase_code = firebase_latest ? (firebase_latest["buildVersion"] || firebase_latest[:buildVersion]).to_i : 0
-
-    play_codes = begin
-      google_play_track_version_codes(
-        package_name: ENV.fetch("PLAY_STORE_PACKAGE_NAME"),
-        track: ENV.fetch("PLAY_STORE_TRACK", "internal"),
-        json_key: File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__)
-      )
-    rescue => e
-      UI.important("Could not read Play Store version codes (#{e.message}); using Firebase only.")
-      []
-    end
-
-    [firebase_code, (play_codes.max || 0)].max + 1
+    firebase_code + 1
   end
 
   private_lane :add_testers_from_file do |options|

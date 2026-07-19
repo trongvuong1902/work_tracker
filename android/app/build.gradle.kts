@@ -28,7 +28,7 @@ val googleMapsApiKey: String = localProperties.getProperty("GOOGLE_MAPS_API_KEY"
 val googleMapsApiKeyDev: String =
     localProperties.getProperty("GOOGLE_MAPS_API_KEY_DEV", "").ifBlank { googleMapsApiKey }
 
-// Release signing config, read from env vars (see docs/play_store_setup.md).
+// Release signing config, read from env vars (see android/fastlane/.env.example).
 // Falls back to the debug keystore when unset, so `flutter run --release`
 // keeps working locally with no keystore provisioned.
 val androidKeystoreFilepath: String? = System.getenv("ANDROID_KEYSTORE_FILEPATH")

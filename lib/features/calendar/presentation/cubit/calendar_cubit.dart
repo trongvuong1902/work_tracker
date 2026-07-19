@@ -8,9 +8,9 @@ import 'package:work_tracker/features/calendar/domain/models/calendar_day.dart';
 import 'package:work_tracker/features/calendar/domain/models/day_summary_display.dart';
 import 'package:work_tracker/features/calendar/domain/models/month_summary.dart';
 import 'package:work_tracker/features/schedule/domain/work_schedule_repository.dart';
-import 'package:work_tracker/features/task/domain/models/task.dart';
-import 'package:work_tracker/features/task/domain/task_repository.dart';
-import 'package:work_tracker/features/task/domain/task_time_log_repository.dart';
+import 'package:work_tracker/features/work_item/domain/models/work_item.dart';
+import 'package:work_tracker/features/work_item/domain/work_item_repository.dart';
+import 'package:work_tracker/features/work_item/domain/work_item_time_log_repository.dart';
 
 import 'calendar_state.dart';
 
@@ -18,8 +18,8 @@ import 'calendar_state.dart';
 class CalendarCubit extends Cubit<CalendarState> {
   final AttendanceRepository _attendanceRepository;
   final WorkScheduleRepository _workScheduleRepository;
-  final TaskRepository _taskRepository;
-  final TaskTimeLogRepository _timeLogRepository;
+  final WorkItemRepository _taskRepository;
+  final WorkItemTimeLogRepository _timeLogRepository;
   late final StreamSubscription<Attendance?> _attendanceSubscription;
   late final StreamSubscription<void> _taskSubscription;
 
@@ -37,7 +37,7 @@ class CalendarCubit extends Cubit<CalendarState> {
       ) {
     _loadMonth();
     // Calendar's tab is kept alive across tab switches by the shell route,
-    // so it must react to edits made from other tabs (e.g. Home, Task detail)
+    // so it must react to edits made from other tabs (e.g. Home, WorkItem detail)
     // rather than only reloading when the user re-interacts with Calendar.
     _attendanceSubscription = _attendanceRepository.watchAttendanceChanges().listen(
       (_) => _loadMonth(),
@@ -66,7 +66,7 @@ class CalendarCubit extends Cubit<CalendarState> {
         state.year,
         state.month,
       );
-      final plannedByDayKey = <int, List<Task>>{};
+      final plannedByDayKey = <int, List<WorkItem>>{};
       for (final task in plannedTasks) {
         final planned = task.plannedDate;
         if (planned == null) continue;

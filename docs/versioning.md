@@ -1,7 +1,7 @@
 # Versioning & release builds
 
 How WorkTracker versions builds across iOS (TestFlight) and Android (Firebase App
-Distribution beta + Play Store internal). Two independent things — the **version name** and the
+Distribution). Two independent things — the **version name** and the
 **build number** — must never be conflated.
 
 > For the branching model and which audience each channel serves (internal → public testers →
@@ -29,10 +29,9 @@ builds.
 
 - **iOS (TestFlight → App Store):** one counter — `latest_testflight_build_number + 1`
   (`ios/fastlane/Fastfile` `beta`).
-- **Android — one unified counter across Firebase beta AND Play Store.** Both lanes draw from
-  `max(latest Firebase buildVersion, latest Play versionCode) + 1` via the
-  `next_android_version_code` private_lane in `android/fastlane/Fastfile`. Keeping them unified means
-  a Firebase tester is never blocked from a Play upgrade (Android refuses `versionCode` downgrades).
+- **Android — one Firebase counter.** Both the `beta` and `internal` lanes draw from
+  `latest Firebase buildVersion + 1` via the `next_android_version_code` private_lane in
+  `android/fastlane/Fastfile`, so every upload gets a strictly higher, distinct `versionCode`.
 
 ### Why a new Firebase upload must have a higher versionCode
 
@@ -60,18 +59,18 @@ For **internal testers only** (iOS TestFlight internal testers + Firebase `inter
 ./scripts/ship_internal.sh
 ```
 
-iOS internal testers auto-receive every uploaded build (no review/group); the Android lane is run
-with `FIREBASE_GROUP=internal`.
+iOS internal testers auto-receive every uploaded build (no review/group); the Android `internal`
+lane distributes to the Firebase `internal` group.
 
 To ship a single channel, run that lane directly:
 
 ```bash
 cd ios && bundle exec fastlane beta        # TestFlight only
-cd android && bundle exec fastlane beta    # Firebase only
-cd android && bundle exec fastlane internal # Play Store internal track (AAB)
+cd android && bundle exec fastlane beta    # Firebase (FIREBASE_GROUP)
+cd android && bundle exec fastlane internal # Firebase (group: internal)
 ```
 
-For a **production** release to both stores (App Store submit + Play `production` track):
+For a **production** release (iOS App Store submit; Android is Firebase-only, no store lane):
 
 ```bash
 ./scripts/ship_production.sh
@@ -89,7 +88,7 @@ See [release_flow.md](release_flow.md) for the full tag-and-promote runbook.
 
 ## Release builds always start from a clean state
 
-`scripts/build_release_apk.sh`, `build_release_aab.sh`, and `build_release_ipa.sh` each run
+`scripts/build_release_apk.sh` and `build_release_ipa.sh` each run
 `fvm flutter clean` before building. Without it the Android Gradle/Flutter build could reuse a cached
 `libapp.so` and ship a **stale Dart snapshot under a freshly-bumped version** — the manifest reads
 the new version (name/code are injected at the Gradle layer) while the app runs old code. Correctness
@@ -99,7 +98,7 @@ matters more than build speed for releases, so every release build recompiles fr
 
 - The Firebase release object exposes the build number as `buildVersion` (name is `displayVersion`).
   If a future plugin version renames this, update `next_android_version_code`.
-- Play Store release notes are **not** wired into the `internal` lane (it skips metadata); only the
-  Firebase `beta` lane applies release notes (`FIREBASE_RELEASE_NOTES`).
+- Both Android lanes (`beta`, `internal`) apply release notes (`FIREBASE_RELEASE_NOTES`) via the
+  shared `distribute_firebase` lane.
 - Prerequisites and credentials for each lane are covered by the release-engineer agent contract and
-  `docs/fastlane_*`/`docs/play_store_setup.md`.
+  `docs/fastlane_*`.

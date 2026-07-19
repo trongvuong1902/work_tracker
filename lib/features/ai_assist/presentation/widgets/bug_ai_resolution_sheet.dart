@@ -8,12 +8,12 @@ import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/ai_assist/domain/ai_target.dart';
 import 'package:work_tracker/features/ai_assist/presentation/cubit/bug_ai_cubit.dart';
-import 'package:work_tracker/features/task/domain/models/task.dart';
+import 'package:work_tracker/features/work_item/domain/models/work_item.dart';
 
 /// Opens the "AI fix prompt" bottom sheet for [task]'s linked bug. The model
 /// generates a fix prompt tailored to the selected target platform, kicked off
 /// once when the sheet appears.
-void showBugAiResolutionSheet(BuildContext context, Task task) {
+void showBugAiResolutionSheet(BuildContext context, WorkItem task) {
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -27,7 +27,7 @@ void showBugAiResolutionSheet(BuildContext context, Task task) {
 class _BugAiResolutionSheet extends StatefulWidget {
   const _BugAiResolutionSheet({required this.task});
 
-  final Task task;
+  final WorkItem task;
 
   @override
   State<_BugAiResolutionSheet> createState() => _BugAiResolutionSheetState();

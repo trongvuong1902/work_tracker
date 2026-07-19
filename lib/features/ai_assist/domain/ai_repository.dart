@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 
-import '../../task/domain/models/task.dart';
+import '../../work_item/domain/models/work_item.dart';
 import '../data/ai_client.dart';
 import '../data/ai_prefs.dart';
 import 'ai_prompt_builder.dart';
@@ -29,7 +29,7 @@ abstract class AiRepository {
   /// [task]'s linked Zentao bug. When no framework is cached the model emits a
   /// leading `FRAMEWORK: <name>` marker line (see [aiFrameworkMarker]) for the
   /// caller to cache and strip.
-  Stream<String> generatePrompt(Task task, AiTarget target);
+  Stream<String> generatePrompt(WorkItem task, AiTarget target);
 }
 
 @LazySingleton(as: AiRepository)
@@ -59,7 +59,7 @@ class AiRepositoryImpl implements AiRepository {
   Future<void> clearFramework() => _prefs.clearFramework();
 
   @override
-  Stream<String> generatePrompt(Task task, AiTarget target) {
+  Stream<String> generatePrompt(WorkItem task, AiTarget target) {
     final prompt = buildAiPromptRequest(
       task,
       target,

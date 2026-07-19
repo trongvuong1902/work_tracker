@@ -6,7 +6,7 @@ import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/spacing/app_spacing.dart';
 import 'package:work_tracker/core/typography/app_typography.dart';
 import 'package:work_tracker/di/injection.dart';
-import 'package:work_tracker/features/task/domain/models/task.dart';
+import 'package:work_tracker/features/work_item/domain/models/work_item.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_bug.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_import_kind.dart';
 import 'package:work_tracker/features/zentao/domain/models/zentao_task.dart';
@@ -18,7 +18,7 @@ import 'package:work_tracker/features/zentao/presentation/cubit/zentao_product_p
 /// tasks or bugs (per [kind]) assigned to me under it, then the resulting
 /// list (all within this same page/cubit — no separate route for the item
 /// list). Tapping an item imports it immediately and pops the whole flow
-/// back to the Task List with a confirmation snackbar.
+/// back to the WorkItem List with a confirmation snackbar.
 class ZentaoProductPickerPage extends StatelessWidget {
   const ZentaoProductPickerPage({super.key, required this.kind});
 
@@ -53,9 +53,9 @@ class _ZentaoProductPickerViewState extends State<_ZentaoProductPickerView> {
     await _handleImportResult(await cubit.importBug(bug));
   }
 
-  /// On a non-null [imported], returns to the Task List with a confirmation
+  /// On a non-null [imported], returns to the WorkItem List with a confirmation
   /// snackbar.
-  Future<void> _handleImportResult(Task? imported) async {
+  Future<void> _handleImportResult(WorkItem? imported) async {
     if (imported == null || !mounted) return;
 
     // Capture the (app-root) ScaffoldMessenger before navigating — it's the
@@ -63,7 +63,7 @@ class _ZentaoProductPickerViewState extends State<_ZentaoProductPickerView> {
     // even after this page (several levels deep) is gone.
     final messenger = ScaffoldMessenger.of(context);
     // Go to the Tasks tab explicitly. This clears the whole import flow AND
-    // guarantees we land on the Task List (which reloads on return), unlike
+    // guarantees we land on the WorkItem List (which reloads on return), unlike
     // popUntil(isFirst), which in this shell setup can leave the app on a
     // different bottom-nav branch so the freshly imported task looks missing.
     AppNavigator.goTasks(context);
@@ -197,7 +197,7 @@ class _ZentaoProductPickerViewState extends State<_ZentaoProductPickerView> {
 
   Widget _buildTaskRow(ZentaoProductPickerState state, ZentaoTask task) {
     final isImporting = state.importingId == task.id;
-    return _TaskPickerRow(
+    return _WorkItemPickerRow(
       task: task,
       isImporting: isImporting,
       onTap: state.importingId != null ? null : () => _importTask(task),
@@ -242,8 +242,8 @@ class _PickerRow extends StatelessWidget {
   }
 }
 
-class _TaskPickerRow extends StatelessWidget {
-  const _TaskPickerRow({
+class _WorkItemPickerRow extends StatelessWidget {
+  const _WorkItemPickerRow({
     required this.task,
     required this.isImporting,
     required this.onTap,

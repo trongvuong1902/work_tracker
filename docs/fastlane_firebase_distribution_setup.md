@@ -130,7 +130,7 @@ release builds with the **debug** keystore (see
 yet, so the SHA-1 to register is whatever `debug.keystore`'s is
 (`./gradlew signingReport` from `android/` prints it). This is a known,
 deliberate gap — see `android/app/build.gradle.kts`'s `release` buildType
-comment — and should be revisited if/when a real Play Store release
+comment — and should be revisited if/when a dedicated release signing
 keystore is introduced.
 
 ## Manual steps that still require the Firebase/GCP web console

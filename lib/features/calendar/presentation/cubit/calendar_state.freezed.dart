@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CalendarState {
 
- bool get isLoading; int get year; int get month; DateTime get selectedDate; List<CalendarDayModel> get days; MonthSummary get summary; WorkSchedule? get schedule; bool get isSelectedDateWorkingDay; List<Task> get plannedTasksForSelectedDay; List<DayWorkedTask> get workedTasksForSelectedDay; DaySummaryDisplayState get displayState; String? get editErrorMessage; String? get errorMessage;
+ bool get isLoading; int get year; int get month; DateTime get selectedDate; List<CalendarDayModel> get days; MonthSummary get summary; WorkSchedule? get schedule; bool get isSelectedDateWorkingDay; List<WorkItem> get plannedTasksForSelectedDay; List<DayWorkedTask> get workedTasksForSelectedDay; DaySummaryDisplayState get displayState; String? get editErrorMessage; String? get errorMessage;
 /// Create a copy of CalendarState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,7 +45,7 @@ abstract mixin class $CalendarStateCopyWith<$Res>  {
   factory $CalendarStateCopyWith(CalendarState value, $Res Function(CalendarState) _then) = _$CalendarStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, int year, int month, DateTime selectedDate, List<CalendarDayModel> days, MonthSummary summary, WorkSchedule? schedule, bool isSelectedDateWorkingDay, List<Task> plannedTasksForSelectedDay, List<DayWorkedTask> workedTasksForSelectedDay, DaySummaryDisplayState displayState, String? editErrorMessage, String? errorMessage
+ bool isLoading, int year, int month, DateTime selectedDate, List<CalendarDayModel> days, MonthSummary summary, WorkSchedule? schedule, bool isSelectedDateWorkingDay, List<WorkItem> plannedTasksForSelectedDay, List<DayWorkedTask> workedTasksForSelectedDay, DaySummaryDisplayState displayState, String? editErrorMessage, String? errorMessage
 });
 
 
@@ -73,7 +73,7 @@ as List<CalendarDayModel>,summary: null == summary ? _self.summary : summary // 
 as MonthSummary,schedule: freezed == schedule ? _self.schedule : schedule // ignore: cast_nullable_to_non_nullable
 as WorkSchedule?,isSelectedDateWorkingDay: null == isSelectedDateWorkingDay ? _self.isSelectedDateWorkingDay : isSelectedDateWorkingDay // ignore: cast_nullable_to_non_nullable
 as bool,plannedTasksForSelectedDay: null == plannedTasksForSelectedDay ? _self.plannedTasksForSelectedDay : plannedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
-as List<Task>,workedTasksForSelectedDay: null == workedTasksForSelectedDay ? _self.workedTasksForSelectedDay : workedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
+as List<WorkItem>,workedTasksForSelectedDay: null == workedTasksForSelectedDay ? _self.workedTasksForSelectedDay : workedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
 as List<DayWorkedTask>,displayState: null == displayState ? _self.displayState : displayState // ignore: cast_nullable_to_non_nullable
 as DaySummaryDisplayState,editErrorMessage: freezed == editErrorMessage ? _self.editErrorMessage : editErrorMessage // ignore: cast_nullable_to_non_nullable
 as String?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -183,7 +183,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<Task> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<WorkItem> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CalendarState() when $default != null:
 return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.plannedTasksForSelectedDay,_that.workedTasksForSelectedDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
@@ -204,7 +204,7 @@ return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<Task> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<WorkItem> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _CalendarState():
 return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.plannedTasksForSelectedDay,_that.workedTasksForSelectedDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
@@ -224,7 +224,7 @@ return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<Task> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  int year,  int month,  DateTime selectedDate,  List<CalendarDayModel> days,  MonthSummary summary,  WorkSchedule? schedule,  bool isSelectedDateWorkingDay,  List<WorkItem> plannedTasksForSelectedDay,  List<DayWorkedTask> workedTasksForSelectedDay,  DaySummaryDisplayState displayState,  String? editErrorMessage,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _CalendarState() when $default != null:
 return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.days,_that.summary,_that.schedule,_that.isSelectedDateWorkingDay,_that.plannedTasksForSelectedDay,_that.workedTasksForSelectedDay,_that.displayState,_that.editErrorMessage,_that.errorMessage);case _:
@@ -239,7 +239,7 @@ return $default(_that.isLoading,_that.year,_that.month,_that.selectedDate,_that.
 
 
 class _CalendarState implements CalendarState {
-  const _CalendarState({this.isLoading = true, required this.year, required this.month, required this.selectedDate, final  List<CalendarDayModel> days = const <CalendarDayModel>[], this.summary = const MonthSummary(), this.schedule, this.isSelectedDateWorkingDay = false, final  List<Task> plannedTasksForSelectedDay = const <Task>[], final  List<DayWorkedTask> workedTasksForSelectedDay = const <DayWorkedTask>[], this.displayState = DaySummaryDisplayState.noScheduleSetUp, this.editErrorMessage, this.errorMessage}): _days = days,_plannedTasksForSelectedDay = plannedTasksForSelectedDay,_workedTasksForSelectedDay = workedTasksForSelectedDay;
+  const _CalendarState({this.isLoading = true, required this.year, required this.month, required this.selectedDate, final  List<CalendarDayModel> days = const <CalendarDayModel>[], this.summary = const MonthSummary(), this.schedule, this.isSelectedDateWorkingDay = false, final  List<WorkItem> plannedTasksForSelectedDay = const <WorkItem>[], final  List<DayWorkedTask> workedTasksForSelectedDay = const <DayWorkedTask>[], this.displayState = DaySummaryDisplayState.noScheduleSetUp, this.editErrorMessage, this.errorMessage}): _days = days,_plannedTasksForSelectedDay = plannedTasksForSelectedDay,_workedTasksForSelectedDay = workedTasksForSelectedDay;
   
 
 @override@JsonKey() final  bool isLoading;
@@ -256,8 +256,8 @@ class _CalendarState implements CalendarState {
 @override@JsonKey() final  MonthSummary summary;
 @override final  WorkSchedule? schedule;
 @override@JsonKey() final  bool isSelectedDateWorkingDay;
- final  List<Task> _plannedTasksForSelectedDay;
-@override@JsonKey() List<Task> get plannedTasksForSelectedDay {
+ final  List<WorkItem> _plannedTasksForSelectedDay;
+@override@JsonKey() List<WorkItem> get plannedTasksForSelectedDay {
   if (_plannedTasksForSelectedDay is EqualUnmodifiableListView) return _plannedTasksForSelectedDay;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_plannedTasksForSelectedDay);
@@ -304,7 +304,7 @@ abstract mixin class _$CalendarStateCopyWith<$Res> implements $CalendarStateCopy
   factory _$CalendarStateCopyWith(_CalendarState value, $Res Function(_CalendarState) _then) = __$CalendarStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, int year, int month, DateTime selectedDate, List<CalendarDayModel> days, MonthSummary summary, WorkSchedule? schedule, bool isSelectedDateWorkingDay, List<Task> plannedTasksForSelectedDay, List<DayWorkedTask> workedTasksForSelectedDay, DaySummaryDisplayState displayState, String? editErrorMessage, String? errorMessage
+ bool isLoading, int year, int month, DateTime selectedDate, List<CalendarDayModel> days, MonthSummary summary, WorkSchedule? schedule, bool isSelectedDateWorkingDay, List<WorkItem> plannedTasksForSelectedDay, List<DayWorkedTask> workedTasksForSelectedDay, DaySummaryDisplayState displayState, String? editErrorMessage, String? errorMessage
 });
 
 
@@ -332,7 +332,7 @@ as List<CalendarDayModel>,summary: null == summary ? _self.summary : summary // 
 as MonthSummary,schedule: freezed == schedule ? _self.schedule : schedule // ignore: cast_nullable_to_non_nullable
 as WorkSchedule?,isSelectedDateWorkingDay: null == isSelectedDateWorkingDay ? _self.isSelectedDateWorkingDay : isSelectedDateWorkingDay // ignore: cast_nullable_to_non_nullable
 as bool,plannedTasksForSelectedDay: null == plannedTasksForSelectedDay ? _self._plannedTasksForSelectedDay : plannedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
-as List<Task>,workedTasksForSelectedDay: null == workedTasksForSelectedDay ? _self._workedTasksForSelectedDay : workedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
+as List<WorkItem>,workedTasksForSelectedDay: null == workedTasksForSelectedDay ? _self._workedTasksForSelectedDay : workedTasksForSelectedDay // ignore: cast_nullable_to_non_nullable
 as List<DayWorkedTask>,displayState: null == displayState ? _self.displayState : displayState // ignore: cast_nullable_to_non_nullable
 as DaySummaryDisplayState,editErrorMessage: freezed == editErrorMessage ? _self.editErrorMessage : editErrorMessage // ignore: cast_nullable_to_non_nullable
 as String?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable

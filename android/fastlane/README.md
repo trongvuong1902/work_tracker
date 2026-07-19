@@ -23,6 +23,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build the release APK (via repo build script) and distribute it via Firebase App Distribution
 
+### android internal
+
+```sh
+[bundle exec] fastlane android internal
+```
+
+Build the release APK (via repo build script) and distribute it via Firebase App Distribution to the 'internal' testers group
+
 ### android add_internal_testers
 
 ```sh
@@ -38,30 +46,6 @@ Add/update testers from android/fastlane/internal_testers.txt into the Firebase 
 ```
 
 Add/update testers from android/fastlane/nexsoft_testers.txt into the Firebase 'Nexsoft' testers group
-
-### android internal
-
-```sh
-[bundle exec] fastlane android internal
-```
-
-Build the release AAB (via repo build script) and upload it to the Play Store Internal testing track
-
-### android production
-
-```sh
-[bundle exec] fastlane android production
-```
-
-Build the release AAB (via repo build script) and upload it to the Play Store production track
-
-### android promote_to_production
-
-```sh
-[bundle exec] fastlane android promote_to_production
-```
-
-Promote the latest build on the internal track to production without rebuilding
 
 ----
 

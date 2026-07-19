@@ -7,7 +7,7 @@
 # Both lanes read the version NAME from pubspec.yaml (a deliberate human bump —
 # see docs/versioning.md) and auto-increment their own build NUMBER, so each
 # run is a distinct, new/latest build on each channel. This only builds and
-# uploads a fresh beta; it does not touch the Play Store or submit for review.
+# uploads a fresh beta; it does not submit for review.
 #
 # Usage: ./scripts/ship_beta.sh
 # Prerequisites: see docs/versioning.md and the release-engineer agent contract

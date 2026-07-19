@@ -5,8 +5,8 @@ import 'package:work_tracker/components/components.dart';
 import 'package:work_tracker/core/core.dart';
 import 'package:work_tracker/di/injection.dart';
 import 'package:work_tracker/features/calendar/domain/models/calendar_day.dart';
-import 'package:work_tracker/features/task/domain/models/task.dart';
-import 'package:work_tracker/features/task/presentation/widgets/priority_badge.dart';
+import 'package:work_tracker/features/work_item/domain/models/work_item.dart';
+import 'package:work_tracker/features/work_item/presentation/widgets/priority_badge.dart';
 import 'package:work_tracker/features/calendar/domain/models/day_status.dart';
 import 'package:work_tracker/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:work_tracker/features/calendar/presentation/cubit/calendar_state.dart';
@@ -15,15 +15,15 @@ import 'package:work_tracker/features/calendar/presentation/widgets/month_grid.d
 import 'package:work_tracker/features/calendar/presentation/widgets/month_header.dart';
 import 'package:work_tracker/features/calendar/presentation/widgets/month_summary_row.dart';
 import 'package:work_tracker/features/calendar/presentation/widgets/weekday_row.dart';
-import 'package:work_tracker/features/task/presentation/widgets/add_planned_tasks_sheet.dart';
+import 'package:work_tracker/features/work_item/presentation/widgets/add_planned_tasks_sheet.dart';
 
 /// A task's inline info: line 1 = priority badge (or a done check) alongside
 /// `#id`; line 2 = title (strikethrough when done); optional product line.
 /// Read-only — never changes the task's status.
-class _TaskInfoBody extends StatelessWidget {
-  const _TaskInfoBody({required this.task, this.showProduct = false});
+class _WorkItemInfoBody extends StatelessWidget {
+  const _WorkItemInfoBody({required this.task, this.showProduct = false});
 
-  final Task task;
+  final WorkItem task;
   final bool showProduct;
 
   @override
@@ -81,7 +81,7 @@ class _TaskInfoBody extends StatelessWidget {
 class _PlannedTasksSection extends StatelessWidget {
   const _PlannedTasksSection({required this.tasks});
 
-  final List<Task> tasks;
+  final List<WorkItem> tasks;
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +125,7 @@ class _PlannedTaskRow extends StatelessWidget {
     required this.onRemove,
   });
 
-  final Task task;
+  final WorkItem task;
   final VoidCallback onRemove;
 
   @override
@@ -147,7 +147,7 @@ class _PlannedTaskRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
           child: Row(
             children: [
-              Expanded(child: _TaskInfoBody(task: task, showProduct: true)),
+              Expanded(child: _WorkItemInfoBody(task: task, showProduct: true)),
               const SizedBox(width: AppSpacing.space8),
               const Icon(Icons.chevron_right, size: 18),
             ],
@@ -216,7 +216,7 @@ class _WorkedTasksSection extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Expanded(child: _TaskInfoBody(task: item.task)),
+                      Expanded(child: _WorkItemInfoBody(task: item.task)),
                       const SizedBox(width: AppSpacing.space8),
                       Text(
                         TimeFormat.hMm(item.seconds ~/ 60),
