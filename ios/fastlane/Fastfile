@@ -118,6 +118,38 @@ platform :ios do
     end
   end
 
+  desc "Submit an already-uploaded TestFlight build to the App Store for review (no rebuild)"
+  lane :submit_review do
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: File.expand_path(ENV.fetch("ASC_KEY_FILEPATH"), __dir__)
+    )
+
+    # Submit the build that's ALREADY on TestFlight for App Store review, rather
+    # than rebuilding — so the external-tester build and the reviewed build are
+    # the same binary. Defaults to the latest processed build; override with
+    # SUBMIT_BUILD_NUMBER to pin a specific one. External TestFlight beta review
+    # and App Store review are independent, so a build can be in both at once.
+    build_number = (ENV["SUBMIT_BUILD_NUMBER"] || latest_testflight_build_number(api_key: api_key)).to_s
+
+    upload_to_app_store(
+      api_key: api_key,
+      build_number: build_number,
+      skip_binary_upload: true,
+      submit_for_review: true,
+      automatic_release: false,
+      force: true,
+      precheck_include_in_app_purchases: false,
+      skip_metadata: true,
+      skip_screenshots: true,
+      submission_information: {
+        add_id_info_uses_idfa: false,
+        export_compliance_uses_encryption: false
+      }
+    )
+  end
+
   desc "Distribute the most recently uploaded build to the External Testers group"
   lane :distribute_beta do
     api_key = app_store_connect_api_key(

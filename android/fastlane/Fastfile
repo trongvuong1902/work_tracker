@@ -11,6 +11,36 @@ platform :android do
     distribute_firebase(group: "internal")
   end
 
+  desc "Build the release AAB (via repo build script) and upload it to the Play Store Closed testing track"
+  lane :closed do
+    repo_root = File.expand_path("../..", __dir__)
+
+    # versionName comes from pubspec.yaml (a deliberate human decision — see
+    # docs/versioning.md); CI only sets the versionCode, from the unified
+    # Play/Firebase counter so it's strictly higher than anything published.
+    ENV["BUILD_NUMBER"] = next_android_version_code.to_s
+
+    sh("#{repo_root}/scripts/build_release_aab.sh")
+
+    aab_path = Dir.glob("#{repo_root}/build/app/outputs/bundle/**/*-release.aab").max_by { |f| File.mtime(f) }
+    UI.user_error!("No release .aab found under build/app/outputs/bundle after build_release_aab.sh") unless aab_path
+
+    # Upload only the binary — store listing/metadata/screenshots are managed
+    # manually in Play Console (mirrors how the iOS release lane skips metadata).
+    # release_status "completed" makes it immediately live to the closed testers.
+    upload_to_play_store(
+      package_name: ENV.fetch("PLAY_STORE_PACKAGE_NAME"),
+      json_key: File.expand_path(ENV.fetch("PLAY_STORE_JSON_KEY_FILEPATH"), __dir__),
+      aab: aab_path,
+      track: ENV.fetch("PLAY_CLOSED_TRACK", "alpha"),
+      release_status: "completed",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: true
+    )
+  end
+
   desc "Add/update testers from android/fastlane/internal_testers.txt into the Firebase 'internal' testers group"
   lane :add_internal_testers do
     add_testers_from_file(file: "internal_testers.txt", group: "internal")
@@ -48,12 +78,16 @@ platform :android do
     )
   end
 
-  # Next Android versionCode, drawn from the latest Firebase App Distribution
-  # release + 1 so every build is a strictly-higher, distinct release (Firebase
-  # keys releases by versionName+versionCode; a repeated code just updates the
-  # existing one). Both `beta` and `internal` use this so their counters never
-  # diverge.
+  # Next Android versionCode: the max across the Firebase App Distribution
+  # counter AND every Play Store track we ship to, + 1 — so each build is a
+  # strictly-higher, distinct release everywhere. Play requires versionCodes to
+  # be globally unique per app across ALL tracks (a code used on one track can't
+  # be reused on another — see docs/play_store_setup.md), so the Play-facing
+  # lanes must span internal/closed/production, not just Firebase. Firebase keys
+  # releases by versionName+versionCode; a repeated code just updates the
+  # existing one. All lanes share this so their counters never diverge.
   private_lane :next_android_version_code do
+    # Firebase App Distribution counter (used by the beta/internal Firebase lanes).
     firebase_latest = firebase_app_distribution_get_latest_release(
       app: ENV.fetch("FIREBASE_APP_ID"),
       service_credentials_file: File.expand_path(ENV.fetch("FIREBASE_SERVICE_ACCOUNT_FILEPATH"), __dir__)
@@ -61,7 +95,36 @@ platform :android do
     # The release object exposes the build number as `buildVersion` (the
     # version name is `displayVersion`).
     firebase_code = firebase_latest ? (firebase_latest["buildVersion"] || firebase_latest[:buildVersion]).to_i : 0
-    firebase_code + 1
+
+    # Play Store versionCodes across every track we target. Only queried when a
+    # Play service-account key is configured (the Firebase-only lanes skip this).
+    play_codes = [0]
+    json_key_rel = ENV["PLAY_STORE_JSON_KEY_FILEPATH"]
+    if json_key_rel && File.exist?(File.expand_path(json_key_rel, __dir__))
+      package_name = ENV.fetch("PLAY_STORE_PACKAGE_NAME")
+      json_key = File.expand_path(json_key_rel, __dir__)
+      tracks = [
+        ENV.fetch("PLAY_STORE_TRACK", "internal"),
+        ENV.fetch("PLAY_CLOSED_TRACK", "alpha"),
+        "production"
+      ].uniq
+      tracks.each do |track|
+        begin
+          codes = google_play_track_version_codes(
+            package_name: package_name,
+            json_key: json_key,
+            track: track
+          )
+          play_codes.concat(Array(codes).map(&:to_i))
+        rescue => e
+          # A track with no releases yet (or not created) raises — skip it and
+          # keep scanning the others rather than failing the whole build.
+          UI.important("Skipping Play track '#{track}' when computing versionCode: #{e.message}")
+        end
+      end
+    end
+
+    ([firebase_code] + play_codes).max + 1
   end
 
   private_lane :add_testers_from_file do |options|
