@@ -229,6 +229,9 @@ class FakeLeaveReminderRepository implements LeaveReminderRepository {
   Future<LeaveReminderSettings> getSettings() async => settings;
 
   @override
+  Stream<void> watchLeaveInfoChanges() => const Stream.empty();
+
+  @override
   Future<EnableLeaveReminderResult> setEnabled(bool enabled) =>
       throw UnimplementedError();
 

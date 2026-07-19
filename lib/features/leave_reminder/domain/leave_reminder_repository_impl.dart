@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +54,17 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     this._notificationLogDao,
   );
 
+  // Broadcasts whenever leave-time-relevant state changes so reactive
+  // consumers (e.g. the Home hero card) can re-read the computed leave/arrival
+  // time. This repo is an app-lifetime @LazySingleton, so — like the attendance
+  // stream — the controller is intentionally never closed.
+  final _leaveInfoController = StreamController<void>.broadcast();
+
+  @override
+  Stream<void> watchLeaveInfoChanges() => _leaveInfoController.stream;
+
+  void _notifyLeaveInfoChanged() => _leaveInfoController.add(null);
+
   @override
   Future<LeaveReminderSettings> getSettings() => _datasource.getSettings();
 
@@ -72,6 +85,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
         frequency: const Duration(hours: 6),
       );
 
+      _notifyLeaveInfoChanged();
       await scheduleTodayReminders();
       return EnableLeaveReminderResult.success;
     }
@@ -82,6 +96,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
 
     final settings = await getSettings();
     await _datasource.saveSettings(settings.copyWith(enabled: false));
+    _notifyLeaveInfoChanged();
     return EnableLeaveReminderResult.success;
   }
 
@@ -93,6 +108,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     // An average spanning a location change is meaningless — reset history
     // whenever either endpoint is set, even to the same point.
     _commuteSampleDao.deleteAll();
+    _notifyLeaveInfoChanged();
     return updated;
   }
 
@@ -102,6 +118,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     final updated = settings.copyWith(work: point);
     await _datasource.saveSettings(updated);
     _commuteSampleDao.deleteAll();
+    _notifyLeaveInfoChanged();
     return updated;
   }
 
@@ -119,6 +136,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     );
     await _datasource.saveSettings(updated);
     _commuteSampleDao.deleteAll();
+    _notifyLeaveInfoChanged();
     return updated;
   }
 
@@ -132,6 +150,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     final updated = settings.copyWith(waypoints: updatedWaypoints);
     await _datasource.saveSettings(updated);
     _commuteSampleDao.deleteAll();
+    _notifyLeaveInfoChanged();
     return updated;
   }
 
@@ -149,6 +168,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     final updated = settings.copyWith(waypoints: updatedWaypoints);
     await _datasource.saveSettings(updated);
     _commuteSampleDao.deleteAll();
+    _notifyLeaveInfoChanged();
     return updated;
   }
 
@@ -164,6 +184,7 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
     final updated = settings.copyWith(waypoints: updatedWaypoints);
     await _datasource.saveSettings(updated);
     _commuteSampleDao.deleteAll();
+    _notifyLeaveInfoChanged();
     return updated;
   }
 
@@ -205,6 +226,9 @@ class LeaveReminderRepositoryImpl implements LeaveReminderRepository {
         estimate.durationInTrafficMinutes,
         DateTime.now(),
       );
+      // Fresh commute cached → leave/arrival time is now computable; notify
+      // reactive consumers (e.g. the Home hero card).
+      _notifyLeaveInfoChanged();
 
       final recent = _commuteSampleDao.getSince(
         DateTime.now().subtract(kCommuteSampleCooldown),

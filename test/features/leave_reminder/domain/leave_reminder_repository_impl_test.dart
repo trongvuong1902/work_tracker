@@ -382,6 +382,32 @@ void main() {
     });
   });
 
+  group('watchLeaveInfoChanges', () {
+    const point = GeoPoint(latitude: 1, longitude: 2);
+
+    // The reported bug: the Home hero card didn't refresh the leave-home time
+    // when a location was set in Settings. These assert the repository now
+    // broadcasts on those mutations so reactive consumers can re-read.
+    test('emits when the home location is set', () async {
+      await setUpRepository();
+      expectLater(repository.watchLeaveInfoChanges(), emits(null));
+      await repository.setHomeLocation(point);
+    });
+
+    test('emits when the work location is set', () async {
+      await setUpRepository();
+      expectLater(repository.watchLeaveInfoChanges(), emits(null));
+      await repository.setWorkLocation(point);
+    });
+
+    test('emits once per mutation (home then work)', () async {
+      await setUpRepository();
+      expectLater(repository.watchLeaveInfoChanges(), emitsInOrder([null, null]));
+      await repository.setHomeLocation(point);
+      await repository.setWorkLocation(point);
+    });
+  });
+
   group('getLeaveTime', () {
     test('null when reminders are disabled', () async {
       await setUpRepository(

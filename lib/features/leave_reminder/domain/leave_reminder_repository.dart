@@ -8,6 +8,12 @@ enum EnableLeaveReminderResult { success, notificationPermissionDenied }
 
 abstract class LeaveReminderRepository {
   Future<LeaveReminderSettings> getSettings();
+
+  /// Emits whenever leave-time-relevant state changes (home/work location,
+  /// enabled toggle, waypoints, or a freshly cached commute estimate) so
+  /// screens showing the computed leave/arrival time (e.g. the Home hero
+  /// card) can re-read [getLeaveTime]/[getEstimatedArrivalTime] reactively.
+  Stream<void> watchLeaveInfoChanges();
   Future<EnableLeaveReminderResult> setEnabled(bool enabled);
   Future<LeaveReminderSettings> setHomeLocation(GeoPoint point);
   Future<LeaveReminderSettings> setWorkLocation(GeoPoint point);
